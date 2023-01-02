@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+
+	<!-- Set Biosculpter Pod as base class -->
+	<Operation Class="PatchOperationAttributeAdd">
+		<xpath>Defs/ThingDef[defName="BiosculpterPod"]</xpath>
+		<attribute>Name</attribute>
+		<value>BiosculpterPodBase</value>
+	</Operation>
+	
+	<!-- Add Biosculpter Pod designator dropdown group -->
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/ThingDef[defName="BiosculpterPod"]</xpath>
+		<value>
+			<designatorDropdown>SY_BNV_BiosculpterPods</designatorDropdown>
+		</value>
+	</Operation>
+	
+	<!-- Make Biosculpter Pod's interaction spots overlappable -->
+	<Operation Class="PatchOperationRemove">
+		<xpath>Defs/ThingDef[defName="BiosculpterPod"]/placeWorkers/li["PlaceWorker_PreventInteractionSpotOverlap"]</xpath>
+	</Operation>
+
+	<!-- Add new Biosculpter Pods -->
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs</xpath>
+		<value>
+			<ThingDef ParentName="BiosculpterPodBase">
+				<defName>BiosculpterPod_2x2_Left</defName>
+				<label>biosculpter pod (2x2 left)</label>
+				<graphicData>
+					<texPath>BiosculpterPod/BiosculpterPod_2x2_Left</texPath>
+					<graphicClass>Graphic_Multi</graphicClass>
+					<shadowData>
+						<volume>(1.9,0.6,1.9)</volume>
+					</shadowData>
+					<drawSize>(2,2)</drawSize>
+				</graphicData>
+				<size>(2,2)</size>
+				<interactionCellOffset>(1,0,2)</interactionCellOffset>
+				<designatorDropdown>SY_BNV_BiosculpterPods</designatorDropdown>
+			</ThingDef>
+			
+			<ThingDef ParentName="BiosculpterPodBase">
+				<defName>BiosculpterPod_2x2_Right</defName>
+				<label>biosculpter pod (2x2 right)</label>
+				<graphicData>
+					<texPath>BiosculpterPod/BiosculpterPod_2x2_Right</texPath>
+					<graphicClass>Graphic_Multi</graphicClass>
+					<shadowData>
+						<volume>(1.9,0.6,1.9)</volume>
+					</shadowData>
+					<drawSize>(2,2)</drawSize>
+				</graphicData>
+				<size>(2,2)</size>
+				<interactionCellOffset>(0,0,2)</interactionCellOffset>
+				<designatorDropdown>SY_BNV_BiosculpterPods</designatorDropdown>
+			</ThingDef>
+			
+			<ThingDef ParentName="BiosculpterPodBase">
+				<defName>BiosculpterPod_1x2_Center</defName>
+				<label>biosculpter pod (1x2)</label>
+				<graphicData>
+					<texPath>BiosculpterPod/BiosculpterPod_1x2</texPath>
+					<graphicClass>Graphic_Multi</graphicClass>
+					<shadowData>
+						<volume>(0.9,0.6,1.9)</volume>
+					</shadowData>
+					<drawSize>(1,2)</drawSize>
+				</graphicData>
+				<size>(1,2)</size>
+				<interactionCellOffset>(0,0,2)</interactionCellOffset>
+				<designatorDropdown>SY_BNV_BiosculpterPods</designatorDropdown>
+			</ThingDef>
+			
+			<ThingDef ParentName="BiosculpterPodBase">
+				<defName>BiosculpterPod_1x3_Center</defName>
+				<label>biosculpter pod (1x3)</label>
+				<graphicData>
+					<texPath>BiosculpterPod/BiosculpterPod_1x3</texPath>
+					<graphicClass>Graphic_Multi</graphicClass>
+					<shadowData>
+						<volume>(0.9,0.6,2.9)</volume>
+					</shadowData>
+					<drawSize>(1,3)</drawSize>
+				</graphicData>
+				<size>(1,3)</size>
+				<interactionCellOffset>(0,0,2)</interactionCellOffset>
+				<designatorDropdown>SY_BNV_BiosculpterPods</designatorDropdown>
+			</ThingDef>
+		</value>
+	</Operation>
+
+
+	<!-- Set Neural Supercharger as base class -->
+	<Operation Class="PatchOperationAttributeAdd">
+		<xpath>Defs/FleckDef[defName="NeuralSuperchargerChargedFloor"]</xpath>
+		<attribute>Name</attribute>
+		<value>NeuralSuperchargerChargedFloorBase</value>
+	</Operation>
+	<Operation Class="PatchOperationAttributeAdd">
+		<xpath>Defs/EffecterDef[defName="NeuralSuperchargerCharged"]</xpath>
+		<attribute>Name</attribute>
+		<value>NeuralSuperchargerChargedBase</value>
+	</Operation>
+	<Operation Class="PatchOperationAttributeAdd">
+		<xpath>Defs/ThingDef[defName="NeuralSupercharger"]</xpath>
+		<attribute>Name</attribute>
+		<value>NeuralSuperchargerBase</value>
+	</Operation>
+	
+	<!-- Add Neural Supercharger designator dropdown group -->
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/ThingDef[defName="NeuralSupercharger"]</xpath>
+		<value>
+			<designatorDropdown>SY_BNV_NeuralSuperchargers</designatorDropdown>
+		</value>
+	</Operation>
+
+	<!-- Add new Neural Superchargers -->
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs</xpath>
+		<value>
+			<FleckDef ParentName="NeuralSuperchargerChargedFloorBase">
+				<defName>NeuralSuperchargerChargedFloor_1x2_Center</defName>
+				<!-- adjusted via code -->
+			</FleckDef>
+			<EffecterDef  ParentName="NeuralSuperchargerChargedBase">
+				<defName>NeuralSuperchargerCharged_1x2_Center</defName>
+				<!-- adjusted via code -->
+			</EffecterDef>
+			<ThingDef ParentName="NeuralSuperchargerBase">
+				<defName>NeuralSupercharger_1x2_Center</defName>
+				<label>neural supercharger (1x2)</label>
+				<graphicData>
+					<texPath>NeuralSupercharger/NeuralSupercharger_1x2</texPath>
+					<graphicClass>Graphic_Multi</graphicClass>
+					<shadowData>
+						<volume>(0.85,0.6,1.5)</volume>
+					</shadowData>
+					<drawSize>(1.05,2)</drawSize>
+				</graphicData>
+				<size>(1,2)</size>
+				<interactionCellOffset>(0,0,2)</interactionCellOffset>
+				<designatorDropdown>SY_BNV_NeuralSuperchargers</designatorDropdown>
+			</ThingDef>
+		</value>
+	</Operation>
+	
+	<!-- Make new Neural Superchargers available when respective ideologies are picked -->
+	<Operation Class="PatchOperationConditional">
+		<xpath>Defs/MemeDef[addDesignators/li="NeuralSupercharger"]/addDesignatorGroups</xpath>
+		<match Class="PatchOperationAdd">
+			<xpath>Defs/MemeDef[addDesignators/li="NeuralSupercharger"]/addDesignatorGroups</xpath>
+			<value>
+				<li>SY_BNV_NeuralSuperchargers</li>
+			</value>
+		</match>
+		<nomatch Class="PatchOperationAdd">
+			<xpath>Defs/MemeDef[addDesignators/li="NeuralSupercharger"]</xpath>
+			<value>
+				<addDesignatorGroups>
+					<li>SY_BNV_NeuralSuperchargers</li>
+				</addDesignatorGroups>
+			</value>
+		</nomatch>
+	</Operation>
+	<Operation Class="PatchOperationRemove">
+		<xpath>Defs/MemeDef/addDesignators/li["NeuralSupercharger"]</xpath>
+	</Operation>
+
+</Patch>

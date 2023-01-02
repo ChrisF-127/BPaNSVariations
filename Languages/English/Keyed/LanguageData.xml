@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+
+	<SY_BNV.BiosculpterPodReadyEffecterAlwaysOnTitle>Biosculpter Pod Ready Effect - Always ON</SY_BNV.BiosculpterPodReadyEffecterAlwaysOnTitle>
+	<SY_BNV.BiosculpterPodReadyEffecterAlwaysOnDesc>Change ready effect into solid color
+Mutually exclusive with "always off"</SY_BNV.BiosculpterPodReadyEffecterAlwaysOnDesc>
+	<SY_BNV.BiosculpterPodReadyEffecterAlwaysOffTitle>Biosculpter Pod Ready Effect - Always OFF</SY_BNV.BiosculpterPodReadyEffecterAlwaysOffTitle>
+	<SY_BNV.BiosculpterPodReadyEffecterAlwaysOffDesc>Disable ready effect
+Mutually exclusive with "always on"
+Color settings will not have any effect</SY_BNV.BiosculpterPodReadyEffecterAlwaysOffDesc>
+	
+	<SY_BNV.BiosculpterPodReadyEffecterColorRTitle>Biosculpter Ready Effect - Red</SY_BNV.BiosculpterPodReadyEffecterColorRTitle>
+	<SY_BNV.BiosculpterPodReadyEffecterColorRDesc>Adjust the color (red) of the blinking effect when the Biosculpter is ready
+Changes require reloading!
+(I recommend R .5, G 1, B 1)</SY_BNV.BiosculpterPodReadyEffecterColorRDesc>
+	<SY_BNV.BiosculpterPodReadyEffecterColorGTitle>Biosculpter Ready Effect - Green</SY_BNV.BiosculpterPodReadyEffecterColorGTitle>
+	<SY_BNV.BiosculpterPodReadyEffecterColorGDesc>Adjust the color (green) of the blinking effect when the Biosculpter is ready
+Changes require reloading!
+(I recommend R .5, G 1, B 1)</SY_BNV.BiosculpterPodReadyEffecterColorGDesc>
+	<SY_BNV.BiosculpterPodReadyEffecterColorBTitle>Biosculpter Ready Effect - Blue</SY_BNV.BiosculpterPodReadyEffecterColorBTitle>
+	<SY_BNV.BiosculpterPodReadyEffecterColorBDesc>Adjust the color (blue) of the blinking effect when the Biosculpter is ready
+Changes require reloading!
+(I recommend R .5, G 1, B 1)</SY_BNV.BiosculpterPodReadyEffecterColorBDesc>
+	
+</LanguageData>
