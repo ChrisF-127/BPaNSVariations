@@ -6,8 +6,6 @@ using RimWorld;
 using Verse;
 using UnityEngine;
 
-#warning TODO WorkGiver_HaulToBiosculpterPod.PotentialWorkThingRequest
-
 namespace BPaNSVariations
 {
 	public class BPaNSVariations : HugsLib.ModBase

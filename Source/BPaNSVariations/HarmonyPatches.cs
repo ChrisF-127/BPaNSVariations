@@ -11,6 +11,8 @@ using System.Linq;
 using HugsLib.Settings;
 using System.Collections;
 
+#warning TODO WorkGiver_HaulToBiosculpterPod.PotentialWorkThingRequest
+
 namespace BPaNSVariations
 {
 	[StaticConstructorOnStartup]
@@ -22,13 +24,13 @@ namespace BPaNSVariations
 			var harmony = new Harmony("syrus.bpansvariations");
 
 			harmony.Patch(
-				AccessTools.Method(typeof(CompBiosculpterPod), "PostDraw"),
+				AccessTools.Method(typeof(CompBiosculpterPod), nameof(CompBiosculpterPod.PostDraw)),
 				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_PostDraw_Transpiler)));
 			harmony.Patch(
-				AccessTools.Method(typeof(CompBiosculpterPod), "CompTick"),
+				AccessTools.Method(typeof(CompBiosculpterPod), nameof(CompBiosculpterPod.CompTick)),
 				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_CompTick_Transpiler)));
 			harmony.Patch(
-				AccessTools.Method(typeof(JobGiver_GetNeuralSupercharge), "ClosestSupercharger"),
+				AccessTools.Method(typeof(JobGiver_GetNeuralSupercharge), nameof(JobGiver_GetNeuralSupercharge.ClosestSupercharger)),
 				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.JobGiver_GetNeuralSupercharge_ClosestSupercharger_Transpiler)));
 		}
 		#endregion
@@ -69,13 +71,13 @@ namespace BPaNSVariations
 			return list;
 		}
 
-		static IEnumerable<CodeInstruction> JobGiver_GetNeuralSupercharge_ClosestSupercharger_Transpiler(IEnumerable<CodeInstruction> codeInstructions, ILGenerator generator)
+		static IEnumerable<CodeInstruction> JobGiver_GetNeuralSupercharge_ClosestSupercharger_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
 		{
 			var pawnFieldInfo = default(FieldInfo);
 			var validatorMethodInfo = default(MethodInfo);
 			var applied = false;
 
-			foreach (var instruction in codeInstructions)
+			foreach (var instruction in instructions)
 			{
 				// Find Pawn-FieldInfo (easiest way to find this!)
 				if (instruction.opcode == OpCodes.Ldfld
