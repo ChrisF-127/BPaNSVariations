@@ -7,28 +7,46 @@ using System.Reflection.Emit;
 using System.Reflection;
 using Verse.AI;
 using System;
-using System.Linq;
-using HugsLib.Settings;
-using System.Collections;
-
-#warning TODO WorkGiver_HaulToBiosculpterPod.PotentialWorkThingRequest
 
 namespace BPaNSVariations
 {
 	[StaticConstructorOnStartup]
 	public static class HarmonyPatches
 	{
+		private const int ThingRequestGroup_BiosculpterPod = 241;
+
 		#region CONSTRUCTORS
 		static HarmonyPatches()
 		{
 			var harmony = new Harmony("syrus.bpansvariations");
 
+			// Adjust drawing position for pawn in Biosculpter Pod for new dimensions
 			harmony.Patch(
 				AccessTools.Method(typeof(CompBiosculpterPod), nameof(CompBiosculpterPod.PostDraw)),
 				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_PostDraw_Transpiler)));
+			// Adjust Biosculpter Pod effects to fit new dimensions
 			harmony.Patch(
 				AccessTools.Method(typeof(CompBiosculpterPod), nameof(CompBiosculpterPod.CompTick)),
 				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_CompTick_Transpiler)));
+
+			// Expand ThingListGroupHelper.AllGroups to 256 items to allow for new groups
+			ThingListGroupHelper_AllGroups_Patch();
+
+			// Patch in new group for Biosculpter Pod into ThingListGroupHelper.Includes method and prevent it from throwing exception for unused groups
+			harmony.Patch(
+				AccessTools.Method(typeof(ThingListGroupHelper), nameof(ThingListGroupHelper.Includes)),
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.ThingListGroupHelper_Includes_Transpiler)));
+			// Patch in new group for Biosculpter Pod into ThingListGroupHelper.StoreInRegion method and prevent it from throwing exception for unused groups
+			harmony.Patch(
+				AccessTools.Method(typeof(ThingRequestGroupUtility), nameof(ThingRequestGroupUtility.StoreInRegion)),
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.ThingRequestGroupUtility_StoreInRegion_Transpiler)));
+
+			// Replace WorkGiver_HaulToBiosculpterPod.PotentialWorkThingRequest's singleDef with a group instead
+			harmony.Patch(
+				AccessTools.PropertyGetter(typeof(WorkGiver_HaulToBiosculpterPod), nameof(WorkGiver_HaulToBiosculpterPod.PotentialWorkThingRequest)),
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.WorkGiver_HaulToBiosculpterPod_PotentialWorkThingRequest_Transpiler)));
+
+			// Add aditional check for JobGiver_GetNeuralSupercharge.ClosestSupercharger so it also searches for new resized neural superchargers
 			harmony.Patch(
 				AccessTools.Method(typeof(JobGiver_GetNeuralSupercharge), nameof(JobGiver_GetNeuralSupercharge.ClosestSupercharger)),
 				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.JobGiver_GetNeuralSupercharge_ClosestSupercharger_Transpiler)));
@@ -69,6 +87,98 @@ namespace BPaNSVariations
 				}
 			}
 			return list;
+		}
+
+
+		static IEnumerable<CodeInstruction> ThingListGroupHelper_Includes_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+		{
+			var label68 = generator.DefineLabel();
+
+			var list = new List<CodeInstruction>(instructions);
+			for (int i = 0; i < list.Count; i++)
+			{
+				// AFTER switch Labels...
+				if (list[i].opcode == OpCodes.Switch)
+				{
+					//ldarg.0 NULL
+					list.Insert(++i, new CodeInstruction(OpCodes.Ldarg_0));
+					//ldc.i4 241
+					list.Insert(++i, new CodeInstruction(OpCodes.Ldc_I4, ThingRequestGroup_BiosculpterPod));
+					//beq Label68
+					list.Insert(++i, new CodeInstruction(OpCodes.Beq, label68));
+				}
+				// BEFORE ldstr "group" [Label69]
+				else if (list[i].opcode == OpCodes.Ldstr && list[i].operand is "group")
+				{
+					//ldarg.1 NULL [Label68]
+					list.Insert(i++, new CodeInstruction(OpCodes.Ldarg_1) { labels = new List<Label> { label68 } });
+					//call static System.Boolean BPaNSVariations.BPaNSStatics::DefIsBiosculpterPod(Verse.ThingDef def)
+					list.Insert(i++, new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(BPaNSStatics), nameof(BPaNSStatics.IsDefBiosculpterPod))));
+					//ret NULL
+					list.Insert(i++, new CodeInstruction(OpCodes.Ret));
+
+					// 0 -- ldstr "group" [Label69]
+					// 0 ++ ldc.i4.0 NULL [Label69]
+					list[i].opcode = OpCodes.Ldc_I4_0;
+					list[i].operand = null;
+					// 1 -- newobj System.Void System.ArgumentException::.ctor(System.String message)
+					list.RemoveAt(++i);
+					// 2 -- throw NULL
+					// 2 ++ ret NULL
+					list[i].opcode = OpCodes.Ret;
+				}
+			}
+			return list;
+		}
+
+		static IEnumerable<CodeInstruction> ThingRequestGroupUtility_StoreInRegion_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+		{
+			var label68 = generator.DefineLabel();
+
+			var list = new List<CodeInstruction>(instructions);
+			for (int i = 0; i < list.Count; i++)
+			{
+				// AFTER switch Labels...
+				if (list[i].opcode == OpCodes.Switch)
+				{
+					//ldarg.0 NULL
+					list.Insert(++i, new CodeInstruction(OpCodes.Ldarg_0));
+					//ldc.i4 241
+					list.Insert(++i, new CodeInstruction(OpCodes.Ldc_I4, ThingRequestGroup_BiosculpterPod));
+					//beq Label68
+					list.Insert(++i, new CodeInstruction(OpCodes.Beq, label68));
+				}
+				// BEFORE ldstr "group" [Label69]
+				else if (list[i].opcode == OpCodes.Ldstr && list[i].operand is "group")
+				{
+					//ldc.i4.1 NULL [Label68]
+					list.Insert(i++, new CodeInstruction(OpCodes.Ldc_I4_1) { labels = new List<Label> { label68 } });
+					//ret NULL
+					list.Insert(i++, new CodeInstruction(OpCodes.Ret));
+
+					// 0 -- ldstr "group" [Label69]
+					// 0 ++ ldc.i4.0 NULL [Label69]
+					list[i].opcode = OpCodes.Ldc_I4_0;
+					list[i].operand = null;
+					// 1 -- newobj System.Void System.ArgumentException::.ctor(System.String message)
+					list.RemoveAt(++i);
+					// 2 -- throw NULL
+					// 2 ++ ret NULL
+					list[i].opcode = OpCodes.Ret;
+				}
+			}
+			return list;
+		}
+
+
+		static IEnumerable<CodeInstruction> WorkGiver_HaulToBiosculpterPod_PotentialWorkThingRequest_Transpiler(IEnumerable<CodeInstruction> instructions)
+		{
+			//ldc.i4 241
+			yield return new CodeInstruction(OpCodes.Ldc_I4, ThingRequestGroup_BiosculpterPod);
+			//call static Verse.ThingRequest Verse.ThingRequest::ForGroup(Verse.ThingRequestGroup group)
+			yield return new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ThingRequest), nameof(ThingRequest.ForGroup)));
+			//ret NULL
+			yield return new CodeInstruction(OpCodes.Ret);
 		}
 
 		static IEnumerable<CodeInstruction> JobGiver_GetNeuralSupercharge_ClosestSupercharger_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
@@ -158,6 +268,18 @@ namespace BPaNSVariations
 			if (rot == Rot4.East)
 				return new TargetInfo(parent.InteractionCell + new IntVec3(-2, 0, 0), parent.Map);
 			return parent;
+		}
+
+		private static void ThingListGroupHelper_AllGroups_Patch()
+		{
+			var array = new ThingRequestGroup[256];
+			int num = 0;
+			foreach (ThingRequestGroup value in Enum.GetValues(typeof(ThingRequestGroup)))
+				array[num++] = value;
+			for (; num < array.Length; num++)
+				array[num] = (ThingRequestGroup)num;
+
+			AccessTools.Field(typeof(ThingListGroupHelper), nameof(ThingListGroupHelper.AllGroups)).SetValue(null, array);
 		}
 
 		private static Thing ClosestSuperChargerInternal(Pawn pawn, Predicate<Thing> validator) => 

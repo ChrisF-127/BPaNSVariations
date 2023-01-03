@@ -72,6 +72,9 @@ namespace BPaNSVariations
 			yield return BiosculpterPod_1x2_Center.GetCompProperties<CompProperties_BiosculpterPod>();
 			yield return BiosculpterPod_1x3_Center.GetCompProperties<CompProperties_BiosculpterPod>();
 		}
+
+		public static bool IsDefBiosculpterPod(ThingDef def) =>
+			def == ThingDefOf.BiosculpterPod || def == BiosculpterPod_2x2_Left || def == BiosculpterPod_2x2_Right || def == BiosculpterPod_1x2_Center || def == BiosculpterPod_1x3_Center;
 		#endregion
 	}
 }
