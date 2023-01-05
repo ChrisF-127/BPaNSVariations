@@ -18,7 +18,7 @@
 	
 	<!-- Make Biosculpter Pod's interaction spots overlappable -->
 	<Operation Class="PatchOperationRemove">
-		<xpath>Defs/ThingDef[defName="BiosculpterPod"]/placeWorkers/li["PlaceWorker_PreventInteractionSpotOverlap"]</xpath>
+		<xpath>Defs/ThingDef[defName="BiosculpterPod"]/placeWorkers/li[text()="PlaceWorker_PreventInteractionSpotOverlap"]</xpath>
 	</Operation>
 
 	<!-- Add new Biosculpter Pods -->
@@ -166,7 +166,7 @@
 		</nomatch>
 	</Operation>
 	<Operation Class="PatchOperationRemove">
-		<xpath>Defs/MemeDef/addDesignators/li["NeuralSupercharger"]</xpath>
+		<xpath>Defs/MemeDef/addDesignators/li[text()="NeuralSupercharger"]</xpath>
 	</Operation>
 
 </Patch>
