@@ -101,23 +101,25 @@ namespace BPaNSVariations
 			if (off && _biosculpterPodReadyEffecterAlwaysOn.Value)
 				_biosculpterPodReadyEffecterAlwaysOn.Value = false;
 
-			var comp = ThingDefOf.BiosculpterPod.GetCompProperties<CompProperties_BiosculpterPod>();
-			comp.readyEffecter = !off ? BPaNSStatics.BiosculpterPod_Ready : null;
+			foreach (var prop in BPaNSStatics.GetAll_CompProperties_BiosculpterPod())
+				prop.readyEffecter = !off ? BPaNSStatics.BiosculpterPod_Ready : null;
 		}
 
 		private void ChangeBiosculpterPodReadyEffecterColor(ColorSelector rgb, float value)
 		{
-			var comp = ThingDefOf.BiosculpterPod.GetCompProperties<CompProperties_BiosculpterPod>();
 			switch (rgb)
 			{
 				case ColorSelector.R:
-					comp.selectCycleColor.r = value;
+					foreach (var prop in BPaNSStatics.GetAll_CompProperties_BiosculpterPod())
+						prop.selectCycleColor.r = value;
 					break;
 				case ColorSelector.G:
-					comp.selectCycleColor.g = value;
+					foreach (var prop in BPaNSStatics.GetAll_CompProperties_BiosculpterPod())
+						prop.selectCycleColor.g = value;
 					break;
 				case ColorSelector.B:
-					comp.selectCycleColor.b = value;
+					foreach (var prop in BPaNSStatics.GetAll_CompProperties_BiosculpterPod())
+						prop.selectCycleColor.b = value;
 					break;
 			}
 		}

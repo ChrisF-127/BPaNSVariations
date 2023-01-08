@@ -25,15 +25,7 @@
 	<Operation Class="PatchOperationAdd">
 		<xpath>Defs</xpath>
 		<value>
-			<ThingDef Abstract="True" ParentName="BiosculpterPodBase" Name="BiosculpterPodBaseBase">
-				<!-- set via reference from parent -->
-				<statBases/>
-				<costList/>
-				<building/>
-				<comps/>
-			</ThingDef>
-		
-			<ThingDef ParentName="BiosculpterPodBaseBase">
+			<ThingDef ParentName="BiosculpterPodBase">
 				<defName>BiosculpterPod_2x2_Left</defName>
 				<label>biosculpter pod (2x2 left)</label>
 				<graphicData>
@@ -49,7 +41,7 @@
 				<designatorDropdown>SY_BNV_BiosculpterPods</designatorDropdown>
 			</ThingDef>
 			
-			<ThingDef ParentName="BiosculpterPodBaseBase">
+			<ThingDef ParentName="BiosculpterPodBase">
 				<defName>BiosculpterPod_2x2_Right</defName>
 				<label>biosculpter pod (2x2 right)</label>
 				<graphicData>
@@ -65,7 +57,7 @@
 				<designatorDropdown>SY_BNV_BiosculpterPods</designatorDropdown>
 			</ThingDef>
 			
-			<ThingDef ParentName="BiosculpterPodBaseBase">
+			<ThingDef ParentName="BiosculpterPodBase">
 				<defName>BiosculpterPod_1x2_Center</defName>
 				<label>biosculpter pod (1x2)</label>
 				<graphicData>
@@ -81,7 +73,7 @@
 				<designatorDropdown>SY_BNV_BiosculpterPods</designatorDropdown>
 			</ThingDef>
 			
-			<ThingDef ParentName="BiosculpterPodBaseBase">
+			<ThingDef ParentName="BiosculpterPodBase">
 				<defName>BiosculpterPod_1x3_Center</defName>
 				<label>biosculpter pod (1x3)</label>
 				<graphicData>
@@ -133,20 +125,12 @@
 				<defName>NeuralSuperchargerChargedFloor_1x2_Center</defName>
 				<!-- adjusted via code -->
 			</FleckDef>
-			<EffecterDef  ParentName="NeuralSuperchargerChargedBase">
+			<EffecterDef ParentName="NeuralSuperchargerChargedBase">
 				<defName>NeuralSuperchargerCharged_1x2_Center</defName>
 				<!-- adjusted via code -->
 			</EffecterDef>
-			
-			<ThingDef Abstract="True" ParentName="NeuralSuperchargerBase" Name="NeuralSuperchargerBaseBase">
-				<!-- set via reference from parent -->
-				<statBases/>
-				<costList/>
-				<building/>
-				<comps/>
-			</ThingDef>
 		
-			<ThingDef ParentName="NeuralSuperchargerBaseBase">
+			<ThingDef ParentName="NeuralSuperchargerBase">
 				<defName>NeuralSupercharger_1x2_Center</defName>
 				<label>neural supercharger (1x2)</label>
 				<graphicData>

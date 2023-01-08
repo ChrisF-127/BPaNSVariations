@@ -22,25 +22,16 @@ namespace BPaNSVariations
 		public readonly static Tuple<float, float, float> OriginalBiosculpterScanner_ReadyValues; // FadeIn, FadeOut, Solid
 
 		public readonly static ThingDef NeuralSupercharger_1x2_Center;
-		public readonly static EffecterDef NeuralSuperchargerCharged_1x2_Center;
 		#endregion
 
 		#region CONSTRUCTORS
 		static BPaNSStatics()
 		{
-			var fieldsToCopy = new string[] { "statBases", "costList", "building", "comps" };
-
 			// --- BIOSCULPTER POD
 			BiosculpterPod_2x2_Left = DefDatabase<ThingDef>.GetNamed("BiosculpterPod_2x2_Left");
 			BiosculpterPod_2x2_Right = DefDatabase<ThingDef>.GetNamed("BiosculpterPod_2x2_Right");
 			BiosculpterPod_1x2_Center = DefDatabase<ThingDef>.GetNamed("BiosculpterPod_1x2_Center");
 			BiosculpterPod_1x3_Center = DefDatabase<ThingDef>.GetNamed("BiosculpterPod_1x3_Center");
-
-			// copy fields for better compatibility
-			BiosculpterPod_2x2_Left.CopyFields(ThingDefOf.BiosculpterPod, fieldsToCopy);
-			BiosculpterPod_2x2_Right.CopyFields(ThingDefOf.BiosculpterPod, fieldsToCopy);
-			BiosculpterPod_1x2_Center.CopyFields(ThingDefOf.BiosculpterPod, fieldsToCopy);
-			BiosculpterPod_1x3_Center.CopyFields(ThingDefOf.BiosculpterPod, fieldsToCopy);
 
 			var biosculpterPod_Operating = DefDatabase<EffecterDef>.GetNamed("BiosculpterPod_Operating");
 			BiosculpterPod_Ready = DefDatabase<EffecterDef>.GetNamed("BiosculpterPod_Ready");
@@ -64,18 +55,25 @@ namespace BPaNSVariations
 			// --- NEURAL SUPERCHARGER
 			NeuralSupercharger_1x2_Center = DefDatabase<ThingDef>.GetNamed("NeuralSupercharger_1x2_Center");
 
-			// copy fields for better compatibility
-			NeuralSupercharger_1x2_Center.CopyFields(ThingDefOf.NeuralSupercharger, fieldsToCopy);
-
 			// floor effect for 1x2 neural supercharger
 			var neuralSuperchargerChargedFloor_1x2_Center = DefDatabase<FleckDef>.GetNamed("NeuralSuperchargerChargedFloor_1x2_Center");
 			neuralSuperchargerChargedFloor_1x2_Center.graphicData.drawSize.y = 2f;
-			NeuralSuperchargerCharged_1x2_Center = DefDatabase<EffecterDef>.GetNamed("NeuralSuperchargerCharged_1x2_Center");
-			NeuralSuperchargerCharged_1x2_Center.children.First(e => e.fleckDef.defName == "NeuralSuperchargerChargedFloor").fleckDef = neuralSuperchargerChargedFloor_1x2_Center;
+			var neuralSuperchargerCharged_1x2_Center = DefDatabase<EffecterDef>.GetNamed("NeuralSuperchargerCharged_1x2_Center");
+			neuralSuperchargerCharged_1x2_Center.children.First(e => e.fleckDef.defName == "NeuralSuperchargerChargedFloor").fleckDef = neuralSuperchargerChargedFloor_1x2_Center;
+			NeuralSupercharger_1x2_Center.GetCompProperties<CompProperties_NeuralSupercharger>().effectCharged = neuralSuperchargerCharged_1x2_Center;
 		}
 		#endregion
 
 		#region PUBLIC METHODS
+		public static IEnumerable<CompProperties_BiosculpterPod> GetAll_CompProperties_BiosculpterPod()
+		{
+			yield return ThingDefOf.BiosculpterPod.GetCompProperties<CompProperties_BiosculpterPod>();
+			yield return BiosculpterPod_2x2_Left.GetCompProperties<CompProperties_BiosculpterPod>();
+			yield return BiosculpterPod_2x2_Right.GetCompProperties<CompProperties_BiosculpterPod>();
+			yield return BiosculpterPod_1x2_Center.GetCompProperties<CompProperties_BiosculpterPod>();
+			yield return BiosculpterPod_1x3_Center.GetCompProperties<CompProperties_BiosculpterPod>();
+		}
+
 		public static bool IsDefBiosculpterPod(ThingDef def) =>
 			def == ThingDefOf.BiosculpterPod 
 			|| def == BiosculpterPod_2x2_Left 
@@ -86,18 +84,6 @@ namespace BPaNSVariations
 		public static bool IsDefNeuralSupercharger(ThingDef def) =>
 			def == ThingDefOf.NeuralSupercharger 
 			|| def == NeuralSupercharger_1x2_Center;
-		#endregion
-
-		#region PRIVATE METHODS
-		private static void CopyFields(this ThingDef from, ThingDef to, params string[] names)
-		{
-			var fields = from.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
-			foreach (var name in names)
-			{
-				var field = fields.First(f => string.Compare(f.Name, name, true) == 0);
-				field.SetValue(from, field.GetValue(to));
-			}
-		}
 		#endregion
 	}
 }
