@@ -35,13 +35,13 @@ namespace BPaNSVariations
 				"SY_BNV.BiosculpterPodReadyEffecterAlwaysOnTitle".Translate(),
 				"SY_BNV.BiosculpterPodReadyEffecterAlwaysOnDesc".Translate(),
 				true);
-			_biosculpterPodReadyEffecterAlwaysOn.ValueChanged += (value => ChangeBiosculpterPodReadyEffecterAlwaysOn((SettingHandle<bool>)value));
+			_biosculpterPodReadyEffecterAlwaysOn.ValueChanged += value => ChangeBiosculpterPodReadyEffecterAlwaysOn((SettingHandle<bool>)value);
 			_biosculpterPodReadyEffecterAlwaysOff = Settings.GetHandle(
 				"biosculpterPodReadyEffecterAlwaysOff",
 				"SY_BNV.BiosculpterPodReadyEffecterAlwaysOffTitle".Translate(),
 				"SY_BNV.BiosculpterPodReadyEffecterAlwaysOffDesc".Translate(),
 				true);
-			_biosculpterPodReadyEffecterAlwaysOff.ValueChanged += (value => ChangeBiosculpterPodReadyEffecterAlwaysOff((SettingHandle<bool>)value));
+			_biosculpterPodReadyEffecterAlwaysOff.ValueChanged += value => ChangeBiosculpterPodReadyEffecterAlwaysOff((SettingHandle<bool>)value);
 
 			var biosculpterPodComp = ThingDefOf.BiosculpterPod.GetCompProperties<CompProperties_BiosculpterPod>();
 			_biosculpterPodReadyEffecterColorR = Settings.GetHandle(
@@ -49,19 +49,19 @@ namespace BPaNSVariations
 				"SY_BNV.BiosculpterPodReadyEffecterColorRTitle".Translate(),
 				"SY_BNV.BiosculpterPodReadyEffecterColorRDesc".Translate(),
 				biosculpterPodComp.selectCycleColor.r);
-			_biosculpterPodReadyEffecterColorR.ValueChanged += (value) => ChangeBiosculpterPodReadyEffecterColor(ColorSelector.R, (SettingHandle<float>)value);
+			_biosculpterPodReadyEffecterColorR.ValueChanged += value => ChangeBiosculpterPodReadyEffecterColor(ColorSelector.R, (SettingHandle<float>)value);
 			_biosculpterPodReadyEffecterColorG = Settings.GetHandle(
 				"biosculpterPodReadyEffecterColorG",
 				"SY_BNV.BiosculpterPodReadyEffecterColorGTitle".Translate(),
 				"SY_BNV.BiosculpterPodReadyEffecterColorGDesc".Translate(),
 				biosculpterPodComp.selectCycleColor.g);
-			_biosculpterPodReadyEffecterColorG.ValueChanged += (value) => ChangeBiosculpterPodReadyEffecterColor(ColorSelector.G, (SettingHandle<float>)value);
+			_biosculpterPodReadyEffecterColorG.ValueChanged += value => ChangeBiosculpterPodReadyEffecterColor(ColorSelector.G, (SettingHandle<float>)value);
 			_biosculpterPodReadyEffecterColorB = Settings.GetHandle(
 				"biosculpterPodReadyEffecterColorB",
 				"SY_BNV.BiosculpterPodReadyEffecterColorBTitle".Translate(),
 				"SY_BNV.BiosculpterPodReadyEffecterColorBDesc".Translate(),
 				biosculpterPodComp.selectCycleColor.b);
-			_biosculpterPodReadyEffecterColorB.ValueChanged += (value) => ChangeBiosculpterPodReadyEffecterColor(ColorSelector.B, (SettingHandle<float>)value);
+			_biosculpterPodReadyEffecterColorB.ValueChanged += value => ChangeBiosculpterPodReadyEffecterColor(ColorSelector.B, (SettingHandle<float>)value);
 
 
 			// Apply settings

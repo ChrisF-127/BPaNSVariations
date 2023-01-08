@@ -4,6 +4,8 @@ using Verse;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using Verse.AI;
+using System.Reflection;
 
 namespace BPaNSVariations
 {
@@ -15,12 +17,12 @@ namespace BPaNSVariations
 		public readonly static ThingDef BiosculpterPod_2x2_Right;
 		public readonly static ThingDef BiosculpterPod_1x2_Center;
 		public readonly static ThingDef BiosculpterPod_1x3_Center;
-
-		public readonly static ThingDef NeuralSupercharger_1x2_Center;
-
 		public readonly static EffecterDef BiosculpterPod_Ready;
 		public readonly static FleckDef BiosculpterScanner_Ready;
 		public readonly static Tuple<float, float, float> OriginalBiosculpterScanner_ReadyValues; // FadeIn, FadeOut, Solid
+
+		public readonly static ThingDef NeuralSupercharger_1x2_Center;
+		public readonly static EffecterDef NeuralSuperchargerCharged_1x2_Center;
 		#endregion
 
 		#region CONSTRUCTORS
@@ -54,12 +56,11 @@ namespace BPaNSVariations
 			// --- NEURAL SUPERCHARGER
 			NeuralSupercharger_1x2_Center = DefDatabase<ThingDef>.GetNamed("NeuralSupercharger_1x2_Center");
 
-			// replace floor effect for 1x2 neural supercharger
+			// floor effect for 1x2 neural supercharger
 			var neuralSuperchargerChargedFloor_1x2_Center = DefDatabase<FleckDef>.GetNamed("NeuralSuperchargerChargedFloor_1x2_Center");
 			neuralSuperchargerChargedFloor_1x2_Center.graphicData.drawSize.y = 2f;
-			var neuralSuperchargerCharged_1x2_Center = DefDatabase<EffecterDef>.GetNamed("NeuralSuperchargerCharged_1x2_Center");
-			neuralSuperchargerCharged_1x2_Center.children.First(e => e.fleckDef.defName == "NeuralSuperchargerChargedFloor").fleckDef = neuralSuperchargerChargedFloor_1x2_Center;
-			NeuralSupercharger_1x2_Center.GetCompProperties<CompProperties_NeuralSupercharger>().effectCharged = neuralSuperchargerCharged_1x2_Center;
+			NeuralSuperchargerCharged_1x2_Center = DefDatabase<EffecterDef>.GetNamed("NeuralSuperchargerCharged_1x2_Center");
+			NeuralSuperchargerCharged_1x2_Center.children.First(e => e.fleckDef.defName == "NeuralSuperchargerChargedFloor").fleckDef = neuralSuperchargerChargedFloor_1x2_Center;
 		}
 		#endregion
 

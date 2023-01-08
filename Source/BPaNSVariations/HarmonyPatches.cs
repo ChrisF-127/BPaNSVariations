@@ -5,8 +5,7 @@ using UnityEngine;
 using HarmonyLib;
 using System.Reflection.Emit;
 using System.Reflection;
-using Verse.AI;
-using System;
+using System.Linq;
 
 namespace BPaNSVariations
 {
@@ -23,7 +22,8 @@ namespace BPaNSVariations
 		#region CONSTRUCTORS
 		static HarmonyPatches()
 		{
-			// Reinitialize ThingListGroupHelper.AllGroupsroups -- must be executed before adding ThingRequestGroups!
+			// Reinitialize ThingListGroupHelper.AllGroups with addition groups for Biosculpter Pod and Neural Supercharger
+			// -- Must be executed before adding ThingRequestGroups!
 			{
 				// create new array for groups with increased size
 				var count = ThingListGroupHelper.AllGroups.Length;
@@ -49,6 +49,9 @@ namespace BPaNSVariations
 			// Create Harmony
 			var harmony = new Harmony("syrus.bpansvariations");
 
+
+			// -- BIOSCULPTER POD PATCHES
+
 			// Adjust drawing position for pawn in Biosculpter Pod for new dimensions
 			harmony.Patch(
 				AccessTools.Method(typeof(CompBiosculpterPod), nameof(CompBiosculpterPod.PostDraw)),
@@ -71,6 +74,14 @@ namespace BPaNSVariations
 			harmony.Patch(
 				AccessTools.PropertyGetter(typeof(WorkGiver_HaulToBiosculpterPod), nameof(WorkGiver_HaulToBiosculpterPod.PotentialWorkThingRequest)),
 				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.WorkGiver_HaulToBiosculpterPod_PotentialWorkThingRequest_Transpiler)));
+
+
+			// -- NEURAL SUPERCHARGER PATCHES
+
+			// Patch CompNeuralSupercharger.CompTick
+			harmony.Patch(
+				AccessTools.Method(typeof(CompNeuralSupercharger), nameof(CompNeuralSupercharger.CompTick)),
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompNeuralSupercharger_CompTick_Transpiler)));
 
 			// Patch JobGiver_GetNeuralSupercharge.ClosestSupercharger to search for a group for neural superchargers instead of a singleDef
 			harmony.Patch(
@@ -104,7 +115,7 @@ namespace BPaNSVariations
 			for (int i = 0; i < list.Count - 2; i++)
 			{
 				// replace implicit TargetInfo creation for ThingWithComps for readyEffecter & operatingEffecter with modifying method
-				if (list[i].opcode == OpCodes.Call && list[i].operand is MethodBase mi && mi.DeclaringType == typeof(TargetInfo) && mi.Name == "op_Implicit"
+				if (list[i].opcode == OpCodes.Call && list[i].operand is MethodBase mb && mb.DeclaringType == typeof(TargetInfo) && mb.Name == "op_Implicit"
 					&& list[i - 3].opcode == OpCodes.Ldfld
 					&& list[i - 3].operand is FieldInfo fieldInfo && (fieldInfo.Name == "readyEffecter" || fieldInfo.Name == "operatingEffecter"))
 				{
@@ -217,12 +228,57 @@ namespace BPaNSVariations
 			yield return new CodeInstruction(OpCodes.Ret);
 		}
 
+		static IEnumerable<CodeInstruction> CompNeuralSupercharger_CompTick_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+		{
+			var label4 = generator.DefineLabel();
+			var label5 = generator.DefineLabel();
+
+			var list = new List<CodeInstruction>(instructions);
+			for (int i = 0; i < list.Count - 3; i++)
+			{
+				// ++ ldfld Verse.ThingWithComps Verse.ThingComp::parent
+				// ++ ldfld Verse.ThingDef Verse.Thing::def
+				// ++ ldsfld Verse.ThingDef BPaNSVariations.BPaNSStatics::NeuralSupercharger_1x2_Center
+				// ++ beq.s Label4
+				// ++ ldarg.0 NULL
+				// 0 call RimWorld.CompProperties_NeuralSupercharger RimWorld.CompNeuralSupercharger::get_Props()
+				// 1 ldfld Verse.EffecterDef RimWorld.CompProperties_NeuralSupercharger::effectCharged
+				// ++ br.s Label5
+				// ++ ldsfld Verse.EffecterDef BPaNSVariations.BPaNSStatics::NeuralSuperchargerCharged_1x2_Center[Label4]
+				// 2 callvirt Verse.Effecter Verse.EffecterDef::Spawn()[Label5]
+				if (list[i].opcode == OpCodes.Call && list[i].operand is MethodBase mb && mb.Name == "get_Props"
+					&& list[i + 1].opcode == OpCodes.Ldfld && list[i + 1].operand is FieldInfo fi && fi.Name == "effectCharged"
+					&& list[i + 2].opcode == OpCodes.Callvirt && list[i + 2].operand is MethodInfo mi && mi.Name == "Spawn")
+				{
+					//ldfld Verse.ThingWithComps Verse.ThingComp::parent
+					list.Insert(i++ + 0, new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ThingComp), nameof(ThingComp.parent))));
+					//ldfld Verse.ThingDef Verse.Thing::def
+					list.Insert(i++ + 0, new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(Thing), nameof(Thing.def))));
+					//ldsfld Verse.ThingDef BPaNSVariations.BPaNSStatics::NeuralSupercharger_1x2_Center
+					list.Insert(i++ + 0, new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(BPaNSStatics), nameof(BPaNSStatics.NeuralSupercharger_1x2_Center))));
+					//beq.s Label4
+					list.Insert(i++ + 0, new CodeInstruction(OpCodes.Beq_S, label4));
+					//ldarg.0 NULL
+					list.Insert(i++ + 0, new CodeInstruction(OpCodes.Ldarg_0));
+
+					//br.s Label5
+					list.Insert(i++ + 2, new CodeInstruction(OpCodes.Br_S, label5));
+					//ldsfld Verse.EffecterDef BPaNSVariations.BPaNSStatics::NeuralSuperchargerCharged_1x2_Center[Label4]
+					list.Insert(i++ + 2, new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(BPaNSStatics), nameof(BPaNSStatics.NeuralSuperchargerCharged_1x2_Center))) { labels = new List<Label> { label4 } });
+					// add label5 to 2
+					list[i + 2].labels.Add(label5);
+				}
+			}
+			return list;
+		}
+
 		static IEnumerable<CodeInstruction> JobGiver_GetNeuralSupercharge_ClosestSupercharger_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
 		{
 			// Original replacement using a field:
 			// ++ ldsfld System.Int32 BPaNSVariations.HarmonyPatches::ThingRequestGroup_NeuralSupercharger
 			// ++ conv.u1 NULL
 			// ++ call static Verse.ThingRequest Verse.ThingRequest::ForGroup(Verse.ThingRequestGroup group)
+
 			// But this should work as well as ThingRequestGroup_NeuralSupercharger can be treated as a constant value:
 			// ++ ldc.i4 >>ThingRequestGroup_NeuralSupercharger<<
 			// ++ call static Verse.ThingRequest Verse.ThingRequest::ForGroup(Verse.ThingRequestGroup group)
