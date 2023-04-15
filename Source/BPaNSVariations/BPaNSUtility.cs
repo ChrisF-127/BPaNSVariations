@@ -10,7 +10,7 @@ using System.Reflection;
 namespace BPaNSVariations
 {
 	[StaticConstructorOnStartup]
-	internal static class BPaNSStatics
+	internal static class BPaNSUtility
 	{
 		#region FIELDS
 		public readonly static ThingDef BiosculpterPod_2x2_Left;
@@ -25,7 +25,7 @@ namespace BPaNSVariations
 		#endregion
 
 		#region CONSTRUCTORS
-		static BPaNSStatics()
+		static BPaNSUtility()
 		{
 			// --- BIOSCULPTER POD
 			BiosculpterPod_2x2_Left = DefDatabase<ThingDef>.GetNamed("BiosculpterPod_2x2_Left");
@@ -65,25 +65,39 @@ namespace BPaNSVariations
 		#endregion
 
 		#region PUBLIC METHODS
-		public static IEnumerable<CompProperties_BiosculpterPod> GetAll_CompProperties_BiosculpterPod()
+		public static IEnumerable<ThingDef> GetBiosculpterDefs()
 		{
-			yield return ThingDefOf.BiosculpterPod.GetCompProperties<CompProperties_BiosculpterPod>();
-			yield return BiosculpterPod_2x2_Left.GetCompProperties<CompProperties_BiosculpterPod>();
-			yield return BiosculpterPod_2x2_Right.GetCompProperties<CompProperties_BiosculpterPod>();
-			yield return BiosculpterPod_1x2_Center.GetCompProperties<CompProperties_BiosculpterPod>();
-			yield return BiosculpterPod_1x3_Center.GetCompProperties<CompProperties_BiosculpterPod>();
+			yield return ThingDefOf.BiosculpterPod;
+			yield return BiosculpterPod_2x2_Left;
+			yield return BiosculpterPod_2x2_Right;
+			yield return BiosculpterPod_1x2_Center;
+			yield return BiosculpterPod_1x3_Center;
 		}
 
+		public static IEnumerable<CompProperties_BiosculpterPod> GetAll_CompProperties_BiosculpterPod() =>
+			GetBiosculpterDefs().Select(def => def.GetCompProperties<CompProperties_BiosculpterPod>());
+
 		public static bool IsDefBiosculpterPod(ThingDef def) =>
-			def == ThingDefOf.BiosculpterPod 
-			|| def == BiosculpterPod_2x2_Left 
-			|| def == BiosculpterPod_2x2_Right 
-			|| def == BiosculpterPod_1x2_Center 
-			|| def == BiosculpterPod_1x3_Center;
+			GetBiosculpterDefs().Any(d => d == def);
+
+		public static IEnumerable<ThingDef> GetNeuralSuperchargerDefs()
+		{
+			yield return ThingDefOf.NeuralSupercharger;
+			yield return NeuralSupercharger_1x2_Center;
+		}
 
 		public static bool IsDefNeuralSupercharger(ThingDef def) =>
-			def == ThingDefOf.NeuralSupercharger 
-			|| def == NeuralSupercharger_1x2_Center;
+			GetNeuralSuperchargerDefs().Any(d => d == def);
 		#endregion
+	}
+
+	internal class TargetWrapper<T>
+	{
+		public T Item { get; set; }
+
+		public TargetWrapper(T item)
+		{
+			Item = item;
+		}
 	}
 }

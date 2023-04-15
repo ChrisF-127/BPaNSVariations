@@ -155,14 +155,14 @@ namespace BPaNSVariations
 					//ldarg.1 NULL [Label68]
 					list.Insert(i++, new CodeInstruction(OpCodes.Ldarg_1) { labels = new List<Label> { label68 } });
 					//call static System.Boolean BPaNSVariations.BPaNSStatics::IsDefBiosculpterPod(Verse.ThingDef def)
-					list.Insert(i++, new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(BPaNSStatics), nameof(BPaNSStatics.IsDefBiosculpterPod))));
+					list.Insert(i++, new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(BPaNSUtility), nameof(BPaNSUtility.IsDefBiosculpterPod))));
 					//ret NULL
 					list.Insert(i++, new CodeInstruction(OpCodes.Ret));
 
 					//ldarg.1 NULL [Label69]
 					list.Insert(i++, new CodeInstruction(OpCodes.Ldarg_1) { labels = new List<Label> { label69 } });
 					//call static System.Boolean BPaNSVariations.BPaNSStatics::IsDefNeuralSupercharger(Verse.ThingDef def)
-					list.Insert(i++, new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(BPaNSStatics), nameof(BPaNSStatics.IsDefNeuralSupercharger))));
+					list.Insert(i++, new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(BPaNSUtility), nameof(BPaNSUtility.IsDefNeuralSupercharger))));
 					//ret NULL
 					list.Insert(i++, new CodeInstruction(OpCodes.Ret));
 				}

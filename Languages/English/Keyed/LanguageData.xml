@@ -1,25 +1,21 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <LanguageData>
 
-	<SY_BNV.BiosculpterPodReadyEffecterAlwaysOnTitle>Biosculpter Pod Ready Effect - Always ON</SY_BNV.BiosculpterPodReadyEffecterAlwaysOnTitle>
-	<SY_BNV.BiosculpterPodReadyEffecterAlwaysOnDesc>Change ready effect into solid color
-Mutually exclusive with "always off"</SY_BNV.BiosculpterPodReadyEffecterAlwaysOnDesc>
-	<SY_BNV.BiosculpterPodReadyEffecterAlwaysOffTitle>Biosculpter Pod Ready Effect - Always OFF</SY_BNV.BiosculpterPodReadyEffecterAlwaysOffTitle>
-	<SY_BNV.BiosculpterPodReadyEffecterAlwaysOffDesc>Disable ready effect
-Mutually exclusive with "always on"
-Color settings will not have any effect</SY_BNV.BiosculpterPodReadyEffecterAlwaysOffDesc>
+	<SY_BNV.BPReadyEffecterState>Biosculpter Pod Ready Effect</SY_BNV.BPReadyEffecterState>
+	<SY_BNV.TooltipBPReadyEffecterState>Changes the ready effect animation for Biosculpter Pods</SY_BNV.TooltipBPReadyEffecterState>
+	<SY_BNV.BPReadyEffecterState_Default>Default</SY_BNV.BPReadyEffecterState_Default>
+	<SY_BNV.BPReadyEffecterState_AlwaysOn>Always ON</SY_BNV.BPReadyEffecterState_AlwaysOn>
+	<SY_BNV.BPReadyEffecterState_AlwaysOff>Always OFF</SY_BNV.BPReadyEffecterState_AlwaysOff>
 	
-	<SY_BNV.BiosculpterPodReadyEffecterColorRTitle>Biosculpter Ready Effect - Red</SY_BNV.BiosculpterPodReadyEffecterColorRTitle>
-	<SY_BNV.BiosculpterPodReadyEffecterColorRDesc>Adjust the color (red) of the blinking effect when the Biosculpter is ready
-Changes require reloading!
-(I recommend R .5, G 1, B 1)</SY_BNV.BiosculpterPodReadyEffecterColorRDesc>
-	<SY_BNV.BiosculpterPodReadyEffecterColorGTitle>Biosculpter Ready Effect - Green</SY_BNV.BiosculpterPodReadyEffecterColorGTitle>
-	<SY_BNV.BiosculpterPodReadyEffecterColorGDesc>Adjust the color (green) of the blinking effect when the Biosculpter is ready
-Changes require reloading!
-(I recommend R .5, G 1, B 1)</SY_BNV.BiosculpterPodReadyEffecterColorGDesc>
-	<SY_BNV.BiosculpterPodReadyEffecterColorBTitle>Biosculpter Ready Effect - Blue</SY_BNV.BiosculpterPodReadyEffecterColorBTitle>
-	<SY_BNV.BiosculpterPodReadyEffecterColorBDesc>Adjust the color (blue) of the blinking effect when the Biosculpter is ready
-Changes require reloading!
-(I recommend R .5, G 1, B 1)</SY_BNV.BiosculpterPodReadyEffecterColorBDesc>
+	<SY_BNV.BPReadyEffecterColor>Biosculpter Pod Ready Effect Color</SY_BNV.BPReadyEffecterColor>
+	<SY_BNV.TooltipBPReadyEffecterColor>Adjust the color of the Biosculpter Pod's ready effect (for example 0.5 R, 1 G, 1 B)
+Changes require reloading to apply!</SY_BNV.TooltipBPReadyEffecterColor>
+
+	<SY_BNV.Red>Red</SY_BNV.Red>
+	<SY_BNV.Green>Green</SY_BNV.Green>
+	<SY_BNV.Blue>Blue</SY_BNV.Blue>
+	
+	<SY_BNV.TooltipDefaultValue>Default:</SY_BNV.TooltipDefaultValue>
+	<SY_BNV.Reset>Reset</SY_BNV.Reset>
 	
 </LanguageData>
