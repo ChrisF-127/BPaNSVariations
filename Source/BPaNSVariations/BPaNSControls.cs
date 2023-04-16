@@ -30,6 +30,8 @@ namespace BPaNSVariations
 		private string _bpNutritionRequiredBuffer;
 		private string _bpBiotunedDuration;
 		private string _bpBiotunedCycleSpeedFactor;
+		private string _bpActivePowerConsumption;
+		private string _bpStandbyPowerConsumption;
 		private TargetWrapper<BiosculpterPodEffectAnimation> _bpReadyEffectStateTargetWrapper = null;
 		private readonly BiosculpterPodEffectAnimation[] _bpReadyEffectStates = (BiosculpterPodEffectAnimation[])Enum.GetValues(typeof(BiosculpterPodEffectAnimation));
 		private string[] _bpReadyEffectColorBuffers;
@@ -147,6 +149,24 @@ namespace BPaNSVariations
 				settings.BPBiotunedCycleSpeedFactor,
 				settings.DefaultBPBiotunedCycleSpeedFactor,
 				ref _bpBiotunedCycleSpeedFactor);
+#warning TODO build cost: choose building materials & amounts
+			// Biosculpter Pod - General Settings - Active Power Consumption
+			settings.BPActivePowerConsumption = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPActivePowerConsumption".Translate(),
+				"SY_BNV.TooltipBPActivePowerConsumption".Translate(),
+				settings.BPActivePowerConsumption,
+				settings.DefaultBPActivePowerConsumption,
+				ref _bpActivePowerConsumption);
+			settings.BPStandbyPowerConsumption = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPStandbyPowerConsumption".Translate(),
+				"SY_BNV.TooltipBPStandbyPowerConsumption".Translate(),
+				settings.BPStandbyPowerConsumption,
+				settings.DefaultBPStandbyPowerConsumption,
+				ref _bpStandbyPowerConsumption);
 
 			// Biosculpter Pod - Ready Effect
 			CreateSeparator(
@@ -209,7 +229,7 @@ namespace BPaNSVariations
 				ref _bpRegenerationCycleDurationBuffer,
 				additionalText: DaysToText,
 				unit: "d");
-#warning TODO medicine required, choose type & amount
+#warning TODO medicine required: choose type & amount
 
 			// Biosculpter Pod - Age Reversal Cycle
 			CreateSeparator(
