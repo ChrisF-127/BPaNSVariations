@@ -28,6 +28,8 @@ namespace BPaNSVariations
 
 		#region SETTINGS
 		private string _bpNutritionRequiredBuffer;
+		private string _bpBiotunedDuration;
+		private string _bpBiotunedCycleSpeedFactor;
 		private TargetWrapper<BiosculpterPodEffectAnimation> _bpReadyEffectStateTargetWrapper = null;
 		private readonly BiosculpterPodEffectAnimation[] _bpReadyEffectStates = (BiosculpterPodEffectAnimation[])Enum.GetValues(typeof(BiosculpterPodEffectAnimation));
 		private string[] _bpReadyEffectColorBuffers;
@@ -125,7 +127,33 @@ namespace BPaNSVariations
 				settings.DefaultBPNutritionRequired,
 				ref _bpNutritionRequiredBuffer,
 				additionalText: v => "SY_BNV.Nutrition".Translate());
-			// Biosculpter Pod - General Settings - Ready Effect Animation
+			// Biosculpter Pod - General Settings - Biotuned Duration
+			settings.BPBiotunedDuration = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPBiotunedDuration".Translate(),
+				"SY_BNV.TooltipBPBiotunedDuration".Translate(),
+				settings.BPBiotunedDuration,
+				settings.DefaultBPBiotunedDuration,
+				ref _bpBiotunedDuration,
+				additionalText: TicksToYears,
+				unit: "Ticks");
+			// Biosculpter Pod - General Settings - Biotuned Cycle Speed Factor
+			settings.BPBiotunedCycleSpeedFactor = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPBiotunedCycleSpeedFactor".Translate(),
+				"SY_BNV.TooltipBPBiotunedCycleSpeedFactor".Translate(),
+				settings.BPBiotunedCycleSpeedFactor,
+				settings.DefaultBPBiotunedCycleSpeedFactor,
+				ref _bpBiotunedCycleSpeedFactor);
+
+			// Biosculpter Pod - Ready Effect
+			CreateSeparator(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.SeparatorBPReadyEffect".Translate());
+			// Biosculpter Pod - Ready Effect - Ready Effect Animation
 			if (_bpReadyEffectStateTargetWrapper == null)
 				_bpReadyEffectStateTargetWrapper = new TargetWrapper<BiosculpterPodEffectAnimation>(settings.BPReadyEffectState);
 			settings.BPReadyEffectState = CreateDropdownSelectorControl(
@@ -138,7 +166,7 @@ namespace BPaNSVariations
 				settings.DefaultBPReadyEffectState,
 				_bpReadyEffectStates,
 				state => BPReadyEffectStateToString(state).Translate());
-			// Biosculpter Pod - General Settings - Ready Effect Color
+			// Biosculpter Pod - Ready Effect - Ready Effect Color
 			settings.BPReadyEffectColor = CreateColorControl(
 				ref offsetY,
 				viewWidth,
@@ -249,7 +277,7 @@ namespace BPaNSVariations
 				unit: "d");
 
 			// Margin
-			offsetY += SettingsRowHeight;
+			offsetY += SettingsRowHeight / 2;
 		}
 
 		private void CreateNeuralSuperchargerSettings(BPaNSSettings settings, ref float offsetY, float viewWidth)
@@ -262,7 +290,7 @@ namespace BPaNSVariations
 
 
 			// Margin
-			offsetY += SettingsRowHeight;
+			offsetY += SettingsRowHeight / 2;
 		}
 
 		private void CreateSleepAcceleratorSettings(BPaNSSettings settings, ref float offsetY, float viewWidth)
@@ -275,7 +303,7 @@ namespace BPaNSVariations
 
 
 			// Margin
-			offsetY += SettingsRowHeight;
+			offsetY += SettingsRowHeight / 2;
 		}
 
 
@@ -310,6 +338,9 @@ namespace BPaNSVariations
 			output.Append($"{h:0.00} h");
 			return output.ToString();
 		}
+
+		private string TicksToYears(int ticks) =>
+			YearsToText(ticks / 3600000f);
 		#endregion
 
 		#region UI METHODS
@@ -353,8 +384,9 @@ namespace BPaNSVariations
 			float viewWidth,
 			string text)
 		{
+			offsetY += 5;
 			Widgets.ListSeparator(ref offsetY, viewWidth, text);
-			offsetY += 2;
+			offsetY += 5;
 			Text.Anchor = TextAnchor.MiddleLeft;
 		}
 

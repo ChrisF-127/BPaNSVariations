@@ -19,6 +19,18 @@ namespace BPaNSVariations
 	internal class BPaNSSettings : ModSettings
 	{
 		#region PROPERTIES
+		public float DefaultBPNutritionRequired { get; private set; }
+		public float BPNutritionRequired { get; set; } // applied via several CompBiosculpterPod-Transpilers
+		public int DefaultBPBiotunedDuration { get; private set; }
+		public int BPBiotunedDuration { get; set; } // applied via CompBiosculpterPod.SetBiotuned-Transpiler
+		public float DefaultBPBiotunedCycleSpeedFactor { get; private set; }
+		private float _bpBiotunedCycleSpeedFactor;
+		public float BPBiotunedCycleSpeedFactor
+		{
+			get => _bpBiotunedCycleSpeedFactor;
+			set => _bpBiotunedCycleSpeedFactor = SetBPBiotunedCycleSpeedFactor(value);
+		}
+
 		public BiosculpterPodEffectAnimation DefaultBPReadyEffectState { get; private set; }
 		private BiosculpterPodEffectAnimation _bpReadyEffectState;
 		public BiosculpterPodEffectAnimation BPReadyEffectState 
@@ -33,8 +45,6 @@ namespace BPaNSVariations
 			get => _bpReadyEffectColor;
 			set => _bpReadyEffectColor = SetBPReadyEffectColor(value);
 		}
-		public float DefaultBPNutritionRequired { get; private set; }
-		public float BPNutritionRequired { get; set; } // applied via several CompBiosculpterPod-Transpilers
 
 		public float DefaultBPMedicCycleDuration { get; private set; }
 		private float _bpMedicCycleDuration;
@@ -89,24 +99,30 @@ namespace BPaNSVariations
 		#region CONSTRUCTORS
 		public BPaNSSettings()
 		{
-			_bpReadyEffectState = DefaultBPReadyEffectState = BiosculpterPodEffectAnimation.Default;
-			_bpReadyEffectColor = DefaultBPReadyEffectColor = ThingDefOf.BiosculpterPod.GetCompProperties<CompProperties_BiosculpterPod>().selectCycleColor;
-			BPNutritionRequired = DefaultBPNutritionRequired = CompBiosculpterPod.NutritionRequired;
-
+			var biosculpterPod = ThingDefOf.BiosculpterPod.GetCompProperties<CompProperties_BiosculpterPod>();
 			var medicCycle = ThingDefOf.BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_MedicCycle>();
+			var regenerationCycle = ThingDefOf.BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_RegenerationCycle>();
+			var ageReversedCycle = ThingDefOf.BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_AgeReversalCycle, CompBiosculpterPod_AgeReversalCycle>();
+			var pleasureCycle = ThingDefOf.BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_PleasureCycle, CompBiosculpterPod_PleasureCycle>();
+			var biosculpterPleasure = ThoughtDefOf.BiosculpterPleasure;
+
+			BPNutritionRequired = DefaultBPNutritionRequired = CompBiosculpterPod.NutritionRequired;
+			BPBiotunedDuration = DefaultBPBiotunedDuration = 4800000; // hardcoded
+			_bpBiotunedCycleSpeedFactor = DefaultBPBiotunedCycleSpeedFactor = biosculpterPod.biotunedCycleSpeedFactor;
+
+			_bpReadyEffectState = DefaultBPReadyEffectState = BiosculpterPodEffectAnimation.Default;
+			_bpReadyEffectColor = DefaultBPReadyEffectColor = biosculpterPod.selectCycleColor;
+
 			_bpMedicCycleDuration = DefaultBPMedicCycleDuration = medicCycle.durationDays;
 
-			var regenerationCycle = ThingDefOf.BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_RegenerationCycle>();
 			_bpRegenerationCycleDuration = DefaultBPRegenerationCycleDuration = regenerationCycle.durationDays;
 
-			var ageReversedCycle = ThingDefOf.BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_AgeReversalCycle, CompBiosculpterPod_AgeReversalCycle>();
 			_bpAgeReversalCycleDuration = DefaultBPAgeReversalCycleDuration = ageReversedCycle.durationDays;
-			BPAgeReversalCycleAgeReversed = DefaultBPAgeReversalCycleAgeReversed = 1f; // 1 year = 3'600'000 ticks
+			BPAgeReversalCycleAgeReversed = DefaultBPAgeReversalCycleAgeReversed = 1f; // hardcoded, 1 year = 3'600'000 ticks
 
-			var pleasureCycle = ThingDefOf.BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_PleasureCycle, CompBiosculpterPod_PleasureCycle>();
 			_bpPleasureCycleDuration = DefaultBPPleasureCycleDuration = pleasureCycle.durationDays;
-			_bpPleasureCycleMoodEffect = DefaultBPPleasureCycleMoodEffect = ThoughtDefOf.BiosculpterPleasure.stages.First().baseMoodEffect;
-			_bpPleasureCycleMoodDuration = DefaultBPPleasureCycleMoodDuration = ThoughtDefOf.BiosculpterPleasure.durationDays;
+			_bpPleasureCycleMoodEffect = DefaultBPPleasureCycleMoodEffect = biosculpterPleasure.stages.First().baseMoodEffect;
+			_bpPleasureCycleMoodDuration = DefaultBPPleasureCycleMoodDuration = biosculpterPleasure.durationDays;
 		}
 		#endregion
 
@@ -117,6 +133,17 @@ namespace BPaNSVariations
 
 			Color colorValue;
 			float floatValue;
+			int intValue;
+
+			floatValue = BPNutritionRequired;
+			Scribe_Values.Look(ref floatValue, nameof(BPNutritionRequired), DefaultBPNutritionRequired);
+			BPNutritionRequired = floatValue;
+			intValue = BPBiotunedDuration;
+			Scribe_Values.Look(ref intValue, nameof(BPBiotunedDuration), DefaultBPBiotunedDuration);
+			BPBiotunedDuration = intValue;
+			floatValue = BPBiotunedCycleSpeedFactor;
+			Scribe_Values.Look(ref floatValue, nameof(BPBiotunedCycleSpeedFactor), DefaultBPBiotunedCycleSpeedFactor);
+			BPBiotunedCycleSpeedFactor = floatValue;
 
 			var bpreState = BPReadyEffectState;
 			Scribe_Values.Look(ref bpreState, nameof(BPReadyEffectState), DefaultBPReadyEffectState);
@@ -124,9 +151,6 @@ namespace BPaNSVariations
 			colorValue = BPReadyEffectColor;
 			Scribe_Values.Look(ref colorValue, nameof(BPReadyEffectColor), DefaultBPReadyEffectColor);
 			BPReadyEffectColor = colorValue;
-			floatValue = BPNutritionRequired;
-			Scribe_Values.Look(ref floatValue, nameof(BPNutritionRequired), DefaultBPNutritionRequired);
-			BPNutritionRequired = floatValue;
 
 			floatValue = BPMedicCycleDuration;
 			Scribe_Values.Look(ref floatValue, nameof(BPMedicCycleDuration), DefaultBPMedicCycleDuration);
@@ -156,6 +180,14 @@ namespace BPaNSVariations
 		#endregion
 
 		#region PRIVATE METHODS
+		private float SetBPBiotunedCycleSpeedFactor(float factor)
+		{
+			var props = BPaNSUtility.GetBiosculpterPodDefs().GetCompPropertiesOfType<CompProperties_BiosculpterPod>();
+			foreach (var prop in props)
+				prop.biotunedCycleSpeedFactor= factor;
+			return factor;
+		}
+
 		private BiosculpterPodEffectAnimation SetBPReadyEffectState(BiosculpterPodEffectAnimation state)
 		{
 			if (state is BiosculpterPodEffectAnimation.AlwaysOn)

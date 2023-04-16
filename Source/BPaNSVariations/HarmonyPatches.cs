@@ -74,6 +74,10 @@ namespace BPaNSVariations
 			harmony.Patch(
 				AccessTools.Method(typeof(CompBiosculpterPod), nameof(CompBiosculpterPod.CompGetGizmosExtra)),
 				postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_CompGetGizmosExtra_Postfix)));
+			// Apply Biotuned Cycle Speed Factor patch
+			harmony.Patch(
+				AccessTools.Method(typeof(CompBiosculpterPod), nameof(CompBiosculpterPod.SetBiotuned)),
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_SetBiotuned_Transpiler)));
 
 			// Apply Age Reversal Cycle patch
 			harmony.Patch(
@@ -184,6 +188,29 @@ namespace BPaNSVariations
 				else
 					yield return item;
 			}	
+		}
+		static IEnumerable<CodeInstruction> CompBiosculpterPod_SetBiotuned_Transpiler(IEnumerable<CodeInstruction> instructions)
+		{
+			var list = new List<CodeInstruction>(instructions);
+
+			for (int i = 0; i < list.Count; i++)
+			{
+				// -- ldc.r4 5
+				//  0 stfld System.Int32 RimWorld.CompBiosculpterPod::biotunedCountdownTicks
+				// ++ call static BPaNSVariations.BPaNSSettings BPaNSVariations.BPaNSVariations::get_Settings()
+				// ++ callvirt System.Single BPaNSVariations.BPaNSSettings::get_BPBiotunedDuration()
+				if (list[i + 0].opcode == OpCodes.Ldc_I4
+					&& list[i + 1].opcode == OpCodes.Stfld
+					&& list[i + 1].operand is FieldInfo fi
+					&& fi.DeclaringType == typeof(CompBiosculpterPod)
+					&& fi.Name == nameof(CompBiosculpterPod.biotunedCountdownTicks))
+				{
+					list.Insert(i++, new CodeInstruction(OpCodes.Call, AccessTools.PropertyGetter(typeof(BPaNSVariations), nameof(BPaNSVariations.Settings))));
+					list[i] = new CodeInstruction(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(BPaNSSettings), nameof(BPaNSSettings.BPBiotunedDuration)));
+					break;
+				}
+			}
+			return list;
 		}
 
 		static IEnumerable<CodeInstruction> CompBiosculpterPod_AgeReversalCycle_CycleCompleted_Transpiler(IEnumerable<CodeInstruction> instructions)
