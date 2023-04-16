@@ -19,7 +19,7 @@ namespace BPaNSVariations
 		public readonly static ThingDef BiosculpterPod_1x3_Center;
 		public readonly static EffecterDef BiosculpterPod_Ready;
 		public readonly static FleckDef BiosculpterScanner_Ready;
-		public readonly static Tuple<float, float, float> OriginalBiosculpterScanner_ReadyValues; // FadeIn, FadeOut, Solid
+		public readonly static (float FadeIn, float FadeOut, float Solid) OriginalBiosculpterScanner_ReadyValues; // FadeIn, FadeOut, Solid
 
 		public readonly static ThingDef NeuralSupercharger_1x2_Center;
 		#endregion
@@ -49,7 +49,7 @@ namespace BPaNSVariations
 			biosculpterScanner_Forward.graphicData.drawSize = new Vector2(1.5f, 0.5f); // standard is 3x1
 			biosculpterScanner_Backward.graphicData.drawSize = new Vector2(1f, 0.5f); // standard is 2x1
 			BiosculpterScanner_Ready.graphicData.drawSize = new Vector2(1f, 2f); // standard is 2x2
-			OriginalBiosculpterScanner_ReadyValues = new Tuple<float, float, float>(BiosculpterScanner_Ready.fadeInTime, BiosculpterScanner_Ready.fadeOutTime, BiosculpterScanner_Ready.solidTime);
+			OriginalBiosculpterScanner_ReadyValues = (BiosculpterScanner_Ready.fadeInTime, BiosculpterScanner_Ready.fadeOutTime, BiosculpterScanner_Ready.solidTime);
 
 
 			// --- NEURAL SUPERCHARGER
@@ -65,7 +65,48 @@ namespace BPaNSVariations
 		#endregion
 
 		#region PUBLIC METHODS
-		public static IEnumerable<ThingDef> GetBiosculpterDefs()
+		public static T GetSingleCompPropertiesOfType<T>(this ThingDef def)
+			where T : CompProperties
+		{
+			var props = GetCompPropertiesOfType<T>(def);
+			if (props.Count() != 1)
+				throw new Exception($"{nameof(GetSingleCompPropertiesOfType)} encountered invalid number of CompProperties:\n{typeof(T)}\n{props.Count()}");
+			return props.First();
+		}
+		public static IEnumerable<T> GetCompPropertiesOfType<T>(params ThingDef[] defs)
+			where T : CompProperties => 
+			defs.GetCompPropertiesOfType<T>();
+		public static IEnumerable<T> GetCompPropertiesOfType<T>(this IEnumerable<ThingDef> defs)
+			where T : CompProperties
+		{
+			foreach (var def in defs)
+				foreach (var comp in def.comps)
+					if (comp is T t)
+						yield return t;
+		}
+		public static Prop GetSingleCompPropertiesOfTypeWithCompClass<Prop, Class>(this ThingDef def)
+			where Prop : CompProperties
+			where Class : ThingComp
+		{
+			var props = GetCompPropertiesOfTypeWithCompClass<Prop, Class>(def);
+			if (props.Count() != 1)
+				throw new Exception($"{nameof(GetSingleCompPropertiesOfTypeWithCompClass)} encountered invalid number of CompProperties:\n{typeof(Prop)}\n{typeof(Class)}\n{props.Count()}");
+			return props.First();
+		}
+		public static IEnumerable<Prop> GetCompPropertiesOfTypeWithCompClass<Prop, Class>(params ThingDef[] defs)
+			where Prop : CompProperties
+			where Class : ThingComp =>
+			defs.GetCompPropertiesOfTypeWithCompClass<Prop, Class>();
+		public static IEnumerable<Prop> GetCompPropertiesOfTypeWithCompClass<Prop, Class>(this IEnumerable<ThingDef> defs)
+			where Prop : CompProperties
+			where Class : ThingComp
+		{
+			foreach (var comp in GetCompPropertiesOfType<Prop>(defs))
+				if (comp.compClass == typeof(Class))
+					yield return comp;
+		}
+
+		public static IEnumerable<ThingDef> GetBiosculpterPodDefs()
 		{
 			yield return ThingDefOf.BiosculpterPod;
 			yield return BiosculpterPod_2x2_Left;
@@ -73,31 +114,16 @@ namespace BPaNSVariations
 			yield return BiosculpterPod_1x2_Center;
 			yield return BiosculpterPod_1x3_Center;
 		}
-
-		public static IEnumerable<CompProperties_BiosculpterPod> GetAll_CompProperties_BiosculpterPod() =>
-			GetBiosculpterDefs().Select(def => def.GetCompProperties<CompProperties_BiosculpterPod>());
-
 		public static bool IsDefBiosculpterPod(ThingDef def) =>
-			GetBiosculpterDefs().Any(d => d == def);
+			GetBiosculpterPodDefs().Contains(def);
 
 		public static IEnumerable<ThingDef> GetNeuralSuperchargerDefs()
 		{
 			yield return ThingDefOf.NeuralSupercharger;
 			yield return NeuralSupercharger_1x2_Center;
 		}
-
 		public static bool IsDefNeuralSupercharger(ThingDef def) =>
-			GetNeuralSuperchargerDefs().Any(d => d == def);
+			GetNeuralSuperchargerDefs().Contains(def);
 		#endregion
-	}
-
-	internal class TargetWrapper<T>
-	{
-		public T Item { get; set; }
-
-		public TargetWrapper(T item)
-		{
-			Item = item;
-		}
 	}
 }

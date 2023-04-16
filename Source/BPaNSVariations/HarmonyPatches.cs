@@ -6,6 +6,7 @@ using HarmonyLib;
 using System.Reflection.Emit;
 using System.Reflection;
 using System.Linq;
+using System;
 
 namespace BPaNSVariations
 {
@@ -60,6 +61,24 @@ namespace BPaNSVariations
 			harmony.Patch(
 				AccessTools.Method(typeof(CompBiosculpterPod), nameof(CompBiosculpterPod.CompTick)),
 				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_CompTick_Transpiler)));
+			// Following patches are required to patch "Required Nutrition" for Biosculpter Pods
+			harmony.Patch(
+				AccessTools.PropertyGetter(typeof(CompBiosculpterPod), nameof(CompBiosculpterPod.RequiredNutritionRemaining)),
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_RequiredNutrition_Transpiler)));
+			harmony.Patch(
+				AccessTools.Method(typeof(CompBiosculpterPod), nameof(CompBiosculpterPod.CompInspectStringExtra)),
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_RequiredNutrition_Transpiler)));
+			harmony.Patch(
+				AccessTools.Method(typeof(CompBiosculpterPod), nameof(CompBiosculpterPod.LiquifyNutrition)),
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_RequiredNutrition_Transpiler)));
+			harmony.Patch(
+				AccessTools.Method(typeof(CompBiosculpterPod), nameof(CompBiosculpterPod.CompGetGizmosExtra)),
+				postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_CompGetGizmosExtra_Postfix)));
+
+			// Apply Age Reversal Cycle patch
+			harmony.Patch(
+				AccessTools.Method(typeof(CompBiosculpterPod_AgeReversalCycle), nameof(CompBiosculpterPod_AgeReversalCycle.CycleCompleted)),
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_AgeReversalCycle_CycleCompleted_Transpiler)));
 
 			// Patch in new group for Biosculpter Pod into ThingListGroupHelper.Includes method and prevent it from throwing exception for unused groups
 			harmony.Patch(
@@ -103,21 +122,91 @@ namespace BPaNSVariations
 			}
 			return list;
 		}
-
 		static IEnumerable<CodeInstruction> CompBiosculpterPod_CompTick_Transpiler(IEnumerable<CodeInstruction> instructions)
 		{
+#warning TODO ready effect seems to be broken when using multiple different sized pods?
 			var list = new List<CodeInstruction>(instructions);
 			for (int i = 0; i < list.Count - 2; i++)
 			{
-				// replace implicit TargetInfo creation for ThingWithComps for readyEffecter & operatingEffecter with modifying method
+				// replace implicit TargetInfo creation for ThingWithComps for readyEffect & operatingEffect with modifying method
 				if (list[i].opcode == OpCodes.Call && list[i].operand is MethodBase mb && mb.DeclaringType == typeof(TargetInfo) && mb.Name == "op_Implicit"
 					&& list[i - 3].opcode == OpCodes.Ldfld
-					&& list[i - 3].operand is FieldInfo fieldInfo && (fieldInfo.Name == "readyEffecter" || fieldInfo.Name == "operatingEffecter"))
+					&& list[i - 3].operand is FieldInfo fieldInfo && (fieldInfo.Name == "readyEffect" || fieldInfo.Name == "operatingEffect"))
 				{
 					list[i].opcode = OpCodes.Call;
 					list[i].operand = AccessTools.Method(typeof(HarmonyPatches), nameof(HarmonyPatches.Modify_BiosculpterPod_TargetInfo));
 
-					// changes multiple, so don't break!
+					// patches multiple, so no break
+				}
+			}
+			return list;
+		}
+		static IEnumerable<CodeInstruction> CompBiosculpterPod_RequiredNutrition_Transpiler(IEnumerable<CodeInstruction> instructions)
+		{
+			// Hopefully the value of "CompBiosculpterPod.NutritionRequired" is not ever used anywhere else in the patched methods, otherwise it'll cause collateral!
+			var list = new List<CodeInstruction>(instructions);
+			for (int i = 0; i < list.Count; i++)
+			{
+				// -- ldc.r4 5
+				// ++ call static BPaNSVariations.BPaNSSettings BPaNSVariations.BPaNSVariations::get_Settings()
+				// ++ callvirt System.Single BPaNSVariations.BPaNSSettings::get_BPNutritionRequired()
+				if (list[i].opcode == OpCodes.Ldc_R4
+					&& list[i].operand is float value 
+					&& value == CompBiosculpterPod.NutritionRequired)
+				{
+					list.Insert(i++, new CodeInstruction(OpCodes.Call, AccessTools.PropertyGetter(typeof(BPaNSVariations), nameof(BPaNSVariations.Settings))));
+					list[i] = new CodeInstruction(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(BPaNSSettings), nameof(BPaNSSettings.BPNutritionRequired)));
+
+					// potentially patches multiple, so no break
+				}
+			}
+			return list;
+		}
+		static IEnumerable<Gizmo> CompBiosculpterPod_CompGetGizmosExtra_Postfix(IEnumerable<Gizmo> __result, CompBiosculpterPod __instance)
+		{
+			const string label = "DEV: fill nutrition and cycle ingredients";
+			foreach (var item in __result)
+			{
+				if (item is Command_Action commandAction
+					&& commandAction.defaultLabel == label)
+				{
+					yield return new Command_Action
+					{
+						defaultLabel = label,
+						action = delegate
+						{
+							__instance.liquifiedNutrition = BPaNSVariations.Settings.BPNutritionRequired;
+							__instance.devFillPodLatch = true;
+						},
+						disabled = __instance.State == BiosculpterPodState.Occupied || (__instance.devFillPodLatch && __instance.liquifiedNutrition == BPaNSVariations.Settings.BPNutritionRequired)
+					};
+				}
+				else
+					yield return item;
+			}	
+		}
+
+		static IEnumerable<CodeInstruction> CompBiosculpterPod_AgeReversalCycle_CycleCompleted_Transpiler(IEnumerable<CodeInstruction> instructions)
+		{
+			var list = new List<CodeInstruction>(instructions);
+			for (int i = 0; i < list.Count - 3; i++)
+			{
+				// ++ call static BPaNSVariations.BPaNSSettings BPaNSVariations.BPaNSVariations::get_Settings()
+				// ++ callvirt System.Single BPaNSVariations.BPaNSSettings::get_BPAgeReversalAgeReversed()
+				// ++ mul NULL
+				//  0 conv.i4 NULL
+				//  1 stloc.0 NULL
+				//  2 ldc.r4 3600000
+				//  3 ldarg.1 NULL
+				if (list[i + 0].opcode == OpCodes.Conv_I4
+					&& list[i + 1].opcode == OpCodes.Stloc_0
+					&& list[i + 2].opcode == OpCodes.Ldc_R4
+					&& list[i + 3].opcode == OpCodes.Ldarg_1)
+				{
+					list.Insert(i++, new CodeInstruction(OpCodes.Call, AccessTools.PropertyGetter(typeof(BPaNSVariations), nameof(BPaNSVariations.Settings))));
+					list.Insert(i++, new CodeInstruction(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(BPaNSSettings), nameof(BPaNSSettings.BPAgeReversalCycleAgeReversed))));
+					list.Insert(i++, new CodeInstruction(OpCodes.Mul));
+					break;
 				}
 			}
 			return list;
@@ -169,7 +258,6 @@ namespace BPaNSVariations
 			}
 			return list;
 		}
-
 		static IEnumerable<CodeInstruction> ThingRequestGroupUtility_StoreInRegion_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
 		{
 			var label68 = generator.DefineLabel();
@@ -212,7 +300,6 @@ namespace BPaNSVariations
 			return list;
 		}
 
-
 		static IEnumerable<CodeInstruction> WorkGiver_HaulToBiosculpterPod_PotentialWorkThingRequest_Transpiler(IEnumerable<CodeInstruction> instructions)
 		{
 			//ldc.i4 >>ThingRequestGroup_BiosculpterPod<<
@@ -222,7 +309,6 @@ namespace BPaNSVariations
 			//ret NULL
 			yield return new CodeInstruction(OpCodes.Ret);
 		}
-
 		static IEnumerable<CodeInstruction> JobGiver_GetNeuralSupercharge_ClosestSupercharger_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
 		{
 			// Original replacement using a field:

@@ -1,21 +1,39 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <LanguageData>
 
-	<SY_BNV.BPReadyEffecterState>Biosculpter Pod Ready Effect</SY_BNV.BPReadyEffecterState>
-	<SY_BNV.TooltipBPReadyEffecterState>Changes the ready effect animation for Biosculpter Pods</SY_BNV.TooltipBPReadyEffecterState>
-	<SY_BNV.BPReadyEffecterState_Default>Default</SY_BNV.BPReadyEffecterState_Default>
-	<SY_BNV.BPReadyEffecterState_AlwaysOn>Always ON</SY_BNV.BPReadyEffecterState_AlwaysOn>
-	<SY_BNV.BPReadyEffecterState_AlwaysOff>Always OFF</SY_BNV.BPReadyEffecterState_AlwaysOff>
+	<!-- GENERAL -->
 	
-	<SY_BNV.BPReadyEffecterColor>Biosculpter Pod Ready Effect Color</SY_BNV.BPReadyEffecterColor>
-	<SY_BNV.TooltipBPReadyEffecterColor>Adjust the color of the Biosculpter Pod's ready effect (for example 0.5 R, 1 G, 1 B)
-Changes require reloading to apply!</SY_BNV.TooltipBPReadyEffecterColor>
+	<SY_BNV.TooltipDefaultValue>Default:</SY_BNV.TooltipDefaultValue>
+	<SY_BNV.Reset>Reset</SY_BNV.Reset>
 
 	<SY_BNV.Red>Red</SY_BNV.Red>
 	<SY_BNV.Green>Green</SY_BNV.Green>
 	<SY_BNV.Blue>Blue</SY_BNV.Blue>
+
+
+	<!-- BIOSCULPTER POD -->
 	
-	<SY_BNV.TooltipDefaultValue>Default:</SY_BNV.TooltipDefaultValue>
-	<SY_BNV.Reset>Reset</SY_BNV.Reset>
+	<SY_BNV.TitleBiosculpterPod>Biosculpter Pod Settings</SY_BNV.TitleBiosculpterPod>
+	<SY_BNV.SeparatorBPGeneralSettings>Biosculpter Pod - General Settings</SY_BNV.SeparatorBPGeneralSettings>
+	
+	<SY_BNV.BPReadyEffectState>Ready Effect Animation</SY_BNV.BPReadyEffectState>
+	<SY_BNV.TooltipBPReadyEffectState>Changes the ready effect animation for Biosculpter Pods</SY_BNV.TooltipBPReadyEffectState>
+	<SY_BNV.BPReadyEffectState_Default>Default</SY_BNV.BPReadyEffectState_Default>
+	<SY_BNV.BPReadyEffectState_AlwaysOn>Always ON</SY_BNV.BPReadyEffectState_AlwaysOn>
+	<SY_BNV.BPReadyEffectState_AlwaysOff>Always OFF</SY_BNV.BPReadyEffectState_AlwaysOff>
+	
+	<SY_BNV.BPReadyEffectColor>Ready Effect Color</SY_BNV.BPReadyEffectColor>
+	<SY_BNV.TooltipBPReadyEffectColor>Adjust the color of the Biosculpter Pod's ready effect\n(for example 0.5 R, 1 G, 1 B)\nChanges require reloading to apply!</SY_BNV.TooltipBPReadyEffectColor>
+
+
+	<!-- NEURAL SUPERCHARGER -->
+	
+	<SY_BNV.TitleNeuralSupercharger>Neural Supercharger Settings</SY_BNV.TitleNeuralSupercharger>
+
+
+	<!-- SLEEP ACCELERATOR -->
+	
+	<SY_BNV.TitleSleepAccelerator>Sleep Accelerator Settings</SY_BNV.TitleSleepAccelerator>
+	
 	
 </LanguageData>

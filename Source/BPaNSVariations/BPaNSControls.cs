@@ -7,30 +7,37 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Verse;
 using static UnityEngine.UI.CanvasScaler;
-using Verse.Noise;
 
 namespace BPaNSVariations
 {
-	internal delegate T ConvertDelegate<T>(T value);
+	internal delegate string AdditionalTextDelegate<T>(T value);
 
 	internal class BPaNSControls
 	{
 		#region FIELDS
-		public static float SettingsViewHeight = 0;
 		public const float SettingsRowHeight = 32;
+		public static readonly Color ModifiedColor = Color.cyan;
+		public static readonly Color SelectionColor = Color.green;
 
 		public static GameFont OriTextFont;
 		public static TextAnchor OriTextAnchor;
 		public static Color OriColor;
-		public static Color ModifiedColor = Color.cyan;
-		public static Color SelectionColor = Color.green;
 
+		public float _settingsViewHeight = 0;
 		private Vector2 _settingsScrollPosition;
 
 		#region SETTINGS
-		private TargetWrapper<BiosculpterPodEffecterState> _bpEffecterStateTargetWrapper = null;
-		private readonly BiosculpterPodEffecterState[] _bpEffecterStates = (BiosculpterPodEffecterState[])Enum.GetValues(typeof(BiosculpterPodEffecterState));
-		private readonly string[] _bpReadyEffecterColorBuffers = new string[3];
+		private string _bpNutritionRequiredBuffer;
+		private TargetWrapper<BiosculpterPodEffectAnimation> _bpReadyEffectStateTargetWrapper = null;
+		private readonly BiosculpterPodEffectAnimation[] _bpReadyEffectStates = (BiosculpterPodEffectAnimation[])Enum.GetValues(typeof(BiosculpterPodEffectAnimation));
+		private string[] _bpReadyEffectColorBuffers;
+		private string _bpMedicCycleDurationBuffer;
+		private string _bpRegenerationCycleDurationBuffer;
+		private string _bpAgeReversalCycleDurationBuffer;
+		private string _bpAgeReversalCycleAgeReversedBuffer;
+		private string _bpPleasureCycleDurationBuffer;
+		private string _bpPleasureCycleMoodEffectBuffer;
+		private string _bpPleasureCycleMoodDurationBuffer;
 		#endregion
 		#endregion
 
@@ -57,40 +64,30 @@ namespace BPaNSVariations
 				Widgets.BeginScrollView(
 					new Rect(0, 0, width, height),
 					ref _settingsScrollPosition,
-					new Rect(0, 0, viewWidth, SettingsViewHeight));
+					new Rect(0, 0, viewWidth, _settingsViewHeight));
 
-				// Biosculpter Pod - Ready Effecter State
-				if (_bpEffecterStateTargetWrapper == null)
-					_bpEffecterStateTargetWrapper = new TargetWrapper<BiosculpterPodEffecterState>(settings.BPReadyEffecterState);
-				CreateDropdownSelectorControl(
-					totalHeight,
-					viewWidth,
-					"SY_BNV.BPReadyEffecterState".Translate(),
-					"SY_BNV.TooltipBPReadyEffecterState".Translate(),
-					settings.BPReadyEffecterState != settings.DefaultBPReadyEffecterState,
-					_bpEffecterStateTargetWrapper,
-					settings.DefaultBPReadyEffecterState,
-					_bpEffecterStates,
-					state => BPReadyEffecterStateToString(state).Translate());
-				totalHeight += SettingsRowHeight;
-				settings.BPReadyEffecterState = _bpEffecterStateTargetWrapper.Item;
+				// Biosculpter Pod Settings
+				CreateBiosculpterPodSettings(
+					settings, 
+					ref totalHeight, 
+					viewWidth);
 
-				// Biosculpter Pod - Ready Effecter Color
-				var color = CreateColorControl(
-					totalHeight,
-					viewWidth,
-					"SY_BNV.BPReadyEffecterColor".Translate(),
-					"SY_BNV.TooltipBPReadyEffecterColor".Translate(),
-					settings.BPReadyEffecterColor,
-					settings.DefaultBPReadyEffecterColor,
-					_bpReadyEffecterColorBuffers);
-				totalHeight += SettingsRowHeight;
-				settings.BPReadyEffecterColor = color;
+				// Neural Supercharger
+				CreateNeuralSuperchargerSettings(
+					settings, 
+					ref totalHeight, 
+					viewWidth);
+
+				// Sleep Accelerator
+				CreateSleepAcceleratorSettings(
+					settings, 
+					ref totalHeight, 
+					viewWidth);
 			}
 			finally
 			{
 				// Remember settings view height for potential scrolling
-				SettingsViewHeight = totalHeight;
+				_settingsViewHeight = totalHeight;
 
 				// End ScrollView and Group
 				Widgets.EndScrollView();
@@ -102,9 +99,220 @@ namespace BPaNSVariations
 				GUI.color = OriColor;
 			}
 		}
+		#endregion
+
+		#region PRIVATE METHODS
+		private void CreateBiosculpterPodSettings(BPaNSSettings settings, ref float offsetY, float viewWidth)
+		{
+			// Biosculpter Pod
+			CreateTitle(
+				ref offsetY, 
+				viewWidth, 
+				"SY_BNV.TitleBiosculpterPod".Translate());
+
+			// Biosculpter Pod - General Settings
+			CreateSeparator(
+				ref offsetY, 
+				viewWidth,
+				"SY_BNV.SeparatorBPGeneralSettings".Translate());
+			// Biosculpter Pod - General Settings - Nutrition Required
+			settings.BPNutritionRequired = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPNutritionRequired".Translate(),
+				"SY_BNV.TooltipBPNutritionRequired".Translate(),
+				settings.BPNutritionRequired,
+				settings.DefaultBPNutritionRequired,
+				ref _bpNutritionRequiredBuffer,
+				additionalText: v => "SY_BNV.Nutrition".Translate());
+			// Biosculpter Pod - General Settings - Ready Effect Animation
+			if (_bpReadyEffectStateTargetWrapper == null)
+				_bpReadyEffectStateTargetWrapper = new TargetWrapper<BiosculpterPodEffectAnimation>(settings.BPReadyEffectState);
+			settings.BPReadyEffectState = CreateDropdownSelectorControl(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPReadyEffectState".Translate(),
+				"SY_BNV.TooltipBPReadyEffectState".Translate(),
+				settings.BPReadyEffectState != settings.DefaultBPReadyEffectState,
+				_bpReadyEffectStateTargetWrapper,
+				settings.DefaultBPReadyEffectState,
+				_bpReadyEffectStates,
+				state => BPReadyEffectStateToString(state).Translate());
+			// Biosculpter Pod - General Settings - Ready Effect Color
+			settings.BPReadyEffectColor = CreateColorControl(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPReadyEffectColor".Translate(),
+				"SY_BNV.TooltipBPReadyEffectColor".Translate(),
+				settings.BPReadyEffectColor,
+				settings.DefaultBPReadyEffectColor,
+				ref _bpReadyEffectColorBuffers);
+
+			// Biosculpter Pod - Medic Cycle
+			CreateSeparator(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.SeparatorBPMedicCycle".Translate());
+			// Biosculpter Pod - Medic Cycle - Duration
+			settings.BPMedicCycleDuration = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPMedicCycleDuration".Translate(),
+				"SY_BNV.TooltipBPMedicCycleDuration".Translate(),
+				settings.BPMedicCycleDuration,
+				settings.DefaultBPMedicCycleDuration,
+				ref _bpMedicCycleDurationBuffer,
+				additionalText: DaysToText,
+				unit: "d");
+
+			// Biosculpter Pod - Regeneration Cycle
+			CreateSeparator(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.SeparatorBPRegenerationCycle".Translate());
+			// Biosculpter Pod - Regeneration Cycle - Duration
+			settings.BPRegenerationCycleDuration = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPRegenerationCycleDuration".Translate(),
+				"SY_BNV.TooltipBPRegenerationCycleDuration".Translate(),
+				settings.BPRegenerationCycleDuration,
+				settings.DefaultBPRegenerationCycleDuration,
+				ref _bpRegenerationCycleDurationBuffer,
+				additionalText: DaysToText,
+				unit: "d");
+#warning TODO medicine required, choose type & amount
+
+			// Biosculpter Pod - Age Reversal Cycle
+			CreateSeparator(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.SeparatorBPAgeReversalCycle".Translate());
+			// Biosculpter Pod - Age Reversal Cycle - Duration
+			settings.BPAgeReversalCycleDuration = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPAgeReversalCycleDuration".Translate(),
+				"SY_BNV.TooltipBPAgeReversalCycleDuration".Translate(),
+				settings.BPAgeReversalCycleDuration,
+				settings.DefaultBPAgeReversalCycleDuration,
+				ref _bpAgeReversalCycleDurationBuffer,
+				additionalText: DaysToText,
+				unit: "d");
+			// Biosculpter Pod - Age Reversal Cycle - Age reversed
+			settings.BPAgeReversalCycleAgeReversed = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPAgeReversalCycleAgeReversed".Translate(),
+				"SY_BNV.TooltipBPAgeReversalCycleAgeReversed".Translate(),
+				settings.BPAgeReversalCycleAgeReversed,
+				settings.DefaultBPAgeReversalCycleAgeReversed,
+				ref _bpAgeReversalCycleAgeReversedBuffer,
+				additionalText: YearsToText,
+				unit: "y");
+
+			// Biosculpter Pod - Pleasure Cycle
+			CreateSeparator(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.SeparatorBPPleasureCycle".Translate());
+			// Biosculpter Pod - Pleasure Cycle - Duration
+			settings.BPPleasureCycleDuration = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPPleasureCycleDuration".Translate(),
+				"SY_BNV.TooltipBPPleasureCycleDuration".Translate(),
+				settings.BPPleasureCycleDuration,
+				settings.DefaultBPPleasureCycleDuration,
+				ref _bpPleasureCycleDurationBuffer,
+				additionalText: DaysToText,
+				unit: "d");
+			// Biosculpter Pod - Pleasure Cycle - Mood Effect
+			settings.BPPleasureCycleMoodEffect = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPPleasureCycleMoodEffect".Translate(),
+				"SY_BNV.TooltipBPPleasureCycleMoodEffect".Translate(),
+				settings.BPPleasureCycleMoodEffect,
+				settings.DefaultBPPleasureCycleMoodEffect,
+				ref _bpPleasureCycleMoodEffectBuffer);
+			// Biosculpter Pod - Pleasure Cycle - Mood Duration
+			settings.BPPleasureCycleMoodDuration = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPPleasureCycleMoodDuration".Translate(),
+				"SY_BNV.TooltipBPPleasureCycleMoodDuration".Translate(),
+				settings.BPPleasureCycleMoodDuration,
+				settings.DefaultBPPleasureCycleMoodDuration,
+				ref _bpPleasureCycleMoodDurationBuffer,
+				additionalText: DaysToText,
+				unit: "d");
+
+			// Margin
+			offsetY += SettingsRowHeight;
+		}
+
+		private void CreateNeuralSuperchargerSettings(BPaNSSettings settings, ref float offsetY, float viewWidth)
+		{
+			// Neural Supercharger
+			CreateTitle(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.TitleNeuralSupercharger".Translate());
 
 
-		#region CONTROLS
+			// Margin
+			offsetY += SettingsRowHeight;
+		}
+
+		private void CreateSleepAcceleratorSettings(BPaNSSettings settings, ref float offsetY, float viewWidth)
+		{
+			// Sleep Accelerator
+			CreateTitle(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.TitleSleepAccelerator".Translate());
+
+
+			// Margin
+			offsetY += SettingsRowHeight;
+		}
+
+
+		private string BPReadyEffectStateToString(BiosculpterPodEffectAnimation state)
+		{
+			switch (state)
+			{
+				case BiosculpterPodEffectAnimation.Default:
+					return "SY_BNV.BPReadyEffectState_Default";
+				case BiosculpterPodEffectAnimation.AlwaysOn:
+					return "SY_BNV.BPReadyEffectState_AlwaysOn";
+				case BiosculpterPodEffectAnimation.AlwaysOff:
+					return "SY_BNV.BPReadyEffectState_AlwaysOff";
+			}
+			throw new Exception($"{nameof(BPaNSVariations)}.{nameof(BPaNSControls)}.{nameof(BPReadyEffectStateToString)}: unknown state encountered: {state}");
+		}
+
+		private string YearsToText(float years) =>
+			DaysToText(years * 60f);
+		private string DaysToText(float days) =>
+			HoursToText(days * 24f);
+		private string HoursToText(float hours)
+		{
+			var output = new StringBuilder();
+			var y = Mathf.Floor(hours / 24f / 60f);
+			if (y > 0) output.Append($"{y:0} y");
+			output.Append("\t");
+			var d = Mathf.Floor(hours / 24f % 60f);
+			if (y > 0 || d > 0) output.Append($"{d:0} d");
+			output.Append("\t");
+			var h = hours % 24f;
+			output.Append($"{h:0.00} h");
+			return output.ToString();
+		}
+		#endregion
+
+		#region UI METHODS
 		public static float GetControlWidth(float viewWidth) =>
 			viewWidth / 2 - SettingsRowHeight - 4;
 
@@ -129,8 +337,55 @@ namespace BPaNSVariations
 			Text.Anchor = TextAnchor.MiddleLeft;
 		}
 
+		public static void CreateTitle(
+			ref float offsetY,
+			float viewWidth,
+			string text)
+		{
+			Text.Font = GameFont.Medium;
+			Widgets.Label(new Rect(0, offsetY, viewWidth, SettingsRowHeight), text);
+			Text.Font = GameFont.Small;
+			offsetY += SettingsRowHeight + 2;
+		}
+
+		public static void CreateSeparator(
+			ref float offsetY,
+			float viewWidth,
+			string text)
+		{
+			Widgets.ListSeparator(ref offsetY, viewWidth, text);
+			offsetY += 2;
+			Text.Anchor = TextAnchor.MiddleLeft;
+		}
+
 		public static T CreateNumeric<T>(
-			float offsetY,
+			ref float offsetY,
+			float viewWidth,
+			string label,
+			string tooltip,
+			T value,
+			T defaultValue,
+			ref string valueBuffer,
+			float min = 0f,
+			float max = 1e+9f,
+			AdditionalTextDelegate<T> additionalText = null,
+			string unit = null)
+			where T : struct, IComparable =>
+			CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				label,
+				tooltip,
+				!value.Equals(defaultValue),
+				value,
+				defaultValue,
+				ref valueBuffer,
+				min,
+				max,
+				additionalText,
+				unit);
+		public static T CreateNumeric<T>(
+			ref float offsetY,
 			float viewWidth,
 			string label,
 			string tooltip,
@@ -140,7 +395,7 @@ namespace BPaNSVariations
 			ref string valueBuffer,
 			float min = 0f,
 			float max = 1e+9f,
-			ConvertDelegate<T> convert = null,
+			AdditionalTextDelegate<T> additionalText = null,
 			string unit = null)
 			where T : struct
 		{
@@ -153,13 +408,22 @@ namespace BPaNSVariations
 			GUI.color = OriColor;
 
 			// Setting
-			var textFieldRect = new Rect(controlWidth + 2, offsetY + 6, controlWidth - 4, SettingsRowHeight - 12);
+			var textFieldRect = new Rect(controlWidth + 2, offsetY + 6, controlWidth / 2 - 4, SettingsRowHeight - 12);
 			Widgets.TextFieldNumeric(textFieldRect, ref value, ref valueBuffer, min, max);
 			if (!string.IsNullOrWhiteSpace(tooltip))
 				DrawTooltip(textFieldRect, tooltip);
 
 			// Unit
-			DrawTextFieldUnit(textFieldRect, convert != null ? (T?)convert(value) : null, unit);
+			DrawTextFieldUnit<T?>(textFieldRect, null, unit);
+
+			// Additional Text
+			if (additionalText != null)
+			{
+				var additionalTextRect = textFieldRect;
+				additionalTextRect.x += textFieldRect.width + 8;
+				additionalTextRect.width -= 8;
+				Widgets.Label(additionalTextRect, additionalText(value));
+			}
 
 			// Reset button
 			if (isModified && DrawResetButton(offsetY, viewWidth, defaultValue.ToString()))
@@ -168,20 +432,24 @@ namespace BPaNSVariations
 				valueBuffer = null;
 			}
 
+			offsetY += SettingsRowHeight;
 			return value;
 		}
 
 		public static Color CreateColorControl(
-			float offsetY,
+			ref float offsetY,
 			float viewWidth,
 			string label,
 			string tooltip,
 			Color value,
 			Color defaultValue,
-			string[] valueBuffers)
+			ref string[] valueBuffers)
 		{
 			var controlWidth = GetControlWidth(viewWidth);
 			var isModified = value != defaultValue;
+
+			if (valueBuffers?.Length != 3)
+				valueBuffers = new string[3];
 
 			// Label
 			if (isModified)
@@ -194,21 +462,21 @@ namespace BPaNSVariations
 			var w = (controlWidth / 3) - 4;
 			var textFieldRect = new Rect(x, offsetY + 6, w, SettingsRowHeight - 12);
 			Widgets.TextFieldNumeric(textFieldRect, ref value.r, ref valueBuffers[0], 0f, 1f);
-			DrawTooltip(textFieldRect, $"{tooltip} {"SY_BNV.Red".Translate()}");
+			DrawTooltip(textFieldRect, $"{"SY_BNV.Red".Translate()}:\n{tooltip}");
 			DrawTextFieldUnit<float?>(textFieldRect, null, "R");
 
 			// Green
 			x += w + 4;
 			textFieldRect = new Rect(x, offsetY + 6, w, SettingsRowHeight - 12);
 			Widgets.TextFieldNumeric(textFieldRect, ref value.g, ref valueBuffers[1], 0f, 1f);
-			DrawTooltip(textFieldRect, $"{tooltip} {"SY_BNV.Green".Translate()}");
+			DrawTooltip(textFieldRect, $"{"SY_BNV.Green".Translate()}:\n{tooltip}");
 			DrawTextFieldUnit<float?>(textFieldRect, null, "G");
 
 			// Blue
 			x += w + 4;
 			textFieldRect = new Rect(x, offsetY + 6, w, SettingsRowHeight - 12);
 			Widgets.TextFieldNumeric(textFieldRect, ref value.b, ref valueBuffers[2], 0f, 1f);
-			DrawTooltip(textFieldRect, $"{tooltip} {"SY_BNV.Blue".Translate()}");
+			DrawTooltip(textFieldRect, $"{"SY_BNV.Blue".Translate()}:\n{tooltip}");
 			DrawTextFieldUnit<float?>(textFieldRect, null, "B");
 
 			// Reset button
@@ -221,11 +489,12 @@ namespace BPaNSVariations
 				valueBuffers[2] = null;
 			}
 
+			offsetY += SettingsRowHeight;
 			return value;
 		}
 
-		public static void CreateDropdownSelectorControl<T>(
-			float offsetY,
+		public static T CreateDropdownSelectorControl<T>(
+			ref float offsetY,
 			float viewWidth,
 			string label,
 			string tooltip,
@@ -269,24 +538,20 @@ namespace BPaNSVariations
 			// Reset
 			if (isModified && DrawResetButton(offsetY, viewWidth, itemToString(DefaultValue)))
 				valueWrapper.Item = DefaultValue;
-		}
-		#endregion
-		#endregion
 
-		#region PRIVATE METHODS
-		private string BPReadyEffecterStateToString(BiosculpterPodEffecterState state)
-		{
-			switch (state)
-			{
-				case BiosculpterPodEffecterState.Default:
-					return "SY_BNV.BPReadyEffecterState_Default";
-				case BiosculpterPodEffecterState.AlwaysOn:
-					return "SY_BNV.BPReadyEffecterState_AlwaysOn";
-				case BiosculpterPodEffecterState.AlwaysOff:
-					return "SY_BNV.BPReadyEffecterState_AlwaysOff";
-			}
-			throw new Exception($"{nameof(BPaNSVariations)}.{nameof(BPaNSControls)}.{nameof(BPReadyEffecterStateToString)}: unknown state encountered: {state}");
+			offsetY += SettingsRowHeight;
+			return valueWrapper.Item;
 		}
 		#endregion
+	}
+
+	internal class TargetWrapper<T>
+	{
+		public T Item { get; set; }
+
+		public TargetWrapper(T item)
+		{
+			Item = item;
+		}
 	}
 }

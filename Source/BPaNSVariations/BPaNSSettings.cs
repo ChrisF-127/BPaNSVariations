@@ -9,7 +9,7 @@ using Verse;
 
 namespace BPaNSVariations
 {
-	public enum BiosculpterPodEffecterState
+	public enum BiosculpterPodEffectAnimation
 	{
 		Default,
 		AlwaysOn,
@@ -19,39 +19,146 @@ namespace BPaNSVariations
 	internal class BPaNSSettings : ModSettings
 	{
 		#region PROPERTIES
-		public BiosculpterPodEffecterState DefaultBPReadyEffecterState { get; private set; }
-		private BiosculpterPodEffecterState _bpReadyEffecterState;
-		public BiosculpterPodEffecterState BPReadyEffecterState 
+		public BiosculpterPodEffectAnimation DefaultBPReadyEffectState { get; private set; }
+		private BiosculpterPodEffectAnimation _bpReadyEffectState;
+		public BiosculpterPodEffectAnimation BPReadyEffectState 
 		{
-			get => _bpReadyEffecterState;
-			set => SetBPReadyEffecterState(value);
+			get => _bpReadyEffectState;
+			set => _bpReadyEffectState = SetBPReadyEffectState(value);
+		}
+		public Color DefaultBPReadyEffectColor { get; private set; }
+		private Color _bpReadyEffectColor;
+		public Color BPReadyEffectColor
+		{
+			get => _bpReadyEffectColor;
+			set => _bpReadyEffectColor = SetBPReadyEffectColor(value);
+		}
+		public float DefaultBPNutritionRequired { get; private set; }
+		public float BPNutritionRequired { get; set; } // applied via several CompBiosculpterPod-Transpilers
+
+		public float DefaultBPMedicCycleDuration { get; private set; }
+		private float _bpMedicCycleDuration;
+		public float BPMedicCycleDuration
+		{
+			get => _bpMedicCycleDuration;
+			set => _bpMedicCycleDuration = SetBPCycleDuration<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_MedicCycle>(value);
 		}
 
-		public Color DefaultBPReadyEffecterColor { get; private set; }
-		private Color _bpReadyEffecterColor;
-		public Color BPReadyEffecterColor
+		public float DefaultBPRegenerationCycleDuration { get; private set; }
+		private float _bpRegenerationCycleDuration;
+		public float BPRegenerationCycleDuration
 		{
-			get => _bpReadyEffecterColor;
-			set => SetBPReadyEffecterColor(value);
+			get => _bpRegenerationCycleDuration;
+			set => _bpRegenerationCycleDuration = SetBPCycleDuration<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_RegenerationCycle>(value);
+		}
+#warning TODO medicine required, choose type & amount
+
+		public float DefaultBPAgeReversalCycleDuration { get; private set; }
+		private float _bpAgeReversalCycleDuration;
+		public float BPAgeReversalCycleDuration
+		{
+			get => _bpAgeReversalCycleDuration;
+			set => _bpAgeReversalCycleDuration = SetBPCycleDuration<CompProperties_BiosculpterPod_AgeReversalCycle, CompBiosculpterPod_AgeReversalCycle>(value);
+		}
+		public float DefaultBPAgeReversalCycleAgeReversed { get; private set; }
+		public float BPAgeReversalCycleAgeReversed { get; set; } // applied via CompBiosculpterPod_AgeReversalCycle.CycleCompleted-Transpiler
+
+		public float DefaultBPPleasureCycleDuration { get; private set; }
+		private float _bpPleasureCycleDuration;
+		public float BPPleasureCycleDuration
+		{
+			get => _bpPleasureCycleDuration;
+			set => _bpPleasureCycleDuration = SetBPCycleDuration<CompProperties_BiosculpterPod_PleasureCycle, CompBiosculpterPod_PleasureCycle>(value);
+		}
+		public float DefaultBPPleasureCycleMoodEffect { get; private set; }
+		private float _bpPleasureCycleMoodEffect;
+		public float BPPleasureCycleMoodEffect
+		{
+			get => _bpPleasureCycleMoodEffect;
+			set => _bpPleasureCycleMoodEffect = SetPBPleasureCycleMoodEffect(value);
+		}
+		public float DefaultBPPleasureCycleMoodDuration { get; private set; }
+		private float _bpPleasureCycleMoodDuration;
+		public float BPPleasureCycleMoodDuration
+		{
+			get => _bpPleasureCycleMoodDuration;
+			set => _bpPleasureCycleMoodDuration = SetPBPleasureCycleMoodDuration(value);
 		}
 		#endregion
 
 		#region CONSTRUCTORS
 		public BPaNSSettings()
 		{
-			_bpReadyEffecterState = DefaultBPReadyEffecterState = BiosculpterPodEffecterState.Default;
-			_bpReadyEffecterColor = DefaultBPReadyEffecterColor = ThingDefOf.BiosculpterPod.GetCompProperties<CompProperties_BiosculpterPod>().selectCycleColor;
+			_bpReadyEffectState = DefaultBPReadyEffectState = BiosculpterPodEffectAnimation.Default;
+			_bpReadyEffectColor = DefaultBPReadyEffectColor = ThingDefOf.BiosculpterPod.GetCompProperties<CompProperties_BiosculpterPod>().selectCycleColor;
+			BPNutritionRequired = DefaultBPNutritionRequired = CompBiosculpterPod.NutritionRequired;
+
+			var medicCycle = ThingDefOf.BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_MedicCycle>();
+			_bpMedicCycleDuration = DefaultBPMedicCycleDuration = medicCycle.durationDays;
+
+			var regenerationCycle = ThingDefOf.BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_RegenerationCycle>();
+			_bpRegenerationCycleDuration = DefaultBPRegenerationCycleDuration = regenerationCycle.durationDays;
+
+			var ageReversedCycle = ThingDefOf.BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_AgeReversalCycle, CompBiosculpterPod_AgeReversalCycle>();
+			_bpAgeReversalCycleDuration = DefaultBPAgeReversalCycleDuration = ageReversedCycle.durationDays;
+			BPAgeReversalCycleAgeReversed = DefaultBPAgeReversalCycleAgeReversed = 1f; // 1 year = 3'600'000 ticks
+
+			var pleasureCycle = ThingDefOf.BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_PleasureCycle, CompBiosculpterPod_PleasureCycle>();
+			_bpPleasureCycleDuration = DefaultBPPleasureCycleDuration = pleasureCycle.durationDays;
+			_bpPleasureCycleMoodEffect = DefaultBPPleasureCycleMoodEffect = ThoughtDefOf.BiosculpterPleasure.stages.First().baseMoodEffect;
+			_bpPleasureCycleMoodDuration = DefaultBPPleasureCycleMoodDuration = ThoughtDefOf.BiosculpterPleasure.durationDays;
+		}
+		#endregion
+
+		#region OVERRIDES
+		public override void ExposeData()
+		{
+			base.ExposeData();
+
+			Color colorValue;
+			float floatValue;
+
+			var bpreState = BPReadyEffectState;
+			Scribe_Values.Look(ref bpreState, nameof(BPReadyEffectState), DefaultBPReadyEffectState);
+			BPReadyEffectState = bpreState;
+			colorValue = BPReadyEffectColor;
+			Scribe_Values.Look(ref colorValue, nameof(BPReadyEffectColor), DefaultBPReadyEffectColor);
+			BPReadyEffectColor = colorValue;
+			floatValue = BPNutritionRequired;
+			Scribe_Values.Look(ref floatValue, nameof(BPNutritionRequired), DefaultBPNutritionRequired);
+			BPNutritionRequired = floatValue;
+
+			floatValue = BPMedicCycleDuration;
+			Scribe_Values.Look(ref floatValue, nameof(BPMedicCycleDuration), DefaultBPMedicCycleDuration);
+			BPMedicCycleDuration = floatValue;
+
+			floatValue = BPRegenerationCycleDuration;
+			Scribe_Values.Look(ref floatValue, nameof(BPRegenerationCycleDuration), DefaultBPRegenerationCycleDuration);
+			BPRegenerationCycleDuration = floatValue;
+
+			floatValue = BPAgeReversalCycleDuration;
+			Scribe_Values.Look(ref floatValue, nameof(BPAgeReversalCycleDuration), DefaultBPAgeReversalCycleDuration);
+			BPAgeReversalCycleDuration = floatValue;
+			floatValue = BPAgeReversalCycleAgeReversed;
+			Scribe_Values.Look(ref floatValue, nameof(BPAgeReversalCycleAgeReversed), DefaultBPAgeReversalCycleAgeReversed);
+			BPAgeReversalCycleAgeReversed = floatValue;
+
+			floatValue = BPPleasureCycleDuration;
+			Scribe_Values.Look(ref floatValue, nameof(BPPleasureCycleDuration), DefaultBPPleasureCycleDuration);
+			BPPleasureCycleDuration = floatValue;
+			floatValue = BPPleasureCycleMoodEffect;
+			Scribe_Values.Look(ref floatValue, nameof(BPPleasureCycleMoodEffect), DefaultBPPleasureCycleMoodEffect);
+			BPPleasureCycleMoodEffect = floatValue;
+			floatValue = BPPleasureCycleMoodDuration;
+			Scribe_Values.Look(ref floatValue, nameof(BPPleasureCycleMoodDuration), DefaultBPPleasureCycleMoodDuration);
+			BPPleasureCycleMoodDuration = floatValue;
 		}
 		#endregion
 
 		#region PRIVATE METHODS
-		private void SetBPReadyEffecterState(BiosculpterPodEffecterState state, bool force = false)
+		private BiosculpterPodEffectAnimation SetBPReadyEffectState(BiosculpterPodEffectAnimation state)
 		{
-			if (!force && _bpReadyEffecterState == state)
-				return;
-			_bpReadyEffecterState = state;
-
-			if (state is BiosculpterPodEffecterState.AlwaysOn)
+			if (state is BiosculpterPodEffectAnimation.AlwaysOn)
 			{
 				BPaNSUtility.BiosculpterScanner_Ready.fadeInTime = 0f;
 				BPaNSUtility.BiosculpterScanner_Ready.fadeOutTime = 0f;
@@ -61,46 +168,46 @@ namespace BPaNSVariations
 			}
 			else
 			{
-				BPaNSUtility.BiosculpterScanner_Ready.fadeInTime = BPaNSUtility.OriginalBiosculpterScanner_ReadyValues.Item1;
-				BPaNSUtility.BiosculpterScanner_Ready.fadeOutTime = BPaNSUtility.OriginalBiosculpterScanner_ReadyValues.Item2;
-				BPaNSUtility.BiosculpterScanner_Ready.solidTime = BPaNSUtility.OriginalBiosculpterScanner_ReadyValues.Item3;
+				BPaNSUtility.BiosculpterScanner_Ready.fadeInTime = BPaNSUtility.OriginalBiosculpterScanner_ReadyValues.FadeIn;
+				BPaNSUtility.BiosculpterScanner_Ready.fadeOutTime = BPaNSUtility.OriginalBiosculpterScanner_ReadyValues.FadeOut;
+				BPaNSUtility.BiosculpterScanner_Ready.solidTime = BPaNSUtility.OriginalBiosculpterScanner_ReadyValues.Solid;
 			}
 
-			if (state is BiosculpterPodEffecterState.AlwaysOff)
+			var props = BPaNSUtility.GetBiosculpterPodDefs().GetCompPropertiesOfType<CompProperties_BiosculpterPod>();
+			if (state is BiosculpterPodEffectAnimation.AlwaysOff)
 			{
-				foreach (var prop in BPaNSUtility.GetAll_CompProperties_BiosculpterPod())
+				foreach (var prop in props)
 					prop.readyEffecter = null;
 			}
 			else
 			{
-				foreach (var prop in BPaNSUtility.GetAll_CompProperties_BiosculpterPod())
+				foreach (var prop in props)
 					prop.readyEffecter = BPaNSUtility.BiosculpterPod_Ready;
 			}
+			return state;
 		}
-
-		private void SetBPReadyEffecterColor(Color color, bool force = false)
+		private Color SetBPReadyEffectColor(Color color)
 		{
-			if (!force && _bpReadyEffecterColor == color)
-				return;
-			_bpReadyEffecterColor = color;
-
-			foreach (var prop in BPaNSUtility.GetAll_CompProperties_BiosculpterPod())
+			foreach (var prop in BPaNSUtility.GetBiosculpterPodDefs().GetCompPropertiesOfType<CompProperties_BiosculpterPod>())
 				prop.selectCycleColor = color;
+			return color;
 		}
-		#endregion
 
-		#region OVERRIDES
-		public override void ExposeData()
+		private float SetPBPleasureCycleMoodEffect(float effect) => 
+			ThoughtDefOf.BiosculpterPleasure.stages.First().baseMoodEffect = effect;
+		private float SetPBPleasureCycleMoodDuration(float duration) =>
+			ThoughtDefOf.BiosculpterPleasure.durationDays = duration;
+
+		private float SetBPCycleDuration<Prop, Class>(float duration)
+			where Prop : CompProperties_BiosculpterPod_BaseCycle
+			where Class : CompBiosculpterPod_Cycle
 		{
-			base.ExposeData();
-
-			var v0 = BPReadyEffecterState;
-			Scribe_Values.Look(ref v0, nameof(BPReadyEffecterState), DefaultBPReadyEffecterState);
-			BPReadyEffecterState = v0;
-
-			var v1 = BPReadyEffecterColor;
-			Scribe_Values.Look(ref v1, nameof(BPReadyEffecterColor), DefaultBPReadyEffecterColor);
-			BPReadyEffecterColor = v1;
+			var props = BPaNSUtility.GetBiosculpterPodDefs().GetCompPropertiesOfTypeWithCompClass<Prop, Class>();
+			if (props.Count() == 0)
+				throw new Exception($"{nameof(SetBPCycleDuration)} found no CompProperties for:\n{typeof(Prop)}\n{typeof(Class)}");
+			foreach (var prop in props)
+				prop.durationDays = duration;
+			return duration;
 		}
 		#endregion
 	}
