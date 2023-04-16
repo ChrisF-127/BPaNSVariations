@@ -31,7 +31,6 @@ namespace BPaNSVariations
 			get => _bpBiotunedCycleSpeedFactor;
 			set => _bpBiotunedCycleSpeedFactor = SetBPBiotunedCycleSpeedFactor(value);
 		}
-#warning TODO build cost: choose building materials & amounts
 		public float DefaultBPActivePowerConsumption { get; private set; }
 		private float _bpActivePowerConsumption;
 		public float BPActivePowerConsumption
@@ -45,6 +44,14 @@ namespace BPaNSVariations
 		{
 			get => _bpStandbyPowerConsumption;
 			set => _bpStandbyPowerConsumption = SetBPStandbyPowerConsumption(value);
+		}
+#warning TODO build cost: choose building materials & amounts
+		public float DefaultBPWorkToBuild { get; private set; }
+		private float _bpWorkToBuild;
+		public float BPWorkToBuild
+		{
+			get => _bpWorkToBuild;
+			set => _bpWorkToBuild = SetBPWorkToBuild(value);
 		}
 
 		public BiosculpterPodEffectAnimation DefaultBPReadyEffectState { get; private set; }
@@ -115,6 +122,7 @@ namespace BPaNSVariations
 		#region CONSTRUCTORS
 		public BPaNSSettings()
 		{
+			var bpStatbases = ThingDefOf.BiosculpterPod.statBases;
 			var biosculpterPod = ThingDefOf.BiosculpterPod.GetCompProperties<CompProperties_BiosculpterPod>();
 			var bpPower = ThingDefOf.BiosculpterPod.GetSingleCompPropertiesOfType<CompProperties_Power>();
 			var bpMedicCycle = ThingDefOf.BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_MedicCycle>();
@@ -128,6 +136,7 @@ namespace BPaNSVariations
 			_bpBiotunedCycleSpeedFactor = DefaultBPBiotunedCycleSpeedFactor = biosculpterPod.biotunedCycleSpeedFactor;
 			_bpActivePowerConsumption = DefaultBPActivePowerConsumption = bpPower.basePowerConsumption;
 			_bpStandbyPowerConsumption = DefaultBPStandbyPowerConsumption = bpPower.idlePowerDraw;
+			_bpWorkToBuild = DefaultBPWorkToBuild = ThingDefOf.BiosculpterPod.GetStatValueAbstract(StatDefOf.WorkToBuild);
 
 			_bpReadyEffectState = DefaultBPReadyEffectState = BiosculpterPodEffectAnimation.Default;
 			_bpReadyEffectColor = DefaultBPReadyEffectColor = biosculpterPod.selectCycleColor;
@@ -169,6 +178,9 @@ namespace BPaNSVariations
 			floatValue = BPStandbyPowerConsumption;
 			Scribe_Values.Look(ref floatValue, nameof(BPStandbyPowerConsumption), DefaultBPStandbyPowerConsumption);
 			BPStandbyPowerConsumption = floatValue;
+			floatValue = BPWorkToBuild;
+			Scribe_Values.Look(ref floatValue, nameof(BPWorkToBuild), DefaultBPWorkToBuild);
+			BPWorkToBuild = floatValue;
 
 			var bpreState = BPReadyEffectState;
 			Scribe_Values.Look(ref bpreState, nameof(BPReadyEffectState), DefaultBPReadyEffectState);
@@ -225,6 +237,13 @@ namespace BPaNSVariations
 			foreach (var prop in props)
 				prop.idlePowerDraw = power;
 			return power;
+		}
+		private float SetBPWorkToBuild(float work)
+		{
+			var defs = BPaNSUtility.GetBiosculpterPodDefs();
+			foreach (var def in defs)
+				def.SetStatBaseValue(StatDefOf.WorkToBuild, work);
+			return work;
 		}
 
 		private BiosculpterPodEffectAnimation SetBPReadyEffectState(BiosculpterPodEffectAnimation state)

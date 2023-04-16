@@ -30,6 +30,7 @@ namespace BPaNSVariations
 		private string _bpNutritionRequiredBuffer;
 		private string _bpBiotunedDuration;
 		private string _bpBiotunedCycleSpeedFactor;
+		private string _bpWorkToBuild;
 		private string _bpActivePowerConsumption;
 		private string _bpStandbyPowerConsumption;
 		private TargetWrapper<BiosculpterPodEffectAnimation> _bpReadyEffectStateTargetWrapper = null;
@@ -149,6 +150,16 @@ namespace BPaNSVariations
 				settings.BPBiotunedCycleSpeedFactor,
 				settings.DefaultBPBiotunedCycleSpeedFactor,
 				ref _bpBiotunedCycleSpeedFactor);
+			// Biosculpter Pod - General Settings - Work to Build
+			settings.BPWorkToBuild = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPWorkToBuild".Translate(),
+				"SY_BNV.TooltipBPWorkToBuild".Translate(),
+				settings.BPWorkToBuild,
+				settings.DefaultBPWorkToBuild,
+				ref _bpWorkToBuild,
+				additionalText: WorkToBuildToWorkLeft);
 #warning TODO build cost: choose building materials & amounts
 			// Biosculpter Pod - General Settings - Active Power Consumption
 			settings.BPActivePowerConsumption = CreateNumeric(
@@ -158,7 +169,9 @@ namespace BPaNSVariations
 				"SY_BNV.TooltipBPActivePowerConsumption".Translate(),
 				settings.BPActivePowerConsumption,
 				settings.DefaultBPActivePowerConsumption,
-				ref _bpActivePowerConsumption);
+				ref _bpActivePowerConsumption,
+				unit: "W");
+			// Biosculpter Pod - General Settings - Standby Power Consumption
 			settings.BPStandbyPowerConsumption = CreateNumeric(
 				ref offsetY,
 				viewWidth,
@@ -166,7 +179,8 @@ namespace BPaNSVariations
 				"SY_BNV.TooltipBPStandbyPowerConsumption".Translate(),
 				settings.BPStandbyPowerConsumption,
 				settings.DefaultBPStandbyPowerConsumption,
-				ref _bpStandbyPowerConsumption);
+				ref _bpStandbyPowerConsumption,
+				unit: "W");
 
 			// Biosculpter Pod - Ready Effect
 			CreateSeparator(
@@ -340,6 +354,9 @@ namespace BPaNSVariations
 			}
 			throw new Exception($"{nameof(BPaNSVariations)}.{nameof(BPaNSControls)}.{nameof(BPReadyEffectStateToString)}: unknown state encountered: {state}");
 		}
+
+		private string WorkToBuildToWorkLeft(float work) =>
+			$"{work / 60f:0}\t{"SY_BNV.Work".Translate()}";
 
 		private string YearsToText(float years) =>
 			DaysToText(years * 60f);
