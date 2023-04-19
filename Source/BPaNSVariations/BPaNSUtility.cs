@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using Verse.AI;
 using System.Reflection;
+using System.Windows.Markup;
 
 namespace BPaNSVariations
 {
@@ -124,6 +125,42 @@ namespace BPaNSVariations
 		}
 		public static bool IsDefNeuralSupercharger(ThingDef def) =>
 			GetNeuralSuperchargerDefs().Contains(def);
+
+
+		public static void Overwrite(this List<ThingDefCountClass> to, IEnumerable<ThingDefCountClass> from)
+		{
+			to.Clear();
+			to.AddRange(from.Select(v => new ThingDefCountClass(v.thingDef, v.count)));
+		}
+
+
+		public static bool IsModified(this List<ThingDefCountClass> listA, List<ThingDefCountClass> listB)
+		{
+			if (listA.Count != listB.Count)
+				return true;
+			foreach (var a in listA)
+				if (!listB.Any(b => a.thingDef == b.thingDef && a.count == b.count))
+					return true;
+			foreach (var b in listB)
+				if (!listA.Any(a => a.thingDef == b.thingDef && a.count == b.count))
+					return true;
+			return false;
+		}
+
+
+		public static void ExposeList<T>(List<T> values, string name, Func<bool> isModified)
+		{
+			if (Scribe.mode != LoadSaveMode.Saving || isModified())
+			{
+				var temp = values;
+				Scribe_Collections.Look(ref temp, name);
+				if (temp != null && values != temp)
+				{
+					values.Clear();
+					values.AddRange(temp);
+				}
+			}
+		}
 		#endregion
 	}
 }

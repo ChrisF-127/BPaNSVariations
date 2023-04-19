@@ -1,7 +1,9 @@
 ﻿using RimWorld;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -45,7 +47,8 @@ namespace BPaNSVariations
 			get => _bpStandbyPowerConsumption;
 			set => _bpStandbyPowerConsumption = SetBPStandbyPowerConsumption(value);
 		}
-#warning TODO build cost: choose building materials & amounts
+		public List<ThingDefCountClass> DefaultBPBuildCost { get; } = new List<ThingDefCountClass>();
+		public List<ThingDefCountClass> BPBuildCost { get; } = new List<ThingDefCountClass>(); // applied via ApplyBPBuildCost
 		public float DefaultBPWorkToBuild { get; private set; }
 		private float _bpWorkToBuild;
 		public float BPWorkToBuild
@@ -84,7 +87,8 @@ namespace BPaNSVariations
 			get => _bpRegenerationCycleDuration;
 			set => _bpRegenerationCycleDuration = SetBPCycleDuration<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_RegenerationCycle>(value);
 		}
-#warning TODO medicine required: choose type & amount
+		public List<ThingDefCountClass> DefaultBPRegenerationCycleIngredients { get; } = new List<ThingDefCountClass>();
+		public List<ThingDefCountClass> BPRegenerationCycleIngredients { get; } = new List<ThingDefCountClass>(); // applied via ApplyBPRegenerationCycleExtraRequiredIngredients
 
 		public float DefaultBPAgeReversalCycleDuration { get; private set; }
 		private float _bpAgeReversalCycleDuration;
@@ -119,10 +123,31 @@ namespace BPaNSVariations
 		}
 		#endregion
 
+		#region FIELDS
+		public readonly ReadOnlyCollection<ThingDef> BuildCostThingDefs;
+		public readonly ReadOnlyCollection<ThingDef> MedicineThingDefs;
+		#endregion
+
 		#region CONSTRUCTORS
 		public BPaNSSettings()
 		{
-			var bpStatbases = ThingDefOf.BiosculpterPod.statBases;
+			var thingDefs = DefDatabase<ThingDef>.AllDefs.Where(
+				(def) =>
+				def.category == ThingCategory.Item
+				&&  def.CountAsResource
+				&& !def.MadeFromStuff
+				&& (def.thingCategories?.Contains(ThingCategoryDefOf.ResourcesRaw) == true
+				||  def.thingCategories?.Contains(ThingCategoryDefOf.Manufactured) == true)
+				).ToList();
+			thingDefs.SortBy((def) => def.label ?? "");
+			BuildCostThingDefs = thingDefs.AsReadOnly();
+
+			thingDefs = DefDatabase<ThingDef>.AllDefs.Where(
+				(def) => def.IsMedicine).ToList();
+			thingDefs.SortBy((def) => def.label ?? "");
+			MedicineThingDefs = thingDefs.AsReadOnly();
+
+
 			var biosculpterPod = ThingDefOf.BiosculpterPod.GetCompProperties<CompProperties_BiosculpterPod>();
 			var bpPower = ThingDefOf.BiosculpterPod.GetSingleCompPropertiesOfType<CompProperties_Power>();
 			var bpMedicCycle = ThingDefOf.BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_MedicCycle>();
@@ -131,26 +156,69 @@ namespace BPaNSVariations
 			var bpPleasureCycle = ThingDefOf.BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_PleasureCycle, CompBiosculpterPod_PleasureCycle>();
 			var bpBiosculpterPleasure = ThoughtDefOf.BiosculpterPleasure;
 
+
 			BPNutritionRequired = DefaultBPNutritionRequired = CompBiosculpterPod.NutritionRequired;
+
+
 			BPBiotunedDuration = DefaultBPBiotunedDuration = 4800000; // hardcoded
+
 			_bpBiotunedCycleSpeedFactor = DefaultBPBiotunedCycleSpeedFactor = biosculpterPod.biotunedCycleSpeedFactor;
+
+
 			_bpActivePowerConsumption = DefaultBPActivePowerConsumption = bpPower.basePowerConsumption;
+
 			_bpStandbyPowerConsumption = DefaultBPStandbyPowerConsumption = bpPower.idlePowerDraw;
+
+
+			BPBuildCost.Overwrite(ThingDefOf.BiosculpterPod.costList);
+			DefaultBPBuildCost.Overwrite(BPBuildCost);
+			ApplyBPBuildCost();
+
 			_bpWorkToBuild = DefaultBPWorkToBuild = ThingDefOf.BiosculpterPod.GetStatValueAbstract(StatDefOf.WorkToBuild);
 
+
 			_bpReadyEffectState = DefaultBPReadyEffectState = BiosculpterPodEffectAnimation.Default;
+
 			_bpReadyEffectColor = DefaultBPReadyEffectColor = biosculpterPod.selectCycleColor;
+
 
 			_bpMedicCycleDuration = DefaultBPMedicCycleDuration = bpMedicCycle.durationDays;
 
+
 			_bpRegenerationCycleDuration = DefaultBPRegenerationCycleDuration = bpRegenerationCycle.durationDays;
 
+			BPRegenerationCycleIngredients = bpRegenerationCycle.extraRequiredIngredients;
+			DefaultBPRegenerationCycleIngredients.Overwrite(BPRegenerationCycleIngredients);
+			ApplyBPRegenerationCycleIngredients();
+
+
 			_bpAgeReversalCycleDuration = DefaultBPAgeReversalCycleDuration = bpAgeReversedCycle.durationDays;
+
 			BPAgeReversalCycleAgeReversed = DefaultBPAgeReversalCycleAgeReversed = 1f; // hardcoded, 1 year = 3'600'000 ticks
 
+
 			_bpPleasureCycleDuration = DefaultBPPleasureCycleDuration = bpPleasureCycle.durationDays;
+
 			_bpPleasureCycleMoodEffect = DefaultBPPleasureCycleMoodEffect = bpBiosculpterPleasure.stages.First().baseMoodEffect;
+
 			_bpPleasureCycleMoodDuration = DefaultBPPleasureCycleMoodDuration = bpBiosculpterPleasure.durationDays;
+		}
+		#endregion
+
+		#region PUBLIC METHODS
+		public void ApplyBPBuildCost()
+		{
+			var defs = BPaNSUtility.GetBiosculpterPodDefs();
+			foreach (var def in defs)
+				if (def.costList.IsModified(BPBuildCost))
+					def.costList.Overwrite(BPBuildCost);
+		}
+		public void ApplyBPRegenerationCycleIngredients()
+		{
+			var props = BPaNSUtility.GetBiosculpterPodDefs().GetCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_RegenerationCycle>();
+			foreach (var prop in props)
+				if (prop.extraRequiredIngredients.IsModified(BPRegenerationCycleIngredients))
+					prop.extraRequiredIngredients.Overwrite(BPRegenerationCycleIngredients);
 		}
 		#endregion
 
@@ -178,6 +246,8 @@ namespace BPaNSVariations
 			floatValue = BPStandbyPowerConsumption;
 			Scribe_Values.Look(ref floatValue, nameof(BPStandbyPowerConsumption), DefaultBPStandbyPowerConsumption);
 			BPStandbyPowerConsumption = floatValue;
+			BPaNSUtility.ExposeList(BPBuildCost, nameof(BPBuildCost), () => BPBuildCost.IsModified(DefaultBPBuildCost));
+			ApplyBPBuildCost();
 			floatValue = BPWorkToBuild;
 			Scribe_Values.Look(ref floatValue, nameof(BPWorkToBuild), DefaultBPWorkToBuild);
 			BPWorkToBuild = floatValue;
@@ -196,6 +266,8 @@ namespace BPaNSVariations
 			floatValue = BPRegenerationCycleDuration;
 			Scribe_Values.Look(ref floatValue, nameof(BPRegenerationCycleDuration), DefaultBPRegenerationCycleDuration);
 			BPRegenerationCycleDuration = floatValue;
+			BPaNSUtility.ExposeList(BPRegenerationCycleIngredients, nameof(BPRegenerationCycleIngredients), () => BPRegenerationCycleIngredients.IsModified(DefaultBPRegenerationCycleIngredients));
+			ApplyBPRegenerationCycleIngredients();
 
 			floatValue = BPAgeReversalCycleDuration;
 			Scribe_Values.Look(ref floatValue, nameof(BPAgeReversalCycleDuration), DefaultBPAgeReversalCycleDuration);
@@ -238,6 +310,7 @@ namespace BPaNSVariations
 				prop.idlePowerDraw = power;
 			return power;
 		}
+
 		private float SetBPWorkToBuild(float work)
 		{
 			var defs = BPaNSUtility.GetBiosculpterPodDefs();

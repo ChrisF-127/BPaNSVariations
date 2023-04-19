@@ -1,5 +1,7 @@
-﻿using RimWorld;
+﻿using MonoMod.Utils;
+using RimWorld;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +17,8 @@ namespace BPaNSVariations
 	internal class BPaNSControls
 	{
 		#region FIELDS
-		public const float SettingsRowHeight = 32;
+		public const float SettingsRowHeight = 32f;
+		public const float ThinSettingsRowHeight = 26f;
 		public static readonly Color ModifiedColor = Color.cyan;
 		public static readonly Color SelectionColor = Color.green;
 
@@ -27,17 +30,22 @@ namespace BPaNSVariations
 		private Vector2 _settingsScrollPosition;
 
 		#region SETTINGS
-		private string _bpNutritionRequiredBuffer;
-		private string _bpBiotunedDuration;
-		private string _bpBiotunedCycleSpeedFactor;
-		private string _bpWorkToBuild;
-		private string _bpActivePowerConsumption;
-		private string _bpStandbyPowerConsumption;
+		private ThingDefCountClass _bpBuildCostNewDef = null;
 		private TargetWrapper<BiosculpterPodEffectAnimation> _bpReadyEffectStateTargetWrapper = null;
 		private readonly BiosculpterPodEffectAnimation[] _bpReadyEffectStates = (BiosculpterPodEffectAnimation[])Enum.GetValues(typeof(BiosculpterPodEffectAnimation));
+		private ThingDefCountClass _bpRegenerationCycleIngredientsNewDef = null;
+
+		private string _bpNutritionRequiredBuffer;
+		private string _bpBiotunedDurationBuffer;
+		private string _bpBiotunedCycleSpeedFactorBuffer;
+		private List<string> _bpBuildCostBuffers;
+		private string _bpWorkToBuildBuffer;
+		private string _bpActivePowerConsumptionBuffer;
+		private string _bpStandbyPowerConsumptionBuffer;
 		private string[] _bpReadyEffectColorBuffers;
 		private string _bpMedicCycleDurationBuffer;
 		private string _bpRegenerationCycleDurationBuffer;
+		private List<string> _bpRegenerationCycleIngredientsBuffers;
 		private string _bpAgeReversalCycleDurationBuffer;
 		private string _bpAgeReversalCycleAgeReversedBuffer;
 		private string _bpPleasureCycleDurationBuffer;
@@ -138,8 +146,8 @@ namespace BPaNSVariations
 				"SY_BNV.TooltipBPBiotunedDuration".Translate(),
 				settings.BPBiotunedDuration,
 				settings.DefaultBPBiotunedDuration,
-				ref _bpBiotunedDuration,
-				additionalText: TicksToYears,
+				ref _bpBiotunedDurationBuffer,
+				additionalText: TicksToYearText,
 				unit: "Ticks");
 			// Biosculpter Pod - General Settings - Biotuned Cycle Speed Factor
 			settings.BPBiotunedCycleSpeedFactor = CreateNumeric(
@@ -149,7 +157,20 @@ namespace BPaNSVariations
 				"SY_BNV.TooltipBPBiotunedCycleSpeedFactor".Translate(),
 				settings.BPBiotunedCycleSpeedFactor,
 				settings.DefaultBPBiotunedCycleSpeedFactor,
-				ref _bpBiotunedCycleSpeedFactor);
+				ref _bpBiotunedCycleSpeedFactorBuffer);
+			// Biosculpter Pod - General Settings - Build Cost
+			if (_bpBuildCostNewDef == null)
+				_bpBuildCostNewDef = new ThingDefCountClass();
+			CreateThingDefListControl(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPBuildCost".Translate(),
+				ref _bpBuildCostNewDef,
+				settings.BPBuildCost,
+				settings.DefaultBPBuildCost,
+				settings.BuildCostThingDefs,
+				ref _bpBuildCostBuffers);
+			settings.ApplyBPBuildCost();
 			// Biosculpter Pod - General Settings - Work to Build
 			settings.BPWorkToBuild = CreateNumeric(
 				ref offsetY,
@@ -158,9 +179,8 @@ namespace BPaNSVariations
 				"SY_BNV.TooltipBPWorkToBuild".Translate(),
 				settings.BPWorkToBuild,
 				settings.DefaultBPWorkToBuild,
-				ref _bpWorkToBuild,
+				ref _bpWorkToBuildBuffer,
 				additionalText: WorkToBuildToWorkLeft);
-#warning TODO build cost: choose building materials & amounts
 			// Biosculpter Pod - General Settings - Active Power Consumption
 			settings.BPActivePowerConsumption = CreateNumeric(
 				ref offsetY,
@@ -169,7 +189,7 @@ namespace BPaNSVariations
 				"SY_BNV.TooltipBPActivePowerConsumption".Translate(),
 				settings.BPActivePowerConsumption,
 				settings.DefaultBPActivePowerConsumption,
-				ref _bpActivePowerConsumption,
+				ref _bpActivePowerConsumptionBuffer,
 				unit: "W");
 			// Biosculpter Pod - General Settings - Standby Power Consumption
 			settings.BPStandbyPowerConsumption = CreateNumeric(
@@ -179,7 +199,7 @@ namespace BPaNSVariations
 				"SY_BNV.TooltipBPStandbyPowerConsumption".Translate(),
 				settings.BPStandbyPowerConsumption,
 				settings.DefaultBPStandbyPowerConsumption,
-				ref _bpStandbyPowerConsumption,
+				ref _bpStandbyPowerConsumptionBuffer,
 				unit: "W");
 
 			// Biosculpter Pod - Ready Effect
@@ -243,7 +263,19 @@ namespace BPaNSVariations
 				ref _bpRegenerationCycleDurationBuffer,
 				additionalText: DaysToText,
 				unit: "d");
-#warning TODO medicine required: choose type & amount
+			// Biosculpter Pod - General Settings - Build Cost
+			if (_bpRegenerationCycleIngredientsNewDef == null)
+				_bpRegenerationCycleIngredientsNewDef = new ThingDefCountClass();
+			CreateThingDefListControl(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPRegenerationCycleIngredients".Translate(),
+				ref _bpRegenerationCycleIngredientsNewDef,
+				settings.BPRegenerationCycleIngredients,
+				settings.DefaultBPRegenerationCycleIngredients,
+				settings.MedicineThingDefs,
+				ref _bpRegenerationCycleIngredientsBuffers);
+			settings.ApplyBPRegenerationCycleIngredients();
 
 			// Biosculpter Pod - Age Reversal Cycle
 			CreateSeparator(
@@ -376,7 +408,7 @@ namespace BPaNSVariations
 			return output.ToString();
 		}
 
-		private string TicksToYears(int ticks) =>
+		private string TicksToYearText(int ticks) =>
 			YearsToText(ticks / 3600000f);
 		#endregion
 
@@ -532,21 +564,27 @@ namespace BPaNSVariations
 			var textFieldRect = new Rect(x, offsetY + 6, w, SettingsRowHeight - 12);
 			Widgets.TextFieldNumeric(textFieldRect, ref value.r, ref valueBuffers[0], 0f, 1f);
 			DrawTooltip(textFieldRect, $"{"SY_BNV.Red".Translate()}:\n{tooltip}");
+			GUI.color = Color.red;
 			DrawTextFieldUnit<float?>(textFieldRect, null, "R");
+			GUI.color = OriColor;
 
 			// Green
 			x += w + 4;
 			textFieldRect = new Rect(x, offsetY + 6, w, SettingsRowHeight - 12);
 			Widgets.TextFieldNumeric(textFieldRect, ref value.g, ref valueBuffers[1], 0f, 1f);
 			DrawTooltip(textFieldRect, $"{"SY_BNV.Green".Translate()}:\n{tooltip}");
+			GUI.color = Color.green;
 			DrawTextFieldUnit<float?>(textFieldRect, null, "G");
+			GUI.color = OriColor;
 
 			// Blue
 			x += w + 4;
 			textFieldRect = new Rect(x, offsetY + 6, w, SettingsRowHeight - 12);
 			Widgets.TextFieldNumeric(textFieldRect, ref value.b, ref valueBuffers[2], 0f, 1f);
 			DrawTooltip(textFieldRect, $"{"SY_BNV.Blue".Translate()}:\n{tooltip}");
+			GUI.color = Color.blue;
 			DrawTextFieldUnit<float?>(textFieldRect, null, "B");
+			GUI.color = OriColor;
 
 			// Reset button
 			if (isModified && DrawResetButton(offsetY, viewWidth, defaultValue.ToString()))
@@ -610,6 +648,133 @@ namespace BPaNSVariations
 
 			offsetY += SettingsRowHeight;
 			return valueWrapper.Item;
+		}
+
+		public static void CreateThingDefListControl(
+			ref float offsetY,
+			float viewWidth,
+			string label,
+			ref ThingDefCountClass newThing,
+			List<ThingDefCountClass> values,
+			List<ThingDefCountClass> defaultValues,
+			IEnumerable<ThingDef> availableThingDefs,
+			ref List<string> valueBuffers)
+		{
+			var oriOffsetY = offsetY;
+			var controlWidth = GetControlWidth(viewWidth);
+			var isModified = values.IsModified(defaultValues);
+
+			if (!(valueBuffers?.Count >= 1))
+				valueBuffers = new List<string> { null };
+
+			// Label
+			if (isModified)
+				GUI.color = ModifiedColor;
+			Widgets.Label(new Rect(0, offsetY, controlWidth, ThinSettingsRowHeight), label);
+			GUI.color = OriColor;
+
+			// Menu Generator
+			IEnumerable<Widgets.DropdownMenuElement<ThingDef>> menuGenerator(ThingDefCountClass target)
+			{
+				foreach (var def in availableThingDefs)
+				{
+					yield return new Widgets.DropdownMenuElement<ThingDef>
+					{
+						option = new FloatMenuOption(def.LabelCap, () => target.thingDef = def),
+						payload = def,
+					};
+				}
+			}
+
+			offsetY += 1;
+
+			// New ThingDef selector
+			var thingDefRect = new Rect(controlWidth + 2, offsetY + 4, controlWidth / 2 - 4, ThinSettingsRowHeight - 4);
+			Widgets.Dropdown(
+				thingDefRect,
+				newThing,
+				null,
+				menuGenerator,
+				newThing.thingDef?.LabelCap);
+			DrawTooltip(thingDefRect, "SY_BNV.SelectNewThingDef".Translate());
+
+			// New ThingDef count
+			var countRect = new Rect(thingDefRect.x + thingDefRect.width + 4, offsetY + 5, controlWidth / 2 - ThinSettingsRowHeight, ThinSettingsRowHeight - 6);
+			var valueBuffer = valueBuffers[0];
+			Widgets.TextFieldNumeric(countRect, ref newThing.count, ref valueBuffer, 1, int.MaxValue);
+			valueBuffers[0] = valueBuffer;
+			DrawTooltip(countRect, "SY_BNV.Count".Translate());
+
+			// Add button
+			var smallButtonRect = new Rect(countRect.x + countRect.width + 4, offsetY + 3, ThinSettingsRowHeight - 2, ThinSettingsRowHeight - 2);
+			var newThingThingDef = newThing.thingDef;
+			if (newThing.thingDef != null && !values.Any(v => v.thingDef == newThingThingDef) && Widgets.ButtonText(smallButtonRect, "+"))
+			{
+				values.Add(newThing);
+				newThing = new ThingDefCountClass();
+				valueBuffers[0] = null;
+			}
+			DrawTooltip(smallButtonRect, "SY_BNV.Add".Translate());
+
+			// Row offset
+			offsetY += ThinSettingsRowHeight + 2;
+
+
+			// Create list
+			for (int i = 0; i < values.Count; i++)
+			{
+				var value = values[i];
+				var bufferPos = i + 1;
+
+				// Set new offsetY
+				thingDefRect.y = offsetY + 4;
+				countRect.y = offsetY + 5;
+				smallButtonRect.y = offsetY + 3;
+
+				// ThingDef
+				if (!defaultValues.Any(v => v.thingDef == value.thingDef && v.count == value.count))
+					GUI.color = ModifiedColor;
+				Widgets.Label(thingDefRect, value.thingDef.LabelCap);
+				GUI.color = OriColor;
+
+				// Count
+				if (valueBuffers.Count == bufferPos) // should never be less than "i + 1"!
+					valueBuffers.Add(null);
+				valueBuffer = valueBuffers[bufferPos];
+				var intValue = value.count;
+				Widgets.TextFieldNumeric(countRect, ref intValue, ref valueBuffer, 1, int.MaxValue);
+				value.count = intValue;
+				valueBuffers[bufferPos] = valueBuffer;
+				DrawTooltip(countRect, "SY_BNV.Count".Translate());
+
+				// Remove button
+				if (Widgets.ButtonText(smallButtonRect, "-") && values.Any(v => v.thingDef == value.thingDef))
+				{
+					values.Remove(value);
+					valueBuffers.RemoveAt(bufferPos);
+				}
+				DrawTooltip(smallButtonRect, "SY_BNV.Remove".Translate());
+
+				// Row offset
+				offsetY += ThinSettingsRowHeight;
+			}
+
+
+			// Reset (must be added last to not cause focus to jump when it appears)
+			string itemToString(List<ThingDefCountClass> thingDefCountList)
+			{
+				var sb = new StringBuilder();
+				foreach (var item in thingDefCountList)
+					sb.Append($"{item.thingDef?.LabelCap} {item.count}\n");
+				return sb.ToString();
+			}
+			if (isModified && DrawResetButton(oriOffsetY, viewWidth, itemToString(defaultValues)))
+			{
+				values.Overwrite(defaultValues);
+				valueBuffers = new List<string> { null };
+			}
+
+			offsetY += 4;
 		}
 		#endregion
 	}
