@@ -35,14 +35,15 @@ namespace BPaNSVariations
 		private readonly BiosculpterPodEffectAnimation[] _bpReadyEffectStates = (BiosculpterPodEffectAnimation[])Enum.GetValues(typeof(BiosculpterPodEffectAnimation));
 		private ThingDefCountClass _bpRegenerationCycleIngredientsNewDef = null;
 
+		private string _bpActivePowerConsumptionBuffer;
+		private string _bpStandbyPowerConsumptionBuffer;
+		private List<string> _bpBuildCostBuffers;
+		private string _bpWorkToBuildBuffer;
+		private string[] _bpReadyEffectColorBuffers;
 		private string _bpNutritionRequiredBuffer;
 		private string _bpBiotunedDurationBuffer;
 		private string _bpBiotunedCycleSpeedFactorBuffer;
-		private List<string> _bpBuildCostBuffers;
-		private string _bpWorkToBuildBuffer;
-		private string _bpActivePowerConsumptionBuffer;
-		private string _bpStandbyPowerConsumptionBuffer;
-		private string[] _bpReadyEffectColorBuffers;
+		private string _bpSpeedFactorBuffer;
 		private string _bpMedicCycleDurationBuffer;
 		private string _bpRegenerationCycleDurationBuffer;
 		private List<string> _bpRegenerationCycleIngredientsBuffers;
@@ -123,42 +124,33 @@ namespace BPaNSVariations
 				viewWidth, 
 				"SY_BNV.TitleBiosculpterPod".Translate());
 
-			// Biosculpter Pod - General Settings
+			#region GENERAL
+			// Biosculpter Pod - General
 			CreateSeparator(
 				ref offsetY, 
 				viewWidth,
-				"SY_BNV.SeparatorBPGeneralSettings".Translate());
-			// Biosculpter Pod - General Settings - Nutrition Required
-			settings.BPNutritionRequired = CreateNumeric(
+				"SY_BNV.SeparatorBPGeneral".Translate());
+			// Biosculpter Pod - General - Active Power Consumption
+			settings.BPActivePowerConsumption = CreateNumeric(
 				ref offsetY,
 				viewWidth,
-				"SY_BNV.BPNutritionRequired".Translate(),
-				"SY_BNV.TooltipBPNutritionRequired".Translate(),
-				settings.BPNutritionRequired,
-				settings.DefaultBPNutritionRequired,
-				ref _bpNutritionRequiredBuffer,
-				additionalText: v => "SY_BNV.Nutrition".Translate());
-			// Biosculpter Pod - General Settings - Biotuned Duration
-			settings.BPBiotunedDuration = CreateNumeric(
+				"SY_BNV.BPActivePowerConsumption".Translate(),
+				"SY_BNV.TooltipBPActivePowerConsumption".Translate(),
+				settings.BPActivePowerConsumption,
+				settings.DefaultBPActivePowerConsumption,
+				ref _bpActivePowerConsumptionBuffer,
+				unit: "W");
+			// Biosculpter Pod - General - Standby Power Consumption
+			settings.BPStandbyPowerConsumption = CreateNumeric(
 				ref offsetY,
 				viewWidth,
-				"SY_BNV.BPBiotunedDuration".Translate(),
-				"SY_BNV.TooltipBPBiotunedDuration".Translate(),
-				settings.BPBiotunedDuration,
-				settings.DefaultBPBiotunedDuration,
-				ref _bpBiotunedDurationBuffer,
-				additionalText: TicksToYearText,
-				unit: "Ticks");
-			// Biosculpter Pod - General Settings - Biotuned Cycle Speed Factor
-			settings.BPBiotunedCycleSpeedFactor = CreateNumeric(
-				ref offsetY,
-				viewWidth,
-				"SY_BNV.BPBiotunedCycleSpeedFactor".Translate(),
-				"SY_BNV.TooltipBPBiotunedCycleSpeedFactor".Translate(),
-				settings.BPBiotunedCycleSpeedFactor,
-				settings.DefaultBPBiotunedCycleSpeedFactor,
-				ref _bpBiotunedCycleSpeedFactorBuffer);
-			// Biosculpter Pod - General Settings - Build Cost
+				"SY_BNV.BPStandbyPowerConsumption".Translate(),
+				"SY_BNV.TooltipBPStandbyPowerConsumption".Translate(),
+				settings.BPStandbyPowerConsumption,
+				settings.DefaultBPStandbyPowerConsumption,
+				ref _bpStandbyPowerConsumptionBuffer,
+				unit: "W");
+			// Biosculpter Pod - General - Build Cost
 			if (_bpBuildCostNewDef == null)
 				_bpBuildCostNewDef = new ThingDefCountClass();
 			CreateThingDefListControl(
@@ -171,7 +163,7 @@ namespace BPaNSVariations
 				settings.BuildCostThingDefs,
 				ref _bpBuildCostBuffers);
 			settings.ApplyBPBuildCost();
-			// Biosculpter Pod - General Settings - Work to Build
+			// Biosculpter Pod - General - Work to Build
 			settings.BPWorkToBuild = CreateNumeric(
 				ref offsetY,
 				viewWidth,
@@ -181,27 +173,9 @@ namespace BPaNSVariations
 				settings.DefaultBPWorkToBuild,
 				ref _bpWorkToBuildBuffer,
 				additionalText: WorkToBuildToWorkLeft);
-			// Biosculpter Pod - General Settings - Active Power Consumption
-			settings.BPActivePowerConsumption = CreateNumeric(
-				ref offsetY,
-				viewWidth,
-				"SY_BNV.BPActivePowerConsumption".Translate(),
-				"SY_BNV.TooltipBPActivePowerConsumption".Translate(),
-				settings.BPActivePowerConsumption,
-				settings.DefaultBPActivePowerConsumption,
-				ref _bpActivePowerConsumptionBuffer,
-				unit: "W");
-			// Biosculpter Pod - General Settings - Standby Power Consumption
-			settings.BPStandbyPowerConsumption = CreateNumeric(
-				ref offsetY,
-				viewWidth,
-				"SY_BNV.BPStandbyPowerConsumption".Translate(),
-				"SY_BNV.TooltipBPStandbyPowerConsumption".Translate(),
-				settings.BPStandbyPowerConsumption,
-				settings.DefaultBPStandbyPowerConsumption,
-				ref _bpStandbyPowerConsumptionBuffer,
-				unit: "W");
+			#endregion
 
+			#region READY EFFECT
 			// Biosculpter Pod - Ready Effect
 			CreateSeparator(
 				ref offsetY,
@@ -229,7 +203,58 @@ namespace BPaNSVariations
 				settings.BPReadyEffectColor,
 				settings.DefaultBPReadyEffectColor,
 				ref _bpReadyEffectColorBuffers);
+			#endregion
 
+			#region SPECIFIC
+			// Biosculpter Pod - Specific
+			CreateSeparator(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.SeparatorBPSpecific".Translate());
+			// Biosculpter Pod - Specific - Nutrition Required
+			settings.BPNutritionRequired = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPNutritionRequired".Translate(),
+				"SY_BNV.TooltipBPNutritionRequired".Translate(),
+				settings.BPNutritionRequired,
+				settings.DefaultBPNutritionRequired,
+				ref _bpNutritionRequiredBuffer,
+				additionalText: v => "SY_BNV.Nutrition".Translate());
+			// Biosculpter Pod -Specifics - Biotuned Duration
+			settings.BPBiotunedDuration = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPBiotunedDuration".Translate(),
+				"SY_BNV.TooltipBPBiotunedDuration".Translate(),
+				settings.BPBiotunedDuration,
+				settings.DefaultBPBiotunedDuration,
+				ref _bpBiotunedDurationBuffer,
+				additionalText: TicksToYearText,
+				unit: "Ticks");
+			// Biosculpter Pod - Specific - Biotuned Cycle Speed Factor
+			settings.BPBiotunedCycleSpeedFactor = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPBiotunedCycleSpeedFactor".Translate(),
+				"SY_BNV.TooltipBPBiotunedCycleSpeedFactor".Translate(),
+				settings.BPBiotunedCycleSpeedFactor,
+				settings.DefaultBPBiotunedCycleSpeedFactor,
+				ref _bpBiotunedCycleSpeedFactorBuffer,
+				additionalText: ValueToPercent);
+			// Biosculpter Pod - Specific - Overall Speed Factor
+			settings.BPSpeedFactor = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BPSpeedFactor".Translate(),
+				"SY_BNV.TooltipBPSpeedFactor".Translate(),
+				settings.BPSpeedFactor,
+				settings.DefaultBPSpeedFactor,
+				ref _bpSpeedFactorBuffer,
+				additionalText: ValueToPercent);
+			#endregion
+
+			#region MEDIC CYCLE
 			// Biosculpter Pod - Medic Cycle
 			CreateSeparator(
 				ref offsetY,
@@ -246,7 +271,9 @@ namespace BPaNSVariations
 				ref _bpMedicCycleDurationBuffer,
 				additionalText: DaysToText,
 				unit: "d");
+			#endregion
 
+			#region REGENERATION CYCLE
 			// Biosculpter Pod - Regeneration Cycle
 			CreateSeparator(
 				ref offsetY,
@@ -276,7 +303,9 @@ namespace BPaNSVariations
 				settings.MedicineThingDefs,
 				ref _bpRegenerationCycleIngredientsBuffers);
 			settings.ApplyBPRegenerationCycleIngredients();
+			#endregion
 
+			#region AGE REVERSAL CYCLE
 			// Biosculpter Pod - Age Reversal Cycle
 			CreateSeparator(
 				ref offsetY,
@@ -304,7 +333,9 @@ namespace BPaNSVariations
 				ref _bpAgeReversalCycleAgeReversedBuffer,
 				additionalText: YearsToText,
 				unit: "y");
+			#endregion
 
+			#region PLEASURE CYCLE
 			// Biosculpter Pod - Pleasure Cycle
 			CreateSeparator(
 				ref offsetY,
@@ -341,6 +372,7 @@ namespace BPaNSVariations
 				ref _bpPleasureCycleMoodDurationBuffer,
 				additionalText: DaysToText,
 				unit: "d");
+			#endregion
 
 			// Margin
 			offsetY += SettingsRowHeight / 2;
@@ -388,7 +420,7 @@ namespace BPaNSVariations
 		}
 
 		private string WorkToBuildToWorkLeft(float work) =>
-			$"{work / 60f:0}\t{"SY_BNV.Work".Translate()}";
+			$"{work / 60f:0} {"SY_BNV.Work".Translate()}";
 
 		private string YearsToText(float years) =>
 			DaysToText(years * 60f);
@@ -410,6 +442,9 @@ namespace BPaNSVariations
 
 		private string TicksToYearText(int ticks) =>
 			YearsToText(ticks / 3600000f);
+
+		private string ValueToPercent(float f) =>
+			$"{f:P0}";
 		#endregion
 
 		#region UI METHODS
@@ -418,7 +453,7 @@ namespace BPaNSVariations
 
 		public static bool DrawResetButton(float offsetY, float viewWidth, string tooltip)
 		{
-			var buttonRect = new Rect(viewWidth + 2 - (SettingsRowHeight * 2), offsetY + 2, SettingsRowHeight * 2 - 2, SettingsRowHeight - 4);
+			var buttonRect = new Rect(viewWidth + 2 - (SettingsRowHeight * 2), offsetY + 2, SettingsRowHeight * 2 - 4, SettingsRowHeight - 4);
 			DrawTooltip(buttonRect, "SY_BNV.TooltipDefaultValue".Translate() + " " + tooltip);
 			return Widgets.ButtonText(buttonRect, "SY_BNV.Reset".Translate());
 		}
@@ -616,7 +651,7 @@ namespace BPaNSVariations
 			// Label
 			if (isModified)
 				GUI.color = ModifiedColor;
-			Widgets.Label(new Rect(0, offsetY, controlWidth, SettingsRowHeight), label);
+			Widgets.Label(new Rect(0, offsetY, controlWidth - 8, SettingsRowHeight), label);
 			GUI.color = OriColor;
 
 			// Menu Generator
@@ -670,7 +705,7 @@ namespace BPaNSVariations
 			// Label
 			if (isModified)
 				GUI.color = ModifiedColor;
-			Widgets.Label(new Rect(0, offsetY, controlWidth, ThinSettingsRowHeight), label);
+			Widgets.Label(new Rect(0, offsetY, controlWidth, SettingsRowHeight), label);
 			GUI.color = OriColor;
 
 			// Menu Generator

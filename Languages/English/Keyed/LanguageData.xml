@@ -14,7 +14,7 @@
 	<!-- BIOSCULPTER POD -->
 	
 	<SY_BNV.TitleBiosculpterPod>Biosculpter Pod Settings</SY_BNV.TitleBiosculpterPod>
-	<SY_BNV.SeparatorBPGeneralSettings>Biosculpter Pod - General Settings</SY_BNV.SeparatorBPGeneralSettings>
+	<SY_BNV.SeparatorBPGeneral>Biosculpter Pod - General</SY_BNV.SeparatorBPGeneral>
 	
 	<SY_BNV.BPReadyEffectState>Ready Effect Animation</SY_BNV.BPReadyEffectState>
 	<SY_BNV.TooltipBPReadyEffectState>Changes the ready effect animation for Biosculpter Pods</SY_BNV.TooltipBPReadyEffectState>
