@@ -12,7 +12,7 @@ namespace BPaNSVariations.Settings
 	{
 		#region PROPERTIES
 		public List<BaseSettings> AllSettings { get; }
-		public List<BiosculpterPodSettings> BiosculpterSettings { get; }
+		public List<BiosculpterPodSettings> BiosculpterPodSettings { get; }
 		public List<NeuralSuperchargerSettings> NeuralSuperchargerSettings { get; }
 		public List<SleepAcceleratorSettings> SleepAcceleratorSettings { get; }
 
@@ -43,12 +43,12 @@ namespace BPaNSVariations.Settings
 			MedicineThingDefs = thingDefs.AsReadOnly();
 
 			// Create Settings
-			BiosculpterSettings = BPaNSUtility.GetBiosculpterPodDefs().Select(def => new BiosculpterPodSettings(def)).ToList();
+			BiosculpterPodSettings = BPaNSUtility.GetBiosculpterPodDefs().Select(def => new BiosculpterPodSettings(def)).ToList();
 			NeuralSuperchargerSettings = BPaNSUtility.GetNeuralSuperchargerDefs().Select(def => new NeuralSuperchargerSettings(def)).ToList();
 			SleepAcceleratorSettings = BPaNSUtility.GetSleepAcceleratorDefs().Select(def => new SleepAcceleratorSettings(def)).ToList();
 
 			AllSettings = new List<BaseSettings>();
-			AllSettings.AddRange(BiosculpterSettings);
+			AllSettings.AddRange(BiosculpterPodSettings);
 			AllSettings.AddRange(NeuralSuperchargerSettings);
 			AllSettings.AddRange(SleepAcceleratorSettings);
 		}
@@ -59,7 +59,7 @@ namespace BPaNSVariations.Settings
 		{
 			base.ExposeData();
 
-			BiosculpterPodSettings.ExposeStatics();
+			Settings.BiosculpterPodSettings.ExposeStatics();
 
 			foreach (var settings in AllSettings)
 				settings.ExposeData();

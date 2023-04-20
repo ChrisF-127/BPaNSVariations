@@ -33,6 +33,14 @@ namespace BPaNSVariations.Settings
 		public override void ExposeData()
 		{
 		}
+
+		public override void CopyTo(BaseSettings to)
+		{
+			if (to != this && to is NeuralSuperchargerSettings copy)
+			{
+
+			}
+		}
 		#endregion
 	}
 }

@@ -21,13 +21,14 @@ namespace BPaNSVariations.Controls
 		#endregion
 
 		#region OVERRIDES
-		public override void CreateSettings(ref float offsetY, float viewWidth)
+		public override void CreateSettings(ref float offsetY, float viewWidth, out bool copy)
 		{
 			// Sleep Accelerator
-			CreateTitle(
+			copy = CreateTitle(
 				ref offsetY,
 				viewWidth,
-				Label);
+				Label,
+				false);
 
 
 			// Margin

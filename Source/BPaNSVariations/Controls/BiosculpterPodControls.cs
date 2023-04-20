@@ -30,13 +30,14 @@ namespace BPaNSVariations.Controls
 		#endregion
 
 		#region OVERRIDES
-		public override void CreateSettings(ref float offsetY, float viewWidth)
+		public override void CreateSettings(ref float offsetY, float viewWidth, out bool copy)
 		{
 			// Biosculpter Pod
-			CreateTitle(
+			copy = CreateTitle(
 				ref offsetY,
 				viewWidth,
-				Label);
+				Label,
+				true);
 
 			#region GENERAL
 			// Biosculpter Pod - General

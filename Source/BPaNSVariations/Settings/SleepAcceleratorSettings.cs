@@ -26,12 +26,20 @@ namespace BPaNSVariations.Settings
 		public override bool IsModified() =>
 			false;
 
+		protected override void Initialize()
+		{
+		}
+
 		public override void ExposeData()
 		{
 		}
 
-		protected override void Initialize()
+		public override void CopyTo(BaseSettings to)
 		{
+			if (to != this && to is SleepAcceleratorSettings copy)
+			{
+
+			}
 		}
 		#endregion
 	}

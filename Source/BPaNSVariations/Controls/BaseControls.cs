@@ -42,7 +42,7 @@ namespace BPaNSVariations.Controls
 		#endregion
 
 		#region METHODS
-		public abstract void CreateSettings(ref float offsetY, float viewWidth);
+		public abstract void CreateSettings(ref float offsetY, float viewWidth, out bool copy);
 
 		public virtual void ResetBuffers()
 		{
@@ -75,15 +75,25 @@ namespace BPaNSVariations.Controls
 			Text.Anchor = TextAnchor.MiddleLeft;
 		}
 
-		public static void CreateTitle(
+		public static bool CreateTitle(
 			ref float offsetY,
 			float viewWidth,
-			string text)
+			string text,
+			bool showCopyTo)
 		{
 			Text.Font = GameFont.Medium;
 			Widgets.Label(new Rect(0, offsetY, viewWidth, SettingsRowHeight), text);
 			Text.Font = GameFont.Small;
+
+			var copyTo = false;
+			if (showCopyTo)
+			{
+				var buttonRect = new Rect(viewWidth + 2 - (SettingsRowHeight * 4), offsetY + 2, SettingsRowHeight * 4 - 4, SettingsRowHeight - 4);
+				DrawTooltip(buttonRect, "SY_BNV.TooltipCopyToAll".Translate());
+				copyTo = Widgets.ButtonText(buttonRect, "SY_BNV.CopyToAll".Translate());
+			}
 			offsetY += SettingsRowHeight + 2;
+			return copyTo;
 		}
 
 		public static void CreateSeparator(
@@ -490,7 +500,7 @@ namespace BPaNSVariations.Controls
 			}
 			if (isModified && DrawResetButton(oriOffsetY, viewWidth, itemToString(defaultValues)))
 			{
-				values.Set(defaultValues);
+				values.SetFrom(defaultValues);
 				valueBuffers.RemoveAll(vb => vb.Key.StartsWith(valueBufferKey));
 			}
 

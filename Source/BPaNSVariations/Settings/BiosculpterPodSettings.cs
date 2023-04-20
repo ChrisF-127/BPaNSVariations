@@ -253,7 +253,7 @@ namespace BPaNSVariations.Settings
 			//|| DefaultCleanlinessEffectCurve.SequenceEqual(CleanlinessEffectCurve)
 			|| DefaultMedicCycleDuration != MedicCycleDuration
 			|| DefaultRegenerationCycleDuration != RegenerationCycleDuration
-			|| DefaultRegenerationCycleIngredients.AnyDifference(DefaultRegenerationCycleIngredients)
+			|| DefaultRegenerationCycleIngredients.AnyDifference(RegenerationCycleIngredients)
 			|| DefaultAgeReversalCycleDuration != AgeReversalCycleDuration
 			//|| DefaultAgeReversalCycleAgeReversed != AgeReversalCycleAgeReversed
 			|| DefaultPleasureCycleDuration != PleasureCycleDuration
@@ -266,7 +266,7 @@ namespace BPaNSVariations.Settings
 			#region GENERAL
 			DefaultActivePowerConsumption = ActivePowerConsumption;
 			DefaultStandbyPowerConsumption = StandbyPowerConsumption;
-			DefaultBuildCost.Set(BuildCost);
+			DefaultBuildCost.SetFrom(BuildCost);
 			DefaultWorkToBuild = WorkToBuild;
 			#endregion
 
@@ -285,7 +285,7 @@ namespace BPaNSVariations.Settings
 
 			#region REGENERATION CYCLE
 			DefaultRegenerationCycleDuration = RegenerationCycleDuration;
-			DefaultRegenerationCycleIngredients.Set(RegenerationCycleIngredients);
+			DefaultRegenerationCycleIngredients.SetFrom(RegenerationCycleIngredients);
 			#endregion
 
 			#region AGE REVERSAL CYCLE
@@ -374,6 +374,31 @@ namespace BPaNSVariations.Settings
 				{
 					Scribe.ExitNode();
 				}
+			}
+		}
+
+		public override void CopyTo(BaseSettings to)
+		{
+			if (to != this && to is BiosculpterPodSettings copy)
+			{
+				copy.ActivePowerConsumption = ActivePowerConsumption;
+				copy.StandbyPowerConsumption = StandbyPowerConsumption;
+				copy.BuildCost.SetFrom(BuildCost);
+				copy.WorkToBuild = WorkToBuild;
+
+				copy.ReadyEffectColor = ReadyEffectColor;
+
+				copy.BiotunedCycleSpeedFactor = BiotunedCycleSpeedFactor;
+				copy.SpeedFactor = SpeedFactor;
+
+				copy.MedicCycleDuration = MedicCycleDuration;
+
+				copy.RegenerationCycleDuration = RegenerationCycleDuration;
+				copy.RegenerationCycleIngredients.SetFrom(RegenerationCycleIngredients);
+
+				copy.AgeReversalCycleDuration = AgeReversalCycleDuration;
+
+				copy.PleasureCycleDuration = PleasureCycleDuration;
 			}
 		}
 		#endregion

@@ -121,7 +121,7 @@ namespace BPaNSVariations.Utility
 			GetSleepAcceleratorDefs().Contains(def);
 
 
-		public static void Set(this List<ThingDefCountClass> to, IEnumerable<ThingDefCountClass> from)
+		public static void SetFrom(this List<ThingDefCountClass> to, IEnumerable<ThingDefCountClass> from)
 		{
 			to.Clear();
 			to.AddRange(from.Select(v => new ThingDefCountClass(v.thingDef, v.count)));

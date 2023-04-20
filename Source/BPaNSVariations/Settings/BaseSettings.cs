@@ -11,11 +11,8 @@ namespace BPaNSVariations.Settings
 	{
 		public abstract string GetName();
 		public abstract bool IsModified();
-
-		public abstract void ExposeData();
-
 		protected abstract void Initialize();
-
-#warning TODO Copy to other
+		public abstract void ExposeData();
+		public abstract void CopyTo(BaseSettings to);
 	}
 }

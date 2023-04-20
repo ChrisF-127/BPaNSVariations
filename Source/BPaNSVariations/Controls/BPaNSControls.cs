@@ -39,7 +39,7 @@ namespace BPaNSVariations.Controls
 		{
 			Settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
-			BiosculpterPodControls = Settings.BiosculpterSettings.Select(s => new BiosculpterPodControls(s)).ToList();
+			BiosculpterPodControls = Settings.BiosculpterPodSettings.Select(s => new BiosculpterPodControls(s)).ToList();
 			NeuralSuperchargerControls = Settings.NeuralSuperchargerSettings.Select(s => new NeuralSuperchargerControls(s)).ToList();
 			SleepAcceleratorControls = Settings.SleepAcceleratorSettings.Select(s => new SleepAcceleratorControls(s)).ToList();
 
@@ -81,6 +81,7 @@ namespace BPaNSVariations.Controls
 				CreateSelector(ref offsetY, viewWidth, SelectableTypes, ref _selectedType);
 
 				// Building Selection
+				var prevSelected = _selectedControls;
 				switch (_selectedType.Type)
 				{
 					case Utility.SelectableTypes.BiosculpterPod:
@@ -93,6 +94,8 @@ namespace BPaNSVariations.Controls
 						CreateSelector(ref offsetY, viewWidth, SleepAcceleratorControls, ref _selectedControls);
 						break;
 				}
+				if (_selectedControls != prevSelected)
+					_selectedControls.ResetBuffers();
 
 				// Divider
 				offsetY += 4;
@@ -111,7 +114,31 @@ namespace BPaNSVariations.Controls
 				// Settings
 				_selectedControls.CreateSettings(
 					ref offsetY, 
-					viewWidth);
+					viewWidth,
+					out bool copy);
+
+				// Copy settings
+				if (copy)
+				{
+					void copyFunc(BaseControls controls)
+					{
+						if (_selectedControls != controls)
+							_selectedControls.Settings.CopyTo(controls.Settings);
+						controls.ResetBuffers();
+					}
+					switch (_selectedType.Type)
+					{
+						case Utility.SelectableTypes.BiosculpterPod:
+							BiosculpterPodControls.ForEach(copyFunc);
+							break;
+						case Utility.SelectableTypes.NeuralSupercharger:
+							NeuralSuperchargerControls.ForEach(copyFunc);
+							break;
+						case Utility.SelectableTypes.SleepAccelerator:
+							SleepAcceleratorControls.ForEach(copyFunc);
+							break;
+					}
+				}
 			}
 			finally
 			{
