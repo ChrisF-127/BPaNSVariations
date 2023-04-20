@@ -165,6 +165,15 @@ namespace BPaNSVariations.Controls
 				BiosculpterPodSettings.DefaultSpeedFactor,
 				"SpeedFactor",
 				additionalText: ValueToPercent);
+			// Biosculpter Pod - Specific - [GLOBAL] Cleanliness Effect Curve
+			CreateSimpleCurveControl(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.CleanlinessEffectCurve".Translate(),
+				BiosculpterPodSettings.CleanlinessEffectCurve,
+				BiosculpterPodSettings.DefaultCleanlinessEffectCurve,
+				"CleanlinessEffectCurve");
+			BiosculpterPodSettings.ApplyCleanlinessCurve();
 			#endregion
 
 			#region MEDIC CYCLE

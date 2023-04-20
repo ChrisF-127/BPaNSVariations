@@ -161,6 +161,16 @@ namespace BPaNSVariations.Utility
 				}
 			}
 		}
+		public static void ExposeSimpleCurve(SimpleCurve curve, string name, Func<bool> isModified)
+		{
+			if (Scribe.mode != LoadSaveMode.Saving || isModified())
+			{
+				var temp = curve.ToList();
+				Scribe_Collections.Look(ref temp, name);
+				if (temp != null)
+					curve.SetPoints(temp);
+			}
+		}
 		#endregion
 	}
 }

@@ -97,6 +97,41 @@ namespace BPaNSVariations.Controls
 			Text.Anchor = TextAnchor.MiddleLeft;
 		}
 
+		public static bool CreateCheckbox(
+			ref float offsetY,
+			float viewWidth,
+			string label,
+			string tooltip,
+			bool value,
+			bool defaultValue,
+			string text = null)
+		{
+			var controlWidth = GetControlWidth(viewWidth);
+			var isModified = value != defaultValue;
+
+			// Label
+			if (isModified)
+				GUI.color = ModifiedColor;
+			Widgets.Label(new Rect(0, offsetY, controlWidth, SettingsRowHeight), label);
+			GUI.color = OriColor;
+
+			// Setting
+			var checkboxSize = SettingsRowHeight - 8;
+			Widgets.Checkbox(controlWidth, offsetY + (SettingsRowHeight - checkboxSize) / 2, ref value, checkboxSize);
+			DrawTooltip(new Rect(controlWidth, offsetY, checkboxSize, checkboxSize), tooltip);
+
+			// Text
+			if (text != null)
+				Widgets.Label(new Rect(controlWidth + checkboxSize + 4, offsetY + 4, controlWidth - checkboxSize - 6, SettingsRowHeight - 8), $"({text})");
+
+			// Reset button
+			if (isModified && DrawResetButton(offsetY, viewWidth, defaultValue.ToString()))
+				value = defaultValue;
+
+			offsetY += SettingsRowHeight;
+			return value;
+		}
+
 		public T CreateNumeric<T>(
 			ref float offsetY,
 			float viewWidth,
@@ -450,12 +485,103 @@ namespace BPaNSVariations.Controls
 			{
 				var sb = new StringBuilder();
 				foreach (var item in thingDefCountList)
-					sb.Append($"{item.thingDef?.LabelCap} {item.count}\n");
+					sb.Append($"\n{item.count}x {item.thingDef?.LabelCap}");
 				return sb.ToString();
 			}
 			if (isModified && DrawResetButton(oriOffsetY, viewWidth, itemToString(defaultValues)))
 			{
 				values.Set(defaultValues);
+				valueBuffers.RemoveAll(vb => vb.Key.StartsWith(valueBufferKey));
+			}
+
+			offsetY += 4;
+		}
+
+		public void CreateSimpleCurveControl(
+			ref float offsetY,
+			float viewWidth,
+			string label,
+			SimpleCurve curve,
+			SimpleCurve defaultCurve,
+			string valueBufferKey) =>
+			CreateSimpleCurveControl(
+				ref offsetY,
+				viewWidth,
+				label,
+				curve,
+				defaultCurve,
+				valueBufferKey,
+				ValueBuffers);
+		public static void CreateSimpleCurveControl(
+			ref float offsetY,
+			float viewWidth,
+			string label,
+			SimpleCurve curve,
+			SimpleCurve defaultCurve,
+			string valueBufferKey,
+			Dictionary<string, string> valueBuffers)
+		{
+			var oriOffsetY = offsetY;
+			var controlWidth = GetControlWidth(viewWidth);
+			var isModified = !curve.SequenceEqual(defaultCurve);
+
+			// Label
+			if (isModified)
+				GUI.color = ModifiedColor;
+			Widgets.Label(new Rect(0, offsetY, controlWidth, SettingsRowHeight), label);
+			GUI.color = OriColor;
+
+			offsetY += 1;
+
+			// Create list
+			var xRect = new Rect(controlWidth + 2, 0, controlWidth / 2 - 4, ThinSettingsRowHeight - 6);
+			var yRect = new Rect(xRect.x + xRect.width + 4, 0, controlWidth / 2 - ThinSettingsRowHeight, ThinSettingsRowHeight - 6);
+			for (int i = 0; i < curve.Count(); i++)
+			{
+				var value = curve[i];
+				var bufferPos = i + 1;
+
+				// Set new offset
+				xRect.y = offsetY + 5;
+				yRect.y = offsetY + 5;
+
+				var x = value.x;
+				var y = value.y;
+
+				// X
+				var bufferKey = valueBufferKey + $"_{bufferPos}_x";
+				var valueBuffer = valueBuffers.GetOrAddDefault(bufferKey);
+				Widgets.TextFieldNumeric(xRect, ref x, ref valueBuffer, -1E+09f);
+				valueBuffers[bufferKey] = valueBuffer;
+				DrawTooltip(xRect, "SY_BNV.TooltipCurveX".Translate());
+
+				// Y
+				bufferKey = valueBufferKey + $"_{bufferPos}_y";
+				valueBuffer = valueBuffers.GetOrAddDefault(bufferKey);
+				Widgets.TextFieldNumeric(yRect, ref y, ref valueBuffer, -1E+09f);
+				valueBuffers[bufferKey] = valueBuffer;
+				DrawTooltip(yRect, "SY_BNV.TooltipCurveY".Translate());
+
+				// Set if changed
+				if (value.x != x || value.y != y) 
+					curve[i] = new CurvePoint(x, y);
+
+				// Row offset
+				offsetY += ThinSettingsRowHeight;
+			}
+
+
+			// Reset (must be added last to not cause focus to jump when it appears)
+			string itemToString(SimpleCurve c)
+			{
+				var sb = new StringBuilder();
+				foreach (var p in c)
+					sb.Append($"\n{p.x:0.000}\t{p.y:0.000}");
+				return sb.ToString();
+			}
+			if (isModified && DrawResetButton(oriOffsetY, viewWidth, itemToString(defaultCurve)))
+			{
+				curve.SetPoints(defaultCurve);
 				valueBuffers.RemoveAll(vb => vb.Key.StartsWith(valueBufferKey));
 			}
 

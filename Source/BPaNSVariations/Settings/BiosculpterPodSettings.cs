@@ -83,6 +83,8 @@ namespace BPaNSVariations.Settings
 			get => BiosculpterPod.GetStatValueAbstract(StatDefOf.BiosculpterPodSpeedFactor);
 			set => BiosculpterPod.SetStatBaseValue(StatDefOf.BiosculpterPodSpeedFactor, value);
 		}
+		public static SimpleCurve DefaultCleanlinessEffectCurve { get; private set; }
+		public static SimpleCurve CleanlinessEffectCurve => RoomStatDefOf.BiosculpterPodSpeedFactor.curve;
 		#endregion
 
 		#region MEDIC CYCLE
@@ -172,6 +174,8 @@ namespace BPaNSVariations.Settings
 			#region SPECIFIC
 			NutritionRequired = DefaultNutritionRequired = CompBiosculpterPod.NutritionRequired;
 			BiotunedDuration = DefaultBiotunedDuration = 4800000; // hardcoded
+			DefaultCleanlinessEffectCurve = new SimpleCurve(CleanlinessEffectCurve);
+			ApplyCleanlinessCurve();
 			#endregion
 
 			#region READY EFFECT
@@ -198,6 +202,9 @@ namespace BPaNSVariations.Settings
 			int intValue = BiotunedDuration;
 			Scribe_Values.Look(ref intValue, nameof(BiotunedDuration), DefaultBiotunedDuration);
 			BiotunedDuration = intValue;
+
+			BPaNSUtility.ExposeSimpleCurve(CleanlinessEffectCurve, nameof(CleanlinessEffectCurve), () => !CleanlinessEffectCurve.SequenceEqual(DefaultCleanlinessEffectCurve));
+			ApplyCleanlinessCurve();
 			#endregion
 
 			#region READY EFFECT
@@ -222,6 +229,11 @@ namespace BPaNSVariations.Settings
 			PleasureCycleMoodDuration = floatValue;
 			#endregion
 		}
+
+		public static void ApplyCleanlinessCurve()
+		{
+			RoomStatDefOf.BiosculpterPodSpeedFactor.roomlessScore = CleanlinessEffectCurve.MinBy(v => v.x).y;
+		}
 		#endregion
 
 		#region OVERRIDES
@@ -238,6 +250,7 @@ namespace BPaNSVariations.Settings
 			//|| DefaultBiotunedDuration != BiotunedDuration
 			|| DefaultBiotunedCycleSpeedFactor != BiotunedCycleSpeedFactor
 			|| DefaultSpeedFactor != SpeedFactor
+			//|| DefaultCleanlinessEffectCurve.SequenceEqual(CleanlinessEffectCurve)
 			|| DefaultMedicCycleDuration != MedicCycleDuration
 			|| DefaultRegenerationCycleDuration != RegenerationCycleDuration
 			|| DefaultRegenerationCycleIngredients.AnyDifference(DefaultRegenerationCycleIngredients)
