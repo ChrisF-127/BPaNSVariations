@@ -6,9 +6,11 @@ using System;
 using System.Collections.Generic;
 using Verse.AI;
 using System.Reflection;
-using System.Windows.Markup;
+using System.Runtime.CompilerServices;
+using RimWorld.Planet;
+using System.Xml;
 
-namespace BPaNSVariations
+namespace BPaNSVariations.Utility
 {
 	[StaticConstructorOnStartup]
 	internal static class BPaNSUtility
@@ -18,11 +20,10 @@ namespace BPaNSVariations
 		public readonly static ThingDef BiosculpterPod_2x2_Right;
 		public readonly static ThingDef BiosculpterPod_1x2_Center;
 		public readonly static ThingDef BiosculpterPod_1x3_Center;
-		public readonly static EffecterDef BiosculpterPod_Ready;
-		public readonly static FleckDef BiosculpterScanner_Ready;
-		public readonly static (float FadeIn, float FadeOut, float Solid) OriginalBiosculpterScanner_ReadyValues; // FadeIn, FadeOut, Solid
 
 		public readonly static ThingDef NeuralSupercharger_1x2_Center;
+
+		public readonly static ThingDef SleepAccelerator;
 		#endregion
 
 		#region CONSTRUCTORS
@@ -34,24 +35,6 @@ namespace BPaNSVariations
 			BiosculpterPod_1x2_Center = DefDatabase<ThingDef>.GetNamed("BiosculpterPod_1x2_Center");
 			BiosculpterPod_1x3_Center = DefDatabase<ThingDef>.GetNamed("BiosculpterPod_1x3_Center");
 
-			var biosculpterPod_Operating = DefDatabase<EffecterDef>.GetNamed("BiosculpterPod_Operating");
-			BiosculpterPod_Ready = DefDatabase<EffecterDef>.GetNamed("BiosculpterPod_Ready");
-
-			var biosculpterScanner_Forward = DefDatabase<FleckDef>.GetNamed("BiosculpterScanner_Forward");
-			var biosculpterScanner_Backward = DefDatabase<FleckDef>.GetNamed("BiosculpterScanner_Backward");
-			BiosculpterScanner_Ready = DefDatabase<FleckDef>.GetNamed("BiosculpterScanner_Ready");
-
-			// Fix effecter position; necessary since we make the effect appear between the interaction spot and 1.5 cells away from it depending on rotation, 
-			//	but it needs to be 1 cells away, which TargetInfo does not allow for without giving it a Thing with a fitting center which we do not have on 2x2
-			biosculpterPod_Operating.offsetTowardsTarget = new FloatRange(0.5f, 0.5f);
-			BiosculpterPod_Ready.offsetTowardsTarget = new FloatRange(0.5f, 0.5f);
-
-			// Resize FleckDefs for the Effecters to look more fitting for the smaller buildings
-			biosculpterScanner_Forward.graphicData.drawSize = new Vector2(1.5f, 0.5f); // standard is 3x1
-			biosculpterScanner_Backward.graphicData.drawSize = new Vector2(1f, 0.5f); // standard is 2x1
-			BiosculpterScanner_Ready.graphicData.drawSize = new Vector2(1f, 2f); // standard is 2x2
-			OriginalBiosculpterScanner_ReadyValues = (BiosculpterScanner_Ready.fadeInTime, BiosculpterScanner_Ready.fadeOutTime, BiosculpterScanner_Ready.solidTime);
-
 
 			// --- NEURAL SUPERCHARGER
 			NeuralSupercharger_1x2_Center = DefDatabase<ThingDef>.GetNamed("NeuralSupercharger_1x2_Center");
@@ -62,6 +45,10 @@ namespace BPaNSVariations
 			var neuralSuperchargerCharged_1x2_Center = DefDatabase<EffecterDef>.GetNamed("NeuralSuperchargerCharged_1x2_Center");
 			neuralSuperchargerCharged_1x2_Center.children.First(e => e.fleckDef.defName == "NeuralSuperchargerChargedFloor").fleckDef = neuralSuperchargerChargedFloor_1x2_Center;
 			NeuralSupercharger_1x2_Center.GetCompProperties<CompProperties_NeuralSupercharger>().effectCharged = neuralSuperchargerCharged_1x2_Center;
+
+
+			// --- SLEEP ACCELERATOR
+			SleepAccelerator = DefDatabase<ThingDef>.GetNamed("SleepAccelerator");
 		}
 		#endregion
 
@@ -126,15 +113,20 @@ namespace BPaNSVariations
 		public static bool IsDefNeuralSupercharger(ThingDef def) =>
 			GetNeuralSuperchargerDefs().Contains(def);
 
+		public static IEnumerable<ThingDef> GetSleepAcceleratorDefs()
+		{
+			yield return SleepAccelerator;
+		}
+		public static bool IsDefSleepAccelerator(ThingDef def) =>
+			GetSleepAcceleratorDefs().Contains(def);
 
-		public static void Overwrite(this List<ThingDefCountClass> to, IEnumerable<ThingDefCountClass> from)
+
+		public static void Set(this List<ThingDefCountClass> to, IEnumerable<ThingDefCountClass> from)
 		{
 			to.Clear();
 			to.AddRange(from.Select(v => new ThingDefCountClass(v.thingDef, v.count)));
 		}
-
-
-		public static bool IsModified(this List<ThingDefCountClass> listA, List<ThingDefCountClass> listB)
+		public static bool AnyDifference(this List<ThingDefCountClass> listA, List<ThingDefCountClass> listB)
 		{
 			if (listA.Count != listB.Count)
 				return true;
@@ -145,6 +137,14 @@ namespace BPaNSVariations
 				if (!listA.Any(a => a.thingDef == b.thingDef && a.count == b.count))
 					return true;
 			return false;
+		}
+
+		public static TValue GetOrAddDefault<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue = default)
+		{
+			if (dictionary.TryGetValue(key, out TValue value))
+				return value;
+			dictionary.Add(key, defaultValue);
+			return defaultValue;
 		}
 
 

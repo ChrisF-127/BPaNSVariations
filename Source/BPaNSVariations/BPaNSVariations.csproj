@@ -40,12 +40,21 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BPaNSControls.cs" />
-    <Compile Include="BPaNSSettings.cs" />
+    <Compile Include="Controls\BaseControls.cs" />
+    <Compile Include="Controls\BiosculpterPodControls.cs" />
+    <Compile Include="Controls\NeuralSuperchargerControls.cs" />
+    <Compile Include="Controls\SleepAcceleratorControls.cs" />
+    <Compile Include="Settings\BaseSettings.cs" />
+    <Compile Include="Settings\BiosculpterPodSettings.cs" />
+    <Compile Include="Controls\BPaNSControls.cs" />
+    <Compile Include="Settings\BPaNSSettings.cs" />
     <Compile Include="BPaNSVariations.cs" />
-    <Compile Include="HarmonyPatches.cs" />
+    <Compile Include="Settings\NeuralSuperchargerSettings.cs" />
+    <Compile Include="Settings\SleepAcceleratorSettings.cs" />
+    <Compile Include="Utility\HarmonyPatches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="BPaNSUtility.cs" />
+    <Compile Include="Utility\BPaNSUtility.cs" />
+    <Compile Include="Utility\SelectableType.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Krafs.Publicizer">

@@ -5,15 +5,17 @@ using RimWorld;
 using Verse;
 using UnityEngine;
 using System.Collections.Generic;
+using BPaNSVariations.Controls;
+using BPaNSVariations.Settings;
 
 namespace BPaNSVariations
 {
 	internal class BPaNSVariations : Mod
 	{
 		#region PROPERTIES
-		public static BPaNSVariations Instance { get; private set; } = null;
-		public static BPaNSSettings Settings { get; private set; } = null;
-		public static BPaNSControls Controls { get; } = new BPaNSControls();
+		public static BPaNSVariations Instance { get; private set; }
+		public static BPaNSSettings Settings { get; private set; }
+		public static BPaNSControls Controls { get; private set; }
 		#endregion
 
 		#region CONSTRUCTORS
@@ -30,7 +32,7 @@ namespace BPaNSVariations
 
 		public override void DoSettingsWindowContents(Rect inRect)
 		{
-			Controls.CreateSettingsUI(inRect, Settings);
+			Controls.DoSettingsWindowContents(inRect);
 
 			base.DoSettingsWindowContents(inRect);
 		}
@@ -39,7 +41,10 @@ namespace BPaNSVariations
 		#region PRIVATE METHODS
 		private void Initialize()
 		{
+			BiosculpterPodSettings.InitializeStatics();
+
 			Settings = GetSettings<BPaNSSettings>();
+			Controls = new BPaNSControls(Settings);
 		}
 		#endregion
 	}

@@ -7,8 +7,9 @@ using System.Reflection.Emit;
 using System.Reflection;
 using System.Linq;
 using System;
+using BPaNSVariations.Settings;
 
-namespace BPaNSVariations
+namespace BPaNSVariations.Utility
 {
 	[StaticConstructorOnStartup]
 	public static class HarmonyPatches
@@ -152,14 +153,12 @@ namespace BPaNSVariations
 			for (int i = 0; i < list.Count; i++)
 			{
 				// -- ldc.r4 5
-				// ++ call static BPaNSVariations.BPaNSSettings BPaNSVariations.BPaNSVariations::get_Settings()
-				// ++ callvirt System.Single BPaNSVariations.BPaNSSettings::get_BPNutritionRequired()
+				// ++ call static System.Single BPaNSVariations.BiosculpterPodSettings::get_BPNutritionRequired()
 				if (list[i].opcode == OpCodes.Ldc_R4
 					&& list[i].operand is float value 
 					&& value == CompBiosculpterPod.NutritionRequired)
 				{
-					list.Insert(i++, new CodeInstruction(OpCodes.Call, AccessTools.PropertyGetter(typeof(BPaNSVariations), nameof(BPaNSVariations.Settings))));
-					list[i] = new CodeInstruction(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(BPaNSSettings), nameof(BPaNSSettings.BPNutritionRequired)));
+					list[i] = new CodeInstruction(OpCodes.Call, AccessTools.PropertyGetter(typeof(BiosculpterPodSettings), nameof(BiosculpterPodSettings.NutritionRequired)));
 
 					// potentially patches multiple, so no break
 				}
@@ -179,10 +178,10 @@ namespace BPaNSVariations
 						defaultLabel = label,
 						action = delegate
 						{
-							__instance.liquifiedNutrition = BPaNSVariations.Settings.BPNutritionRequired;
+							__instance.liquifiedNutrition = BiosculpterPodSettings.NutritionRequired;
 							__instance.devFillPodLatch = true;
 						},
-						disabled = __instance.State == BiosculpterPodState.Occupied || (__instance.devFillPodLatch && __instance.liquifiedNutrition == BPaNSVariations.Settings.BPNutritionRequired)
+						disabled = __instance.State == BiosculpterPodState.Occupied || (__instance.devFillPodLatch && __instance.liquifiedNutrition == BiosculpterPodSettings.NutritionRequired)
 					};
 				}
 				else
@@ -197,16 +196,14 @@ namespace BPaNSVariations
 			{
 				// -- ldc.r4 5
 				//  0 stfld System.Int32 RimWorld.CompBiosculpterPod::biotunedCountdownTicks
-				// ++ call static BPaNSVariations.BPaNSSettings BPaNSVariations.BPaNSVariations::get_Settings()
-				// ++ callvirt System.Single BPaNSVariations.BPaNSSettings::get_BPBiotunedDuration()
+				// ++ call static System.Single BPaNSVariations.BiosculpterPodSettings::get_BPBiotunedDuration()
 				if (list[i + 0].opcode == OpCodes.Ldc_I4
 					&& list[i + 1].opcode == OpCodes.Stfld
 					&& list[i + 1].operand is FieldInfo fi
 					&& fi.DeclaringType == typeof(CompBiosculpterPod)
 					&& fi.Name == nameof(CompBiosculpterPod.biotunedCountdownTicks))
 				{
-					list.Insert(i++, new CodeInstruction(OpCodes.Call, AccessTools.PropertyGetter(typeof(BPaNSVariations), nameof(BPaNSVariations.Settings))));
-					list[i] = new CodeInstruction(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(BPaNSSettings), nameof(BPaNSSettings.BPBiotunedDuration)));
+					list[i] = new CodeInstruction(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(BiosculpterPodSettings), nameof(BiosculpterPodSettings.BiotunedDuration)));
 					break;
 				}
 			}
@@ -218,8 +215,7 @@ namespace BPaNSVariations
 			var list = new List<CodeInstruction>(instructions);
 			for (int i = 0; i < list.Count - 3; i++)
 			{
-				// ++ call static BPaNSVariations.BPaNSSettings BPaNSVariations.BPaNSVariations::get_Settings()
-				// ++ callvirt System.Single BPaNSVariations.BPaNSSettings::get_BPAgeReversalAgeReversed()
+				// ++ call static System.Single BPaNSVariations.BPaNSSettings::get_BPAgeReversalAgeReversed()
 				// ++ mul NULL
 				//  0 conv.i4 NULL
 				//  1 stloc.0 NULL
@@ -230,8 +226,7 @@ namespace BPaNSVariations
 					&& list[i + 2].opcode == OpCodes.Ldc_R4
 					&& list[i + 3].opcode == OpCodes.Ldarg_1)
 				{
-					list.Insert(i++, new CodeInstruction(OpCodes.Call, AccessTools.PropertyGetter(typeof(BPaNSVariations), nameof(BPaNSVariations.Settings))));
-					list.Insert(i++, new CodeInstruction(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(BPaNSSettings), nameof(BPaNSSettings.BPAgeReversalCycleAgeReversed))));
+					list.Insert(i++, new CodeInstruction(OpCodes.Call, AccessTools.PropertyGetter(typeof(BiosculpterPodSettings), nameof(BiosculpterPodSettings.AgeReversalCycleAgeReversed))));
 					list.Insert(i++, new CodeInstruction(OpCodes.Mul));
 					break;
 				}

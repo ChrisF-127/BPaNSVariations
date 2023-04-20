@@ -1,0 +1,509 @@
+﻿using BPaNSVariations.Settings;
+using BPaNSVariations.Utility;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using UnityEngine;
+using Verse;
+
+namespace BPaNSVariations.Controls
+{
+	internal abstract class BaseControls : ISelectableItem
+	{
+		#region PROPERTIES
+		public BaseSettings Settings { get; }
+
+		public virtual string Label =>
+			Settings.GetName();
+		public virtual bool IsModified =>
+			Settings.IsModified();
+
+		protected virtual Dictionary<string, string> ValueBuffers { get; } = new Dictionary<string, string>();
+		#endregion
+
+		#region FIELDS
+		public const float SettingsRowHeight = 32f;
+		public const float ThinSettingsRowHeight = 26f;
+		public static readonly Color ModifiedColor = Color.cyan;
+		public static readonly Color SelectionColor = Color.green;
+
+		public static GameFont OriTextFont;
+		public static TextAnchor OriTextAnchor;
+		public static Color OriColor;
+		#endregion
+
+		#region CONSTRUCTORS
+		public BaseControls(BaseSettings settings)
+		{
+			Settings = settings;
+		}
+		#endregion
+
+		#region METHODS
+		public abstract void CreateSettings(ref float offsetY, float viewWidth);
+
+		public virtual void ResetBuffers()
+		{
+			ValueBuffers.Clear();
+		}
+		#endregion
+
+		#region PUBLIC METHODS
+		public static float GetControlWidth(float viewWidth) =>
+			viewWidth / 2 - SettingsRowHeight - 4;
+
+		public static bool DrawResetButton(float offsetY, float viewWidth, string tooltip)
+		{
+			var buttonRect = new Rect(viewWidth + 2 - (SettingsRowHeight * 2), offsetY + 2, SettingsRowHeight * 2 - 4, SettingsRowHeight - 4);
+			DrawTooltip(buttonRect, "SY_BNV.TooltipDefaultValue".Translate() + " " + tooltip);
+			return Widgets.ButtonText(buttonRect, "SY_BNV.Reset".Translate());
+		}
+		public static void DrawTooltip(Rect rect, string tooltip)
+		{
+			if (Mouse.IsOver(rect))
+			{
+				ActiveTip activeTip = new ActiveTip(tooltip);
+				activeTip.DrawTooltip(GenUI.GetMouseAttachedWindowPos(activeTip.TipRect.width, activeTip.TipRect.height) + (UI.MousePositionOnUIInverted - Event.current.mousePosition));
+			}
+		}
+		public static void DrawTextFieldUnit<T>(Rect rect, T value, string unit)
+		{
+			Text.Anchor = TextAnchor.MiddleRight;
+			Widgets.Label(new Rect(rect.x + 4, rect.y + 1, rect.width - 8, rect.height), $"{value?.ToString() ?? ""} {unit ?? ""}");
+			Text.Anchor = TextAnchor.MiddleLeft;
+		}
+
+		public static void CreateTitle(
+			ref float offsetY,
+			float viewWidth,
+			string text)
+		{
+			Text.Font = GameFont.Medium;
+			Widgets.Label(new Rect(0, offsetY, viewWidth, SettingsRowHeight), text);
+			Text.Font = GameFont.Small;
+			offsetY += SettingsRowHeight + 2;
+		}
+
+		public static void CreateSeparator(
+			ref float offsetY,
+			float viewWidth,
+			string text)
+		{
+			offsetY += 5;
+			Widgets.ListSeparator(ref offsetY, viewWidth, text);
+			offsetY += 5;
+			Text.Anchor = TextAnchor.MiddleLeft;
+		}
+
+		public T CreateNumeric<T>(
+			ref float offsetY,
+			float viewWidth,
+			string label,
+			string tooltip,
+			T value,
+			T defaultValue,
+			string valueBufferKey,
+			float min = 0f,
+			float max = 1e+9f,
+			AdditionalTextDelegate<T> additionalText = null,
+			string unit = null)
+			where T : struct, IComparable =>
+			CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				label,
+				tooltip,
+				!value.Equals(defaultValue),
+				value,
+				defaultValue,
+				valueBufferKey,
+				ValueBuffers,
+				min,
+				max,
+				additionalText,
+				unit);
+		public static T CreateNumeric<T>(
+			ref float offsetY,
+			float viewWidth,
+			string label,
+			string tooltip,
+			bool isModified,
+			T value,
+			T defaultValue,
+			string valueBufferKey,
+			Dictionary<string, string> valueBuffers,
+			float min = 0f,
+			float max = 1e+9f,
+			AdditionalTextDelegate<T> additionalText = null,
+			string unit = null)
+			where T : struct
+		{
+			var controlWidth = GetControlWidth(viewWidth);
+
+			// Label
+			if (isModified)
+				GUI.color = ModifiedColor;
+			Widgets.Label(new Rect(0, offsetY, controlWidth - 8, SettingsRowHeight), label);
+			GUI.color = OriColor;
+
+			// Setting
+			var textFieldRect = new Rect(controlWidth + 2, offsetY + 6, controlWidth / 2 - 4, SettingsRowHeight - 12);
+			var valueBuffer = valueBuffers.GetOrAddDefault(valueBufferKey);
+			Widgets.TextFieldNumeric(textFieldRect, ref value, ref valueBuffer, min, max);
+			valueBuffers[valueBufferKey] = valueBuffer;
+			if (!string.IsNullOrWhiteSpace(tooltip))
+				DrawTooltip(textFieldRect, tooltip);
+
+			// Unit
+			DrawTextFieldUnit<T?>(textFieldRect, null, unit);
+
+			// Additional Text
+			if (additionalText != null)
+			{
+				var additionalTextRect = textFieldRect;
+				additionalTextRect.x += textFieldRect.width + 8;
+				additionalTextRect.width -= 8;
+				Widgets.Label(additionalTextRect, additionalText(value));
+			}
+
+			// Reset button
+			if (isModified && DrawResetButton(offsetY, viewWidth, defaultValue.ToString()))
+			{
+				value = defaultValue;
+				valueBuffers.Remove(valueBufferKey);
+			}
+
+			offsetY += SettingsRowHeight;
+			return value;
+		}
+
+		public Color CreateColorControl(
+			ref float offsetY,
+			float viewWidth,
+			string label,
+			string tooltip,
+			Color value,
+			Color defaultValue,
+			string valueBufferKey) =>
+			CreateColorControl(
+				ref offsetY,
+				viewWidth,
+				label,
+				tooltip,
+				value,
+				defaultValue,
+				valueBufferKey,
+				ValueBuffers);
+		public static Color CreateColorControl(
+			ref float offsetY,
+			float viewWidth,
+			string label,
+			string tooltip,
+			Color value,
+			Color defaultValue,
+			string valueBufferKey,
+			Dictionary<string, string> valueBuffers)
+		{
+			var controlWidth = GetControlWidth(viewWidth);
+			var isModified = value != defaultValue;
+
+			var bufferR = valueBufferKey + "_R";
+			var bufferG = valueBufferKey + "_G";
+			var bufferB = valueBufferKey + "_B";
+
+			// Label
+			if (isModified)
+				GUI.color = ModifiedColor;
+			Widgets.Label(new Rect(0, offsetY, controlWidth - 8, SettingsRowHeight), label);
+			GUI.color = OriColor;
+
+			// Red
+			var x = controlWidth + 2;
+			var w = (controlWidth / 3) - 4;
+			var textFieldRect = new Rect(x, offsetY + 6, w, SettingsRowHeight - 12);
+			var valueBuffer = valueBuffers.GetOrAddDefault(bufferR);
+			Widgets.TextFieldNumeric(textFieldRect, ref value.r, ref valueBuffer, 0f, 1f);
+			valueBuffers[bufferR] = valueBuffer;
+			DrawTooltip(textFieldRect, $"{"SY_BNV.Red".Translate()}:\n{tooltip}");
+			GUI.color = Color.red;
+			DrawTextFieldUnit<float?>(textFieldRect, null, "R");
+			GUI.color = OriColor;
+
+			// Green
+			x += w + 4;
+			textFieldRect = new Rect(x, offsetY + 6, w, SettingsRowHeight - 12);
+			valueBuffer = valueBuffers.GetOrAddDefault(bufferG);
+			Widgets.TextFieldNumeric(textFieldRect, ref value.g, ref valueBuffer, 0f, 1f);
+			valueBuffers[bufferG] = valueBuffer;
+			DrawTooltip(textFieldRect, $"{"SY_BNV.Green".Translate()}:\n{tooltip}");
+			GUI.color = Color.green;
+			DrawTextFieldUnit<float?>(textFieldRect, null, "G");
+			GUI.color = OriColor;
+
+			// Blue
+			x += w + 4;
+			textFieldRect = new Rect(x, offsetY + 6, w, SettingsRowHeight - 12);
+			valueBuffer = valueBuffers.GetOrAddDefault(bufferB);
+			Widgets.TextFieldNumeric(textFieldRect, ref value.b, ref valueBuffer, 0f, 1f);
+			valueBuffers[bufferB] = valueBuffer;
+			DrawTooltip(textFieldRect, $"{"SY_BNV.Blue".Translate()}:\n{tooltip}");
+			GUI.color = Color.blue;
+			DrawTextFieldUnit<float?>(textFieldRect, null, "B");
+			GUI.color = OriColor;
+
+			// Reset button
+			if (isModified && DrawResetButton(offsetY, viewWidth, defaultValue.ToString()))
+			{
+				value = defaultValue;
+
+				valueBuffers.Remove(bufferR);
+				valueBuffers.Remove(bufferG);
+				valueBuffers.Remove(bufferB);
+			}
+
+			offsetY += SettingsRowHeight;
+			return value;
+		}
+
+		public static T CreateDropdownSelectorControl<T>(
+			ref float offsetY,
+			float viewWidth,
+			string label,
+			string tooltip,
+			bool isModified,
+			TargetWrapper<T> valueWrapper,
+			T DefaultValue,
+			IEnumerable<T> list,
+			Func<T, string> itemToString)
+		{
+			var controlWidth = GetControlWidth(viewWidth);
+
+			// Label
+			if (isModified)
+				GUI.color = ModifiedColor;
+			Widgets.Label(new Rect(0, offsetY, controlWidth - 8, SettingsRowHeight), label);
+			GUI.color = OriColor;
+
+			// Menu Generator
+			IEnumerable<Widgets.DropdownMenuElement<T>> menuGenerator(TargetWrapper<T> target)
+			{
+				foreach (var item in list)
+				{
+					yield return new Widgets.DropdownMenuElement<T>
+					{
+						option = new FloatMenuOption(itemToString(item), () => target.Item = item),
+						payload = item,
+					};
+				}
+			}
+
+			// Dropdown
+			var rect = new Rect(controlWidth + 2, offsetY + 2, controlWidth - 4, SettingsRowHeight - 4);
+			Widgets.Dropdown(
+				rect,
+				valueWrapper,
+				null,
+				menuGenerator,
+				itemToString(valueWrapper.Item));
+			DrawTooltip(rect, tooltip);
+
+			// Reset
+			if (isModified && DrawResetButton(offsetY, viewWidth, itemToString(DefaultValue)))
+				valueWrapper.Item = DefaultValue;
+
+			offsetY += SettingsRowHeight;
+			return valueWrapper.Item;
+		}
+
+		public void CreateThingDefListControl(
+			ref float offsetY,
+			float viewWidth,
+			string label,
+			ref ThingDefCountClass newThing,
+			List<ThingDefCountClass> values,
+			List<ThingDefCountClass> defaultValues,
+			IEnumerable<ThingDef> availableThingDefs,
+			string valueBufferKey) =>
+			CreateThingDefListControl(
+				ref offsetY,
+				viewWidth,
+				label,
+				ref newThing,
+				values,
+				defaultValues,
+				availableThingDefs,
+				valueBufferKey,
+				ValueBuffers);
+		public static void CreateThingDefListControl(
+			ref float offsetY,
+			float viewWidth,
+			string label,
+			ref ThingDefCountClass newThing,
+			List<ThingDefCountClass> values,
+			List<ThingDefCountClass> defaultValues,
+			IEnumerable<ThingDef> availableThingDefs,
+			string valueBufferKey,
+			Dictionary<string, string> valueBuffers)
+		{
+			var oriOffsetY = offsetY;
+			var controlWidth = GetControlWidth(viewWidth);
+			var isModified = values.AnyDifference(defaultValues);
+
+			// Label
+			if (isModified)
+				GUI.color = ModifiedColor;
+			Widgets.Label(new Rect(0, offsetY, controlWidth, SettingsRowHeight), label);
+			GUI.color = OriColor;
+
+			// Menu Generator
+			IEnumerable<Widgets.DropdownMenuElement<ThingDef>> menuGenerator(ThingDefCountClass target)
+			{
+				foreach (var def in availableThingDefs)
+				{
+					yield return new Widgets.DropdownMenuElement<ThingDef>
+					{
+						option = new FloatMenuOption(def.LabelCap, () => target.thingDef = def),
+						payload = def,
+					};
+				}
+			}
+
+			offsetY += 1;
+
+			// New ThingDef selector
+			var thingDefRect = new Rect(controlWidth + 2, offsetY + 4, controlWidth / 2 - 4, ThinSettingsRowHeight - 4);
+			Widgets.Dropdown(
+				thingDefRect,
+				newThing,
+				null,
+				menuGenerator,
+				newThing.thingDef?.LabelCap);
+			DrawTooltip(thingDefRect, "SY_BNV.SelectNewThingDef".Translate());
+
+
+			// New ThingDef count
+			var countRect = new Rect(thingDefRect.x + thingDefRect.width + 4, offsetY + 5, controlWidth / 2 - ThinSettingsRowHeight, ThinSettingsRowHeight - 6);
+			var bufferKey = valueBufferKey + "_0";
+			var valueBuffer = valueBuffers.GetOrAddDefault(bufferKey);
+			Widgets.TextFieldNumeric(countRect, ref newThing.count, ref valueBuffer, 1, int.MaxValue);
+			valueBuffers[bufferKey] = valueBuffer;
+			DrawTooltip(countRect, "SY_BNV.Count".Translate());
+
+			// Add button
+			var smallButtonRect = new Rect(countRect.x + countRect.width + 4, offsetY + 3, ThinSettingsRowHeight - 2, ThinSettingsRowHeight - 2);
+			var newThingThingDef = newThing.thingDef;
+			if (newThing.thingDef != null && !values.Any(v => v.thingDef == newThingThingDef) && Widgets.ButtonText(smallButtonRect, "+"))
+			{
+				values.Add(newThing);
+				newThing = new ThingDefCountClass();
+				valueBuffers.Remove(bufferKey);
+			}
+			DrawTooltip(smallButtonRect, "SY_BNV.Add".Translate());
+
+			// Row offset
+			offsetY += ThinSettingsRowHeight + 2;
+
+
+			// Create list
+			for (int i = 0; i < values.Count; i++)
+			{
+				var value = values[i];
+				var bufferPos = i + 1;
+
+				// Set new offsetY
+				thingDefRect.y = offsetY + 4;
+				countRect.y = offsetY + 5;
+				smallButtonRect.y = offsetY + 3;
+
+				// ThingDef
+				if (!defaultValues.Any(v => v.thingDef == value.thingDef && v.count == value.count))
+					GUI.color = ModifiedColor;
+				Widgets.Label(thingDefRect, value.thingDef.LabelCap);
+				GUI.color = OriColor;
+
+				// Count
+				bufferKey = valueBufferKey + $"_{bufferPos}";
+				valueBuffer = valueBuffers.GetOrAddDefault(bufferKey);
+				var intValue = value.count;
+				Widgets.TextFieldNumeric(countRect, ref intValue, ref valueBuffer, 1, int.MaxValue);
+				value.count = intValue;
+				valueBuffers[bufferKey] = valueBuffer;
+				DrawTooltip(countRect, "SY_BNV.Count".Translate());
+
+				// Remove button
+				if (Widgets.ButtonText(smallButtonRect, "-") && values.Any(v => v.thingDef == value.thingDef))
+				{
+					values.Remove(value);
+					valueBuffers.Remove(bufferKey);
+				}
+				DrawTooltip(smallButtonRect, "SY_BNV.Remove".Translate());
+
+				// Row offset
+				offsetY += ThinSettingsRowHeight;
+			}
+
+
+			// Reset (must be added last to not cause focus to jump when it appears)
+			string itemToString(List<ThingDefCountClass> thingDefCountList)
+			{
+				var sb = new StringBuilder();
+				foreach (var item in thingDefCountList)
+					sb.Append($"{item.thingDef?.LabelCap} {item.count}\n");
+				return sb.ToString();
+			}
+			if (isModified && DrawResetButton(oriOffsetY, viewWidth, itemToString(defaultValues)))
+			{
+				values.Set(defaultValues);
+				valueBuffers.RemoveAll(vb => vb.Key.StartsWith(valueBufferKey));
+			}
+
+			offsetY += 4;
+		}
+		#endregion
+
+		#region PRIVATE METHODS
+		protected string WorkToBuildToWorkLeft(float work) =>
+			$"{work / 60f:0} {"SY_BNV.Work".Translate()}";
+
+		protected string YearsToText(float years) =>
+			DaysToText(years * 60f);
+		protected string DaysToText(float days) =>
+			HoursToText(days * 24f);
+		protected string HoursToText(float hours)
+		{
+			var output = new StringBuilder();
+			var y = Mathf.Floor(hours / 24f / 60f);
+			if (y > 0) output.Append($"{y:0} y");
+			output.Append("\t");
+			var d = Mathf.Floor(hours / 24f % 60f);
+			if (y > 0 || d > 0) output.Append($"{d:0} d");
+			output.Append("\t");
+			var h = hours % 24f;
+			output.Append($"{h:0.00} h");
+			return output.ToString();
+		}
+
+		protected string TicksToYearText(int ticks) =>
+			YearsToText(ticks / 3600000f);
+
+		protected string ValueToPercent(float f) =>
+			$"{f:P0}";
+		#endregion
+
+		#region CLASSES
+		internal delegate string AdditionalTextDelegate<T>(T value);
+
+		internal class TargetWrapper<T>
+		{
+			public T Item { get; set; }
+
+			public TargetWrapper(T item)
+			{
+				Item = item;
+			}
+		}
+		#endregion
+	}
+}
