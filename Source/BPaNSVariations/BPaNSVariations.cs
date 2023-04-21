@@ -1,10 +1,5 @@
-﻿using System;
-using System.Text;
-using System.Threading.Tasks;
-using RimWorld;
-using Verse;
+﻿using Verse;
 using UnityEngine;
-using System.Collections.Generic;
 using BPaNSVariations.Controls;
 using BPaNSVariations.Settings;
 
@@ -44,6 +39,7 @@ namespace BPaNSVariations
 		{
 			BiosculpterPodSettings.InitializeStatics();
 			NeuralSuperchargerSettings.InitializeStatics();
+			SleepAcceleratorSettings.InitializeStatics();
 
 			Settings = GetSettings<BPaNSSettings>();
 			Controls = new BPaNSControls(Settings);

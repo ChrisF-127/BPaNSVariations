@@ -1,10 +1,5 @@
 ﻿using BPaNSVariations.Settings;
-using BPaNSVariations.Utility;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Verse;
 
 namespace BPaNSVariations.Controls
@@ -14,6 +9,9 @@ namespace BPaNSVariations.Controls
 		#region PROPERTIES
 		public BiosculpterPodSettings BiosculpterPodSettings => 
 			(BiosculpterPodSettings)Settings;
+
+		protected override bool CanBeCopied =>
+			true;
 		#endregion
 
 		#region FIELDS
@@ -33,6 +31,19 @@ namespace BPaNSVariations.Controls
 		{
 			// General
 			base.CreateSettings(ref offsetY, viewWidth, out copy);
+
+			#region GENERAL
+			// General - Standby Power Consumption
+			BiosculpterPodSettings.StandbyPowerConsumption = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.StandbyPowerConsumption".Translate(),
+				"SY_BNV.TooltipStandbyPowerConsumption".Translate(),
+				BiosculpterPodSettings.StandbyPowerConsumption,
+				BiosculpterPodSettings.DefaultStandbyPowerConsumption,
+				"StandbyPowerConsumption",
+				unit: "W");
+			#endregion
 
 			#region READY EFFECT
 			// Ready Effect

@@ -2,10 +2,7 @@
 using RimWorld;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using Verse;
 
@@ -20,11 +17,57 @@ namespace BPaNSVariations.Settings
 
 	internal class BiosculpterPodSettings : BaseSettings
 	{
+		//General
+		//x Build cost [requires reload]
+		//x Work to build
+		//x Active power consumption
+		//x Standby power consumption
+
+		//Ready Effect
+		//x State [global]
+		//x Color
+
+		//Specific
+		//x Nutrition required [global]
+		//x Biotuned duration [global]
+		//x Biotuned cycle speed factor
+		//x Speed Factor
+		//x Cleanliness Factor [global]
+
+		//Medical
+		//x Duration
+
+		//Bioregen
+		//x Duration
+		//x Medicine required
+
+		//Age Reversal
+		//x Duration
+		//x Age reversed [global]
+
+		//Pleasure
+		//x Duration
+		//x Mood effect [global]
+		//x Mood duration [global]
+
+		//Research
+		//- Biosculpting
+		//- Bioregeneration
+
 		#region PROPERTIES
 		public static EffecterDef ReadyEffecterDef { get; private set; }
 		public static FleckDef ReadyEffecterFleckDef { get; private set; }
 		public static (float FadeIn, float FadeOut, float Solid) OriginalReadyEffecterValues { get; private set; } // FadeIn, FadeOut, Solid
 
+
+		#region GENERAL
+		public float DefaultStandbyPowerConsumption { get; }
+		public float StandbyPowerConsumption
+		{
+			get => Def.GetSingleCompPropertiesOfType<CompProperties_Power>().idlePowerDraw;
+			set => Def.GetSingleCompPropertiesOfType<CompProperties_Power>().idlePowerDraw = value;
+		}
+		#endregion
 
 		#region READY EFFECT
 		public static BiosculpterPodEffectAnimation DefaultReadyEffectState { get; private set; }
@@ -119,6 +162,10 @@ namespace BPaNSVariations.Settings
 		#region CONSTRUCTORS
 		public BiosculpterPodSettings(ThingDef biosculpterPod) : base(biosculpterPod)
 		{
+			#region GENERAL
+			DefaultStandbyPowerConsumption = StandbyPowerConsumption;
+			#endregion
+
 			#region SPECIFIC
 			DefaultBiotunedCycleSpeedFactor = BiotunedCycleSpeedFactor;
 			DefaultSpeedFactor = SpeedFactor;
@@ -167,7 +214,6 @@ namespace BPaNSVariations.Settings
 			backwardFleckDef.graphicData.drawSize = new Vector2(1f, 0.5f); // standard is 2x1
 			ReadyEffecterFleckDef.graphicData.drawSize = new Vector2(1f, 2f); // standard is 2x2
 			OriginalReadyEffecterValues = (ReadyEffecterFleckDef.fadeInTime, ReadyEffecterFleckDef.fadeOutTime, ReadyEffecterFleckDef.solidTime);
-
 
 			#region SPECIFIC
 			NutritionRequired = DefaultNutritionRequired = CompBiosculpterPod.NutritionRequired;
@@ -251,6 +297,7 @@ namespace BPaNSVariations.Settings
 		#region OVERRIDES
 		public override bool IsModified() =>
 			base.IsModified()
+			|| DefaultStandbyPowerConsumption != StandbyPowerConsumption
 			//|| DefaultReadyEffectState != ReadyEffectState
 			|| DefaultReadyEffectColor != ReadyEffectColor
 			//|| DefaultNutritionRequired != NutritionRequired
@@ -279,8 +326,14 @@ namespace BPaNSVariations.Settings
 				{
 					base.ExposeData();
 
+					#region GENERAL
+					float floatValue = StandbyPowerConsumption;
+					Scribe_Values.Look(ref floatValue, nameof(StandbyPowerConsumption), DefaultStandbyPowerConsumption);
+					StandbyPowerConsumption = floatValue;
+					#endregion
+
 					#region SPECIFIC
-					float floatValue = BiotunedCycleSpeedFactor;
+					floatValue = BiotunedCycleSpeedFactor;
 					Scribe_Values.Look(ref floatValue, nameof(BiotunedCycleSpeedFactor), DefaultBiotunedCycleSpeedFactor);
 					BiotunedCycleSpeedFactor = floatValue;
 
@@ -337,6 +390,8 @@ namespace BPaNSVariations.Settings
 			if (to != this && to is BiosculpterPodSettings copy)
 			{
 				base.CopyTo(to);
+
+				copy.StandbyPowerConsumption = StandbyPowerConsumption;
 
 				copy.ReadyEffectColor = ReadyEffectColor;
 

@@ -1,10 +1,4 @@
 ﻿using BPaNSVariations.Settings;
-using BPaNSVariations.Utility;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Verse;
 
 namespace BPaNSVariations.Controls
@@ -14,6 +8,9 @@ namespace BPaNSVariations.Controls
 		#region PROPERTIES
 		public NeuralSuperchargerSettings NeuralSuperchargerSettings => 
 			(NeuralSuperchargerSettings)Settings;
+
+		protected override bool CanBeCopied =>
+			true;
 		#endregion
 
 		#region CONSTRUCTORS
@@ -34,6 +31,15 @@ namespace BPaNSVariations.Controls
 				ref offsetY,
 				viewWidth,
 				"SY_BNV.SeparatorSpecific".Translate());
+			// Specific - [GLOBAL] Anyone Can Build
+			NeuralSuperchargerSettings.AnyoneCanBuild = CreateCheckbox(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.AnyoneCanBuild".Translate(),
+				"SY_BNV.TooltipAnyoneCanBuild".Translate(),
+				NeuralSuperchargerSettings.AnyoneCanBuild,
+				NeuralSuperchargerSettings.DefaultAnyoneCanBuild,
+				"SY_BNV.DescAnyoneCanBuild".Translate());
 			// Specific - Ticks To Recharge
 			NeuralSuperchargerSettings.TicksToRecharge = CreateNumeric(
 				ref offsetY,
@@ -44,15 +50,6 @@ namespace BPaNSVariations.Controls
 				NeuralSuperchargerSettings.DefaultTicksToRecharge,
 				"TicksToRecharge",
 				additionalText: TicksToYearText);
-			// Specific - Anyone Can Build
-			NeuralSuperchargerSettings.AnyoneCanBuild = CreateCheckbox(
-				ref offsetY,
-				viewWidth,
-				"SY_BNV.AnyoneCanBuild".Translate(),
-				"SY_BNV.TooltipAnyoneCanBuild".Translate(),
-				NeuralSuperchargerSettings.AnyoneCanBuild,
-				NeuralSuperchargerSettings.DefaultAnyoneCanBuild,
-				"SY_BNV.DescAnyoneCanBuild".Translate());
 			#endregion
 
 			#region HEDIFF

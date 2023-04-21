@@ -1,14 +1,8 @@
 ﻿using System.Linq;
 using RimWorld;
 using Verse;
-using UnityEngine;
 using System;
 using System.Collections.Generic;
-using Verse.AI;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using RimWorld.Planet;
-using System.Xml;
 
 namespace BPaNSVariations.Utility
 {

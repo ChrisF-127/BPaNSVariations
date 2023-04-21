@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using Verse;
 
@@ -19,6 +18,9 @@ namespace BPaNSVariations.Controls
 			Settings.GetName();
 		public virtual bool IsModified =>
 			Settings.IsModified();
+
+		protected virtual bool CanBeCopied =>
+			false;
 
 		protected virtual Dictionary<string, string> ValueBuffers { get; } = new Dictionary<string, string>();
 		#endregion
@@ -51,7 +53,7 @@ namespace BPaNSVariations.Controls
 				ref offsetY,
 				viewWidth,
 				Label,
-				true);
+				CanBeCopied);
 
 			#region GENERAL
 			// General
@@ -59,29 +61,6 @@ namespace BPaNSVariations.Controls
 				ref offsetY,
 				viewWidth,
 				"SY_BNV.SeparatorGeneral".Translate());
-			// General - Active Power Consumption
-			Settings.ActivePowerConsumption = CreateNumeric(
-				ref offsetY,
-				viewWidth,
-				"SY_BNV.ActivePowerConsumption".Translate(),
-				"SY_BNV.TooltipActivePowerConsumption".Translate(),
-				Settings.ActivePowerConsumption,
-				Settings.DefaultActivePowerConsumption,
-				"ActivePowerConsumption",
-				unit: "W");
-			// General - Standby Power Consumption
-			if (Settings.StandbyPowerConsumption >= 0)
-			{
-				Settings.StandbyPowerConsumption = CreateNumeric(
-					ref offsetY,
-					viewWidth,
-					"SY_BNV.StandbyPowerConsumption".Translate(),
-					"SY_BNV.TooltipStandbyPowerConsumption".Translate(),
-					Settings.StandbyPowerConsumption,
-					Settings.DefaultStandbyPowerConsumption,
-					"StandbyPowerConsumption",
-					unit: "W");
-			}
 			// General - Build Cost
 			if (_buildCostNewDef == null)
 				_buildCostNewDef = new ThingDefCountClass();
@@ -104,6 +83,16 @@ namespace BPaNSVariations.Controls
 				Settings.DefaultWorkToBuild,
 				"WorkToBuild",
 				additionalText: WorkToBuildToWorkLeft);
+			// General - Active Power Consumption
+			Settings.ActivePowerConsumption = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.ActivePowerConsumption".Translate(),
+				"SY_BNV.TooltipActivePowerConsumption".Translate(),
+				Settings.ActivePowerConsumption,
+				Settings.DefaultActivePowerConsumption,
+				"ActivePowerConsumption",
+				unit: "W");
 			#endregion
 		}
 
@@ -281,6 +270,115 @@ namespace BPaNSVariations.Controls
 				valueBuffers.Remove(valueBufferKey);
 			}
 
+			offsetY += SettingsRowHeight;
+			return value;
+		}
+
+		public T? CreateNullableNumeric<T>(
+			ref float offsetY,
+			float viewWidth,
+			string label,
+			string labelDisabled,
+			string tooltip,
+			string tooltipCheckbox,
+			T? value,
+			T? defaultValue,
+			string valueBufferKey,
+			float min = 0f,
+			float max = 1e+9f,
+			AdditionalTextDelegate<T?> additionalText = null,
+			string unit = null)
+			where T : struct =>
+			CreateNullableNumeric(
+				ref offsetY,
+				viewWidth,
+				label,
+				labelDisabled,
+				tooltip,
+				tooltipCheckbox,
+				!(value == null && defaultValue == null || value != null && defaultValue != null && value.Equals(defaultValue)),
+				value,
+				defaultValue,
+				valueBufferKey,
+				ValueBuffers,
+				min,
+				max,
+				additionalText,
+				unit);
+		public static T? CreateNullableNumeric<T>(
+			ref float offsetY,
+			float viewWidth,
+			string label,
+			string labelDisabled,
+			string tooltip,
+			string tooltipCheckbox,
+			bool isModified,
+			T? value,
+			T? defaultValue,
+			string valueBufferKey,
+			Dictionary<string, string> valueBuffers,
+			float min = 0f,
+			float max = 1e+9f,
+			AdditionalTextDelegate<T?> additionalText = null,
+			string unit = null)
+			where T : struct
+		{
+			var controlWidth = GetControlWidth(viewWidth);
+
+			// Label
+			if (isModified)
+				GUI.color = ModifiedColor;
+			Widgets.Label(new Rect(0, offsetY, controlWidth - 8, SettingsRowHeight), label);
+			GUI.color = OriColor;
+
+			// Setting
+			var selected = value != null;
+			var checkboxSize = SettingsRowHeight - 8;
+			Widgets.Checkbox(controlWidth, offsetY + (SettingsRowHeight - checkboxSize) / 2, ref selected, checkboxSize);
+			DrawTooltip(new Rect(controlWidth, offsetY, checkboxSize, checkboxSize), tooltipCheckbox);
+
+			// Value
+			float offsetX = controlWidth + checkboxSize + 4;
+			float width = controlWidth / 2 - checkboxSize - 6;
+			if (selected)
+			{
+				var textFieldRect = new Rect(offsetX, offsetY + 6, width, SettingsRowHeight - 12);
+				var val = value ?? defaultValue ?? default;
+				var valueBuffer = valueBuffers.GetOrAddDefault(valueBufferKey);
+				Widgets.TextFieldNumeric(textFieldRect, ref val, ref valueBuffer, min, max);
+				valueBuffers[valueBufferKey] = valueBuffer;
+				DrawTooltip(textFieldRect, tooltip);
+				value = val;
+
+				// Unit
+				DrawTextFieldUnit<T?>(textFieldRect, null, unit);
+
+				// Additional Text
+				if (additionalText != null)
+				{
+					var additionalTextRect = textFieldRect;
+					additionalTextRect.x += textFieldRect.width + 8;
+					additionalTextRect.width = controlWidth / 2 - 12;
+					Widgets.Label(additionalTextRect, additionalText(value));
+				}
+			}
+			else
+			{
+				// Label when disabled
+				if (labelDisabled != null)
+					Widgets.Label(new Rect(offsetX, offsetY + 4, controlWidth - checkboxSize - 12, SettingsRowHeight - 8), labelDisabled);
+
+				value = null;
+			}
+
+			// Reset button
+			if (isModified && DrawResetButton(offsetY, viewWidth, defaultValue?.ToString() ?? "null"))
+			{
+				value = defaultValue;
+				valueBuffers.Remove(valueBufferKey);
+			}
+
+			// Output
 			offsetY += SettingsRowHeight;
 			return value;
 		}

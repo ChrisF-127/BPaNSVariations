@@ -5,8 +5,6 @@ using UnityEngine;
 using HarmonyLib;
 using System.Reflection.Emit;
 using System.Reflection;
-using System.Linq;
-using System;
 using BPaNSVariations.Settings;
 
 namespace BPaNSVariations.Utility

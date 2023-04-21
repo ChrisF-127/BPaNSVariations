@@ -1,10 +1,6 @@
 ﻿using BPaNSVariations.Utility;
 using RimWorld;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Verse;
 
 namespace BPaNSVariations.Settings
@@ -19,12 +15,6 @@ namespace BPaNSVariations.Settings
 		{
 			get => Def.GetSingleCompPropertiesOfType<CompProperties_Power>().basePowerConsumption;
 			set => Def.GetSingleCompPropertiesOfType<CompProperties_Power>().basePowerConsumption = value;
-		}
-		public virtual float DefaultStandbyPowerConsumption { get; }
-		public virtual float StandbyPowerConsumption
-		{
-			get => Def.GetSingleCompPropertiesOfType<CompProperties_Power>().idlePowerDraw;
-			set => Def.GetSingleCompPropertiesOfType<CompProperties_Power>().idlePowerDraw = value;
 		}
 		public virtual List<ThingDefCountClass> DefaultBuildCost { get; } = new List<ThingDefCountClass>();
 		public virtual List<ThingDefCountClass> BuildCost => Def.costList;
@@ -42,10 +32,9 @@ namespace BPaNSVariations.Settings
 			Def = def;
 
 			#region GENERAL
-			DefaultActivePowerConsumption = ActivePowerConsumption;
-			DefaultStandbyPowerConsumption = StandbyPowerConsumption;
-			DefaultBuildCost.SetFrom(BuildCost);
 			DefaultWorkToBuild = WorkToBuild;
+			DefaultBuildCost.SetFrom(BuildCost);
+			DefaultActivePowerConsumption = ActivePowerConsumption;
 			#endregion
 		}
 		#endregion
@@ -55,34 +44,28 @@ namespace BPaNSVariations.Settings
 			Def.LabelCap;
 
 		public virtual bool IsModified() =>
-			DefaultActivePowerConsumption != ActivePowerConsumption
-			|| DefaultStandbyPowerConsumption != StandbyPowerConsumption
+			DefaultWorkToBuild != WorkToBuild
 			|| DefaultBuildCost.AnyDifference(BuildCost)
-			|| DefaultWorkToBuild != WorkToBuild;
+			|| DefaultActivePowerConsumption != ActivePowerConsumption;
 
 		public virtual void ExposeData()
 		{
 			#region GENERAL
-			float floatValue = ActivePowerConsumption;
-			Scribe_Values.Look(ref floatValue, nameof(ActivePowerConsumption), DefaultActivePowerConsumption);
-			ActivePowerConsumption = floatValue;
-
-			floatValue = StandbyPowerConsumption;
-			Scribe_Values.Look(ref floatValue, nameof(StandbyPowerConsumption), DefaultStandbyPowerConsumption);
-			StandbyPowerConsumption = floatValue;
+			float floatValue = WorkToBuild;
+			Scribe_Values.Look(ref floatValue, nameof(WorkToBuild), DefaultWorkToBuild);
+			WorkToBuild = floatValue;
 
 			BPaNSUtility.ExposeList(BuildCost, nameof(BuildCost), () => BuildCost.AnyDifference(DefaultBuildCost));
 
-			floatValue = WorkToBuild;
-			Scribe_Values.Look(ref floatValue, nameof(WorkToBuild), DefaultWorkToBuild);
-			WorkToBuild = floatValue;
+			floatValue = ActivePowerConsumption;
+			Scribe_Values.Look(ref floatValue, nameof(ActivePowerConsumption), DefaultActivePowerConsumption);
+			ActivePowerConsumption = floatValue;
 			#endregion
 		}
 
 		public virtual void CopyTo(BaseSettings to)
 		{
 			to.ActivePowerConsumption = ActivePowerConsumption;
-			to.StandbyPowerConsumption = StandbyPowerConsumption;
 			to.BuildCost.SetFrom(BuildCost);
 			to.WorkToBuild = WorkToBuild;
 		}

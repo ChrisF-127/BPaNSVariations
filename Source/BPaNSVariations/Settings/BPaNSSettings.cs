@@ -1,6 +1,5 @@
 ﻿using BPaNSVariations.Utility;
 using RimWorld;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -61,6 +60,7 @@ namespace BPaNSVariations.Settings
 
 			Settings.BiosculpterPodSettings.ExposeStatics();
 			Settings.NeuralSuperchargerSettings.ExposeStatics();
+			Settings.SleepAcceleratorSettings.ExposeStatics();
 
 			foreach (var settings in AllSettings)
 				settings.ExposeData();

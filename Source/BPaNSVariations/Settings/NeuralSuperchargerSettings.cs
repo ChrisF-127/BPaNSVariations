@@ -3,38 +3,43 @@ using RimWorld;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 using Verse;
 
 namespace BPaNSVariations.Settings
 {
 	internal class NeuralSuperchargerSettings : BaseSettings
 	{
-		//Misc
-		//- Charge time
-		//- Anyone can build toggle
+		//General
+		//x Build cost [requires reload]
+		//x Work to build
+		//x Power consumption
 
-		//Buff
-		//- Duration
-		//- Consciousness
-		//- Global Learning Factor
-		//- Hunger Rate Factor
+		//Specific
+		//x Charge time [new apply only]
+		//x Anyone can build toggle [global, requires restart]
+
+		//Hediff
+		//x Duration [global, new apply only]
+		//x Consciousness [global]
+		//x Global Learning Factor [global]
+		//x Hunger Rate Factor [global]
+
+		//Research
+		//- Neural Supercharger
+
 		#region PROPERTIES
-		public int DefaultTicksToRecharge { get; }
-		public int TicksToRecharge
-		{
-			get => Def.GetSingleCompPropertiesOfType<CompProperties_NeuralSupercharger>().ticksToRecharge;
-			set => Def.GetSingleCompPropertiesOfType<CompProperties_NeuralSupercharger>().ticksToRecharge = value;
-		}
-
 		public static bool DefaultAnyoneCanBuild { get; private set; }
 		public static bool _anyoneCanBuild = false;
 		public static bool AnyoneCanBuild
 		{
 			get => _anyoneCanBuild;
 			set => SetAnyoneCanBuild(value);
+		}
+		public int DefaultTicksToRecharge { get; }
+		public int TicksToRecharge
+		{
+			get => Def.GetSingleCompPropertiesOfType<CompProperties_NeuralSupercharger>().ticksToRecharge;
+			set => Def.GetSingleCompPropertiesOfType<CompProperties_NeuralSupercharger>().ticksToRecharge = value;
 		}
 
 		public static int DefaultHediffDisappearsAfterTicks { get; private set; }

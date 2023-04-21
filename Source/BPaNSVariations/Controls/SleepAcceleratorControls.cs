@@ -1,10 +1,4 @@
 ﻿using BPaNSVariations.Settings;
-using BPaNSVariations.Utility;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Verse;
 
 namespace BPaNSVariations.Controls
@@ -27,6 +21,58 @@ namespace BPaNSVariations.Controls
 		{
 			// General
 			base.CreateSettings(ref offsetY, viewWidth, out copy);
+
+			#region GENERAL
+			// General - Standby Power Consumption
+			SleepAcceleratorSettings.InUsePowerConsumption = CreateNullableNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.InUsePowerConsumption".Translate(),
+				"SY_BNV.InUsePowerConsumptionDisabled".Translate(),
+				"SY_BNV.TooltipInUsePowerConsumption".Translate(),
+				"SY_BNV.TooltipInUsePowerConsumptionCheckbox".Translate(),
+				SleepAcceleratorSettings.InUsePowerConsumption,
+				SleepAcceleratorSettings.DefaultInUsePowerConsumption,
+				"InUsePowerConsumption",
+				unit: "W");
+			#endregion
+
+			#region SPECIFIC
+			// Specific
+			CreateSeparator(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.SeparatorSpecific".Translate());
+			// Specific - [GLOBAL] Anyone Can Build
+			SleepAcceleratorSettings.AnyoneCanBuild = CreateCheckbox(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.AnyoneCanBuild".Translate(),
+				"SY_BNV.TooltipAnyoneCanBuild".Translate(),
+				SleepAcceleratorSettings.AnyoneCanBuild,
+				SleepAcceleratorSettings.DefaultAnyoneCanBuild,
+				"SY_BNV.DescAnyoneCanBuild".Translate());
+			// Specific - Bed Rest Effectiveness
+			SleepAcceleratorSettings.BedRestEffectiveness = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BedRestEffectiveness".Translate(),
+				"SY_BNV.TooltipBedRestEffectiveness".Translate(),
+				SleepAcceleratorSettings.BedRestEffectiveness,
+				SleepAcceleratorSettings.DefaultBedRestEffectiveness,
+				"BedRestEffectiveness",
+				additionalText: ValueToPercent);
+			// Specific - Bed Hunger Rate Factor
+			SleepAcceleratorSettings.BedHungerRateFactor = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BedHungerRateFactor".Translate(),
+				"SY_BNV.TooltipBedHungerRateFactor".Translate(),
+				SleepAcceleratorSettings.BedHungerRateFactor,
+				SleepAcceleratorSettings.DefaultBedHungerRateFactor,
+				"BedHungerRateFactor",
+				additionalText: ValueToPercent);
+			#endregion
 
 
 			// Margin
