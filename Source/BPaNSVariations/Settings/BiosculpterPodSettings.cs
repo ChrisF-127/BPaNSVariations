@@ -21,34 +21,10 @@ namespace BPaNSVariations.Settings
 	internal class BiosculpterPodSettings : BaseSettings
 	{
 		#region PROPERTIES
-		public ThingDef BiosculpterPod { get; }
-
 		public static EffecterDef ReadyEffecterDef { get; private set; }
 		public static FleckDef ReadyEffecterFleckDef { get; private set; }
 		public static (float FadeIn, float FadeOut, float Solid) OriginalReadyEffecterValues { get; private set; } // FadeIn, FadeOut, Solid
 
-		#region GENERAL
-		public float DefaultActivePowerConsumption { get; private set; }
-		public float ActivePowerConsumption
-		{
-			get => BiosculpterPod.GetSingleCompPropertiesOfType<CompProperties_Power>().basePowerConsumption;
-			set => BiosculpterPod.GetSingleCompPropertiesOfType<CompProperties_Power>().basePowerConsumption = value;
-		}
-		public float DefaultStandbyPowerConsumption { get; private set; }
-		public float StandbyPowerConsumption
-		{
-			get => BiosculpterPod.GetSingleCompPropertiesOfType<CompProperties_Power>().idlePowerDraw;
-			set => BiosculpterPod.GetSingleCompPropertiesOfType<CompProperties_Power>().idlePowerDraw = value;
-		}
-		public List<ThingDefCountClass> DefaultBuildCost { get; } = new List<ThingDefCountClass>();
-		public List<ThingDefCountClass> BuildCost => BiosculpterPod.costList;
-		public float DefaultWorkToBuild { get; private set; }
-		public float WorkToBuild
-		{
-			get => BiosculpterPod.GetStatValueAbstract(StatDefOf.WorkToBuild);
-			set => BiosculpterPod.SetStatBaseValue(StatDefOf.WorkToBuild, value);
-		}
-		#endregion
 
 		#region READY EFFECT
 		public static BiosculpterPodEffectAnimation DefaultReadyEffectState { get; private set; }
@@ -58,11 +34,11 @@ namespace BPaNSVariations.Settings
 			get => _readyEffectState;
 			set => _readyEffectState = SetReadyEffectState(value);
 		}
-		public Color DefaultReadyEffectColor { get; private set; }
+		public Color DefaultReadyEffectColor { get; }
 		public Color ReadyEffectColor
 		{
-			get => BiosculpterPod.GetSingleCompPropertiesOfType<CompProperties_BiosculpterPod>().selectCycleColor;
-			set => BiosculpterPod.GetSingleCompPropertiesOfType<CompProperties_BiosculpterPod>().selectCycleColor = value;
+			get => Def.GetSingleCompPropertiesOfType<CompProperties_BiosculpterPod>().selectCycleColor;
+			set => Def.GetSingleCompPropertiesOfType<CompProperties_BiosculpterPod>().selectCycleColor = value;
 		}
 		#endregion
 
@@ -71,59 +47,59 @@ namespace BPaNSVariations.Settings
 		public static float NutritionRequired { get; set; } // applied via several CompBiosculpterPod-Transpilers
 		public static int DefaultBiotunedDuration { get; private set; }
 		public static int BiotunedDuration { get; set; } // applied via CompBiosculpterPod.SetBiotuned-Transpiler
-		public float DefaultBiotunedCycleSpeedFactor { get; private set; }
+		public float DefaultBiotunedCycleSpeedFactor { get; }
 		public float BiotunedCycleSpeedFactor
 		{
-			get => BiosculpterPod.GetSingleCompPropertiesOfType<CompProperties_BiosculpterPod>().biotunedCycleSpeedFactor;
-			set => BiosculpterPod.GetSingleCompPropertiesOfType<CompProperties_BiosculpterPod>().biotunedCycleSpeedFactor = value;
+			get => Def.GetSingleCompPropertiesOfType<CompProperties_BiosculpterPod>().biotunedCycleSpeedFactor;
+			set => Def.GetSingleCompPropertiesOfType<CompProperties_BiosculpterPod>().biotunedCycleSpeedFactor = value;
 		}
-		public float DefaultSpeedFactor { get; private set; }
+		public float DefaultSpeedFactor { get; }
 		public float SpeedFactor
 		{
-			get => BiosculpterPod.GetStatValueAbstract(StatDefOf.BiosculpterPodSpeedFactor);
-			set => BiosculpterPod.SetStatBaseValue(StatDefOf.BiosculpterPodSpeedFactor, value);
+			get => Def.GetStatValueAbstract(StatDefOf.BiosculpterPodSpeedFactor);
+			set => Def.SetStatBaseValue(StatDefOf.BiosculpterPodSpeedFactor, value);
 		}
 		public static SimpleCurve DefaultCleanlinessEffectCurve { get; private set; }
 		public static SimpleCurve CleanlinessEffectCurve => RoomStatDefOf.BiosculpterPodSpeedFactor.curve;
 		#endregion
 
 		#region MEDIC CYCLE
-		public float DefaultMedicCycleDuration { get; private set; }
+		public float DefaultMedicCycleDuration { get; }
 		public float MedicCycleDuration
 		{
-			get => BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_MedicCycle>().durationDays;
-			set => BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_MedicCycle>().durationDays = value;
+			get => Def.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_MedicCycle>().durationDays;
+			set => Def.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_MedicCycle>().durationDays = value;
 		}
 		#endregion
 
 		#region REGENERATION CYCLE
-		public float DefaultRegenerationCycleDuration { get; private set; }
+		public float DefaultRegenerationCycleDuration { get; }
 		public float RegenerationCycleDuration
 		{
-			get => BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_RegenerationCycle>().durationDays;
-			set => BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_RegenerationCycle>().durationDays = value;
+			get => Def.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_RegenerationCycle>().durationDays;
+			set => Def.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_RegenerationCycle>().durationDays = value;
 		}
 		public List<ThingDefCountClass> DefaultRegenerationCycleIngredients { get; } = new List<ThingDefCountClass>();
-		public List<ThingDefCountClass> RegenerationCycleIngredients => BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_RegenerationCycle>().extraRequiredIngredients;
+		public List<ThingDefCountClass> RegenerationCycleIngredients => Def.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_HealingCycle, CompBiosculpterPod_RegenerationCycle>().extraRequiredIngredients;
 		#endregion
 
 		#region AGE REVERSAL CYCLE
-		public float DefaultAgeReversalCycleDuration { get; private set; }
+		public float DefaultAgeReversalCycleDuration { get; }
 		public float AgeReversalCycleDuration
 		{
-			get => BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_AgeReversalCycle, CompBiosculpterPod_AgeReversalCycle>().durationDays;
-			set => BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_AgeReversalCycle, CompBiosculpterPod_AgeReversalCycle>().durationDays = value;
+			get => Def.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_AgeReversalCycle, CompBiosculpterPod_AgeReversalCycle>().durationDays;
+			set => Def.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_AgeReversalCycle, CompBiosculpterPod_AgeReversalCycle>().durationDays = value;
 		}
 		public static float DefaultAgeReversalCycleAgeReversed { get; private set; }
 		public static float AgeReversalCycleAgeReversed { get; set; } // applied via CompBiosculpterPod_AgeReversalCycle.CycleCompleted-Transpiler
 		#endregion
 
 		#region PLEASURE CYCLE
-		public float DefaultPleasureCycleDuration { get; private set; }
+		public float DefaultPleasureCycleDuration { get; }
 		public float PleasureCycleDuration
 		{
-			get => BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_PleasureCycle, CompBiosculpterPod_PleasureCycle>().durationDays;
-			set => BiosculpterPod.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_PleasureCycle, CompBiosculpterPod_PleasureCycle>().durationDays = value;
+			get => Def.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_PleasureCycle, CompBiosculpterPod_PleasureCycle>().durationDays;
+			set => Def.GetSingleCompPropertiesOfTypeWithCompClass<CompProperties_BiosculpterPod_PleasureCycle, CompBiosculpterPod_PleasureCycle>().durationDays = value;
 		}
 		public static float DefaultPleasureCycleMoodEffect { get; private set; }
 		public static float PleasureCycleMoodEffect
@@ -141,11 +117,33 @@ namespace BPaNSVariations.Settings
 		#endregion
 
 		#region CONSTRUCTORS
-		public BiosculpterPodSettings(ThingDef biosculpterPod)
+		public BiosculpterPodSettings(ThingDef biosculpterPod) : base(biosculpterPod)
 		{
-			BiosculpterPod = biosculpterPod;
+			#region SPECIFIC
+			DefaultBiotunedCycleSpeedFactor = BiotunedCycleSpeedFactor;
+			DefaultSpeedFactor = SpeedFactor;
+			#endregion
 
-			Initialize();
+			#region READY EFFECT
+			DefaultReadyEffectColor = ReadyEffectColor;
+			#endregion
+
+			#region MEDIC CYCLE
+			DefaultMedicCycleDuration = MedicCycleDuration;
+			#endregion
+
+			#region REGENERATION CYCLE
+			DefaultRegenerationCycleDuration = RegenerationCycleDuration;
+			DefaultRegenerationCycleIngredients.SetFrom(RegenerationCycleIngredients);
+			#endregion
+
+			#region AGE REVERSAL CYCLE
+			DefaultAgeReversalCycleDuration = AgeReversalCycleDuration;
+			#endregion
+
+			#region PLEASURE CYCLE
+			DefaultPleasureCycleDuration = PleasureCycleDuration;
+			#endregion
 		}
 		#endregion
 
@@ -194,40 +192,54 @@ namespace BPaNSVariations.Settings
 
 		public static void ExposeStatics()
 		{
-			#region SPECIFIC
-			float floatValue = NutritionRequired;
-			Scribe_Values.Look(ref floatValue, nameof(NutritionRequired), DefaultNutritionRequired);
-			NutritionRequired = floatValue;
+			if (Scribe.EnterNode(nameof(BiosculpterPodSettings)))
+			{
+				try
+				{
+					#region SPECIFIC
+					float floatValue = NutritionRequired;
+					Scribe_Values.Look(ref floatValue, nameof(NutritionRequired), DefaultNutritionRequired);
+					NutritionRequired = floatValue;
 
-			int intValue = BiotunedDuration;
-			Scribe_Values.Look(ref intValue, nameof(BiotunedDuration), DefaultBiotunedDuration);
-			BiotunedDuration = intValue;
+					int intValue = BiotunedDuration;
+					Scribe_Values.Look(ref intValue, nameof(BiotunedDuration), DefaultBiotunedDuration);
+					BiotunedDuration = intValue;
 
-			BPaNSUtility.ExposeSimpleCurve(CleanlinessEffectCurve, nameof(CleanlinessEffectCurve), () => !CleanlinessEffectCurve.SequenceEqual(DefaultCleanlinessEffectCurve));
-			ApplyCleanlinessCurve();
-			#endregion
+					BPaNSUtility.ExposeSimpleCurve(CleanlinessEffectCurve, nameof(CleanlinessEffectCurve), () => !CleanlinessEffectCurve.SequenceEqual(DefaultCleanlinessEffectCurve));
+					ApplyCleanlinessCurve();
+					#endregion
 
-			#region READY EFFECT
-			var bpreState = ReadyEffectState;
-			Scribe_Values.Look(ref bpreState, nameof(ReadyEffectState), DefaultReadyEffectState);
-			ReadyEffectState = bpreState;
-			#endregion
+					#region READY EFFECT
+					var bpreState = ReadyEffectState;
+					Scribe_Values.Look(ref bpreState, nameof(ReadyEffectState), DefaultReadyEffectState);
+					ReadyEffectState = bpreState;
+					#endregion
 
-			#region AGE REVERSAL CYCLE
-			floatValue = AgeReversalCycleAgeReversed;
-			Scribe_Values.Look(ref floatValue, nameof(AgeReversalCycleAgeReversed), DefaultAgeReversalCycleAgeReversed);
-			AgeReversalCycleAgeReversed = floatValue;
-			#endregion
+					#region AGE REVERSAL CYCLE
+					floatValue = AgeReversalCycleAgeReversed;
+					Scribe_Values.Look(ref floatValue, nameof(AgeReversalCycleAgeReversed), DefaultAgeReversalCycleAgeReversed);
+					AgeReversalCycleAgeReversed = floatValue;
+					#endregion
 
-			#region PLEASURE CYCLE
-			floatValue = PleasureCycleMoodEffect;
-			Scribe_Values.Look(ref floatValue, nameof(PleasureCycleMoodEffect), DefaultPleasureCycleMoodEffect);
-			PleasureCycleMoodEffect = floatValue;
+					#region PLEASURE CYCLE
+					floatValue = PleasureCycleMoodEffect;
+					Scribe_Values.Look(ref floatValue, nameof(PleasureCycleMoodEffect), DefaultPleasureCycleMoodEffect);
+					PleasureCycleMoodEffect = floatValue;
 
-			floatValue = PleasureCycleMoodDuration;
-			Scribe_Values.Look(ref floatValue, nameof(PleasureCycleMoodDuration), DefaultPleasureCycleMoodDuration);
-			PleasureCycleMoodDuration = floatValue;
-			#endregion
+					floatValue = PleasureCycleMoodDuration;
+					Scribe_Values.Look(ref floatValue, nameof(PleasureCycleMoodDuration), DefaultPleasureCycleMoodDuration);
+					PleasureCycleMoodDuration = floatValue;
+					#endregion
+				}
+				catch (Exception exc)
+				{
+					Log.Error(exc.ToString());
+				}
+				finally
+				{
+					Scribe.ExitNode();
+				}
+			}
 		}
 
 		public static void ApplyCleanlinessCurve()
@@ -237,13 +249,8 @@ namespace BPaNSVariations.Settings
 		#endregion
 
 		#region OVERRIDES
-		public override string GetName() =>
-			BiosculpterPod.LabelCap;
 		public override bool IsModified() =>
-			DefaultActivePowerConsumption != ActivePowerConsumption
-			|| DefaultStandbyPowerConsumption != StandbyPowerConsumption
-			|| DefaultBuildCost.AnyDifference(BuildCost)
-			|| DefaultWorkToBuild != WorkToBuild
+			base.IsModified()
 			//|| DefaultReadyEffectState != ReadyEffectState
 			|| DefaultReadyEffectColor != ReadyEffectColor
 			//|| DefaultNutritionRequired != NutritionRequired
@@ -261,71 +268,19 @@ namespace BPaNSVariations.Settings
 			//|| DefaultPleasureCycleMoodDuration != PleasureCycleMoodDuration
 			;
 
-		protected override void Initialize()
-		{
-			#region GENERAL
-			DefaultActivePowerConsumption = ActivePowerConsumption;
-			DefaultStandbyPowerConsumption = StandbyPowerConsumption;
-			DefaultBuildCost.SetFrom(BuildCost);
-			DefaultWorkToBuild = WorkToBuild;
-			#endregion
-
-			#region SPECIFIC
-			DefaultBiotunedCycleSpeedFactor = BiotunedCycleSpeedFactor;
-			DefaultSpeedFactor = SpeedFactor;
-			#endregion
-
-			#region READY EFFECT
-			DefaultReadyEffectColor = ReadyEffectColor;
-			#endregion
-
-			#region MEDIC CYCLE
-			DefaultMedicCycleDuration = MedicCycleDuration;
-			#endregion
-
-			#region REGENERATION CYCLE
-			DefaultRegenerationCycleDuration = RegenerationCycleDuration;
-			DefaultRegenerationCycleIngredients.SetFrom(RegenerationCycleIngredients);
-			#endregion
-
-			#region AGE REVERSAL CYCLE
-			DefaultAgeReversalCycleDuration = AgeReversalCycleDuration;
-			#endregion
-
-			#region PLEASURE CYCLE
-			DefaultPleasureCycleDuration = PleasureCycleDuration;
-			#endregion
-		}
-
 		public override void ExposeData()
 		{
 			if (Scribe.mode == LoadSaveMode.Saving && !IsModified())
 				return;
 
-			if (Scribe.EnterNode(BiosculpterPod.defName))
+			if (Scribe.EnterNode(Def.defName))
 			{
 				try
 				{
-					float floatValue;
-
-					#region GENERAL
-					floatValue = ActivePowerConsumption;
-					Scribe_Values.Look(ref floatValue, nameof(ActivePowerConsumption), DefaultActivePowerConsumption);
-					ActivePowerConsumption = floatValue;
-
-					floatValue = StandbyPowerConsumption;
-					Scribe_Values.Look(ref floatValue, nameof(StandbyPowerConsumption), DefaultStandbyPowerConsumption);
-					StandbyPowerConsumption = floatValue;
-
-					BPaNSUtility.ExposeList(BuildCost, nameof(BuildCost), () => BuildCost.AnyDifference(DefaultBuildCost));
-
-					floatValue = WorkToBuild;
-					Scribe_Values.Look(ref floatValue, nameof(WorkToBuild), DefaultWorkToBuild);
-					WorkToBuild = floatValue;
-					#endregion
+					base.ExposeData();
 
 					#region SPECIFIC
-					floatValue = BiotunedCycleSpeedFactor;
+					float floatValue = BiotunedCycleSpeedFactor;
 					Scribe_Values.Look(ref floatValue, nameof(BiotunedCycleSpeedFactor), DefaultBiotunedCycleSpeedFactor);
 					BiotunedCycleSpeedFactor = floatValue;
 
@@ -381,10 +336,7 @@ namespace BPaNSVariations.Settings
 		{
 			if (to != this && to is BiosculpterPodSettings copy)
 			{
-				copy.ActivePowerConsumption = ActivePowerConsumption;
-				copy.StandbyPowerConsumption = StandbyPowerConsumption;
-				copy.BuildCost.SetFrom(BuildCost);
-				copy.WorkToBuild = WorkToBuild;
+				base.CopyTo(to);
 
 				copy.ReadyEffectColor = ReadyEffectColor;
 

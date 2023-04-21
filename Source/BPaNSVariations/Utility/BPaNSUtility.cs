@@ -15,40 +15,15 @@ namespace BPaNSVariations.Utility
 	[StaticConstructorOnStartup]
 	internal static class BPaNSUtility
 	{
-		#region FIELDS
-		public readonly static ThingDef BiosculpterPod_2x2_Left;
-		public readonly static ThingDef BiosculpterPod_2x2_Right;
-		public readonly static ThingDef BiosculpterPod_1x2_Center;
-		public readonly static ThingDef BiosculpterPod_1x3_Center;
-
-		public readonly static ThingDef NeuralSupercharger_1x2_Center;
-
-		public readonly static ThingDef SleepAccelerator;
-		#endregion
-
 		#region CONSTRUCTORS
 		static BPaNSUtility()
 		{
-			// --- BIOSCULPTER POD
-			BiosculpterPod_2x2_Left = DefDatabase<ThingDef>.GetNamed("BiosculpterPod_2x2_Left");
-			BiosculpterPod_2x2_Right = DefDatabase<ThingDef>.GetNamed("BiosculpterPod_2x2_Right");
-			BiosculpterPod_1x2_Center = DefDatabase<ThingDef>.GetNamed("BiosculpterPod_1x2_Center");
-			BiosculpterPod_1x3_Center = DefDatabase<ThingDef>.GetNamed("BiosculpterPod_1x3_Center");
-
-
-			// --- NEURAL SUPERCHARGER
-			NeuralSupercharger_1x2_Center = DefDatabase<ThingDef>.GetNamed("NeuralSupercharger_1x2_Center");
-
 			// floor effect for 1x2 neural supercharger
 			var neuralSuperchargerChargedFloor_1x2_Center = DefDatabase<FleckDef>.GetNamed("NeuralSuperchargerChargedFloor_1x2_Center");
 			neuralSuperchargerChargedFloor_1x2_Center.graphicData.drawSize.y = 2f;
 			var neuralSuperchargerCharged_1x2_Center = DefDatabase<EffecterDef>.GetNamed("NeuralSuperchargerCharged_1x2_Center");
 			neuralSuperchargerCharged_1x2_Center.children.First(e => e.fleckDef.defName == "NeuralSuperchargerChargedFloor").fleckDef = neuralSuperchargerChargedFloor_1x2_Center;
-			NeuralSupercharger_1x2_Center.GetCompProperties<CompProperties_NeuralSupercharger>().effectCharged = neuralSuperchargerCharged_1x2_Center;
-
-
-			// --- SLEEP ACCELERATOR
-			SleepAccelerator = DefDatabase<ThingDef>.GetNamed("SleepAccelerator");
+			BPaNSDefOf.NeuralSupercharger_1x2_Center.GetCompProperties<CompProperties_NeuralSupercharger>().effectCharged = neuralSuperchargerCharged_1x2_Center;
 		}
 		#endregion
 
@@ -94,13 +69,33 @@ namespace BPaNSVariations.Utility
 					yield return comp;
 		}
 
+		public static T GetSingleCompPropertiesOfType<T>(this HediffDef def)
+			where T : HediffCompProperties
+		{
+			var props = GetCompPropertiesOfType<T>(def);
+			if (props.Count() != 1)
+				throw new Exception($"{nameof(GetSingleCompPropertiesOfType)} encountered invalid number of CompProperties:\n{typeof(T)}\n{props.Count()}");
+			return props.First();
+		}
+		public static IEnumerable<T> GetCompPropertiesOfType<T>(params HediffDef[] defs)
+			where T : HediffCompProperties =>
+			defs.GetCompPropertiesOfType<T>();
+		public static IEnumerable<T> GetCompPropertiesOfType<T>(this IEnumerable<HediffDef> defs)
+			where T : HediffCompProperties
+		{
+			foreach (var def in defs)
+				foreach (var comp in def.comps)
+					if (comp is T t)
+						yield return t;
+		}
+
 		public static IEnumerable<ThingDef> GetBiosculpterPodDefs()
 		{
 			yield return ThingDefOf.BiosculpterPod;
-			yield return BiosculpterPod_2x2_Left;
-			yield return BiosculpterPod_2x2_Right;
-			yield return BiosculpterPod_1x2_Center;
-			yield return BiosculpterPod_1x3_Center;
+			yield return BPaNSDefOf.BiosculpterPod_2x2_Left;
+			yield return BPaNSDefOf.BiosculpterPod_2x2_Right;
+			yield return BPaNSDefOf.BiosculpterPod_1x2_Center;
+			yield return BPaNSDefOf.BiosculpterPod_1x3_Center;
 		}
 		public static bool IsDefBiosculpterPod(ThingDef def) =>
 			GetBiosculpterPodDefs().Contains(def);
@@ -108,14 +103,14 @@ namespace BPaNSVariations.Utility
 		public static IEnumerable<ThingDef> GetNeuralSuperchargerDefs()
 		{
 			yield return ThingDefOf.NeuralSupercharger;
-			yield return NeuralSupercharger_1x2_Center;
+			yield return BPaNSDefOf.NeuralSupercharger_1x2_Center;
 		}
 		public static bool IsDefNeuralSupercharger(ThingDef def) =>
 			GetNeuralSuperchargerDefs().Contains(def);
 
 		public static IEnumerable<ThingDef> GetSleepAcceleratorDefs()
 		{
-			yield return SleepAccelerator;
+			yield return BPaNSDefOf.SleepAccelerator;
 		}
 		public static bool IsDefSleepAccelerator(ThingDef def) =>
 			GetSleepAcceleratorDefs().Contains(def);

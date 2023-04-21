@@ -10,35 +10,49 @@ namespace BPaNSVariations.Settings
 	internal class SleepAcceleratorSettings : BaseSettings
 	{
 		#region PROPERTIES
-		public ThingDef SleepAccelerator { get; }
 		#endregion
 
 		#region CONSTRUCTORS
-		public SleepAcceleratorSettings(ThingDef sleepAccelerator)
+		public SleepAcceleratorSettings(ThingDef sleepAccelerator) : base(sleepAccelerator)
 		{
-			SleepAccelerator = sleepAccelerator;
 		}
 		#endregion
 
 		#region OVERRIDES
-		public override string GetName() =>
-			SleepAccelerator.LabelCap;
 		public override bool IsModified() =>
-			false;
-
-		protected override void Initialize()
-		{
-		}
+			base.IsModified();
 
 		public override void ExposeData()
 		{
+			if (Scribe.mode == LoadSaveMode.Saving && !IsModified())
+				return;
+
+			if (Scribe.EnterNode(Def.defName))
+			{
+				try
+				{
+					base.ExposeData();
+
+					// TODO
+				}
+				catch (Exception exc)
+				{
+					Log.Error(exc.ToString());
+				}
+				finally
+				{
+					Scribe.ExitNode();
+				}
+			}
 		}
 
 		public override void CopyTo(BaseSettings to)
 		{
 			if (to != this && to is SleepAcceleratorSettings copy)
 			{
+				base.CopyTo(to);
 
+				// TODO
 			}
 		}
 		#endregion

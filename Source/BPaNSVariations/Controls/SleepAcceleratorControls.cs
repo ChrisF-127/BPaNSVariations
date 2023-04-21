@@ -1,4 +1,5 @@
 ﻿using BPaNSVariations.Settings;
+using BPaNSVariations.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,8 @@ namespace BPaNSVariations.Controls
 	internal class SleepAcceleratorControls : BaseControls
 	{
 		#region PROPERTIES
-		public SleepAcceleratorSettings SleepAcceleratorSettings => (SleepAcceleratorSettings)Settings;
+		public SleepAcceleratorSettings SleepAcceleratorSettings => 
+			(SleepAcceleratorSettings)Settings;
 		#endregion
 
 		#region CONSTRUCTORS
@@ -23,12 +25,8 @@ namespace BPaNSVariations.Controls
 		#region OVERRIDES
 		public override void CreateSettings(ref float offsetY, float viewWidth, out bool copy)
 		{
-			// Sleep Accelerator
-			copy = CreateTitle(
-				ref offsetY,
-				viewWidth,
-				Label,
-				false);
+			// General
+			base.CreateSettings(ref offsetY, viewWidth, out copy);
 
 
 			// Margin

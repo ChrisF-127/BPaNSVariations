@@ -22,6 +22,7 @@ namespace BPaNSVariations
 		public BPaNSVariations(ModContentPack content) : base(content)
 		{
 			Instance = this;
+
 			LongEventHandler.ExecuteWhenFinished(Initialize);
 		}
 		#endregion
@@ -42,6 +43,7 @@ namespace BPaNSVariations
 		private void Initialize()
 		{
 			BiosculpterPodSettings.InitializeStatics();
+			NeuralSuperchargerSettings.InitializeStatics();
 
 			Settings = GetSettings<BPaNSSettings>();
 			Controls = new BPaNSControls(Settings);

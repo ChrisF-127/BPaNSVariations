@@ -116,6 +116,7 @@ namespace BPaNSVariations.Controls
 					ref offsetY, 
 					viewWidth,
 					out bool copy);
+				offsetY += 8;
 
 				// Copy settings
 				if (copy)

@@ -32,6 +32,8 @@ namespace BPaNSVariations.Controls
 		public static GameFont OriTextFont;
 		public static TextAnchor OriTextAnchor;
 		public static Color OriColor;
+
+		private ThingDefCountClass _buildCostNewDef = null;
 		#endregion
 
 		#region CONSTRUCTORS
@@ -42,12 +44,71 @@ namespace BPaNSVariations.Controls
 		#endregion
 
 		#region METHODS
-		public abstract void CreateSettings(ref float offsetY, float viewWidth, out bool copy);
-
-		public virtual void ResetBuffers()
+		public virtual void CreateSettings(ref float offsetY, float viewWidth, out bool copy)
 		{
-			ValueBuffers.Clear();
+			// Label
+			copy = CreateTitle(
+				ref offsetY,
+				viewWidth,
+				Label,
+				true);
+
+			#region GENERAL
+			// General
+			CreateSeparator(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.SeparatorGeneral".Translate());
+			// General - Active Power Consumption
+			Settings.ActivePowerConsumption = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.ActivePowerConsumption".Translate(),
+				"SY_BNV.TooltipActivePowerConsumption".Translate(),
+				Settings.ActivePowerConsumption,
+				Settings.DefaultActivePowerConsumption,
+				"ActivePowerConsumption",
+				unit: "W");
+			// General - Standby Power Consumption
+			if (Settings.StandbyPowerConsumption >= 0)
+			{
+				Settings.StandbyPowerConsumption = CreateNumeric(
+					ref offsetY,
+					viewWidth,
+					"SY_BNV.StandbyPowerConsumption".Translate(),
+					"SY_BNV.TooltipStandbyPowerConsumption".Translate(),
+					Settings.StandbyPowerConsumption,
+					Settings.DefaultStandbyPowerConsumption,
+					"StandbyPowerConsumption",
+					unit: "W");
+			}
+			// General - Build Cost
+			if (_buildCostNewDef == null)
+				_buildCostNewDef = new ThingDefCountClass();
+			CreateThingDefListControl(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.BuildCost".Translate(),
+				ref _buildCostNewDef,
+				Settings.BuildCost,
+				Settings.DefaultBuildCost,
+				BPaNSVariations.Settings.BuildCostThingDefs,
+				"BuildCost");
+			// General - Work to Build
+			Settings.WorkToBuild = CreateNumeric(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.WorkToBuild".Translate(),
+				"SY_BNV.TooltipWorkToBuild".Translate(),
+				Settings.WorkToBuild,
+				Settings.DefaultWorkToBuild,
+				"WorkToBuild",
+				additionalText: WorkToBuildToWorkLeft);
+			#endregion
 		}
+
+		public virtual void ResetBuffers() =>
+			ValueBuffers.Clear();
 		#endregion
 
 		#region PUBLIC METHODS

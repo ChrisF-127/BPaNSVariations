@@ -60,6 +60,7 @@ namespace BPaNSVariations.Settings
 			base.ExposeData();
 
 			Settings.BiosculpterPodSettings.ExposeStatics();
+			Settings.NeuralSuperchargerSettings.ExposeStatics();
 
 			foreach (var settings in AllSettings)
 				settings.ExposeData();

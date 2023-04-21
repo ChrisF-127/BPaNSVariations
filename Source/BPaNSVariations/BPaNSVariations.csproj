@@ -51,6 +51,7 @@
     <Compile Include="BPaNSVariations.cs" />
     <Compile Include="Settings\NeuralSuperchargerSettings.cs" />
     <Compile Include="Settings\SleepAcceleratorSettings.cs" />
+    <Compile Include="Utility\BPaNSDefsOf.cs" />
     <Compile Include="Utility\HarmonyPatches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\BPaNSUtility.cs" />
