@@ -366,7 +366,7 @@ namespace BPaNSVariations.Controls
 			{
 				// Label when disabled
 				if (labelDisabled != null)
-					Widgets.Label(new Rect(offsetX, offsetY + 4, controlWidth - checkboxSize - 12, SettingsRowHeight - 8), labelDisabled);
+					Widgets.Label(new Rect(offsetX, offsetY + 4, controlWidth - checkboxSize - 12, SettingsRowHeight - 8), $"({labelDisabled})");
 
 				value = null;
 			}
@@ -583,7 +583,7 @@ namespace BPaNSVariations.Controls
 				newThing,
 				null,
 				menuGenerator,
-				newThing.thingDef?.LabelCap);
+				newThing.thingDef?.LabelCap ?? $"({"SY_BNV.Select".Translate()})");
 			DrawTooltip(thingDefRect, "SY_BNV.SelectNewThingDef".Translate());
 
 

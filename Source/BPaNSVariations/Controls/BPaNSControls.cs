@@ -168,34 +168,39 @@ namespace BPaNSVariations.Controls
 		private void CreateSelector<T>(ref float offsetY, float viewWidth, IEnumerable<T> values, ref T selected, ISelectableItem defaultSelect = null)
 			where T : class, ISelectableItem
 		{
-			var count = values.Count();
-
-			const float margin = 2f;
-			var width = viewWidth / count;
 			var height = BaseControls.ThinSettingsRowHeight;
 
-			var i = 0;
-			foreach (var value in values)
+			var count = values.Count();
+			if (count == 1)
+				selected = values.First();
+			else
 			{
-				var rect = new Rect(margin + width * i, offsetY, width - margin * 2f, height);
+				const float margin = 2f;
+				var width = viewWidth / count;
 
-				// Colorize if selected
-				if (value.Equals(selected))
-					GUI.color = BaseControls.SelectionColor;
-				// Colorize if modified
-				else if (value.IsModified)
-					GUI.color = BaseControls.ModifiedColor;
-				// Draw button
-				if (Widgets.ButtonText(rect, value.Label))
-					selected = value;
-				// Reset color
-				GUI.color = Color.white;
+				var i = 0;
+				foreach (var value in values)
+				{
+					var rect = new Rect(margin + width * i, offsetY, width - margin * 2f, height);
 
-				i++;
+					// Colorize if selected
+					if (value.Equals(selected))
+						GUI.color = BaseControls.SelectionColor;
+					// Colorize if modified
+					else if (value.IsModified)
+						GUI.color = BaseControls.ModifiedColor;
+					// Draw button
+					if (Widgets.ButtonText(rect, value.Label))
+						selected = value;
+					// Reset color
+					GUI.color = Color.white;
+
+					i++;
+				}
+
+				if (!values.Contains(selected))
+					selected = defaultSelect as T ?? values.First();
 			}
-
-			if (!values.Contains(selected))
-				selected = defaultSelect as T ?? values.First();
 
 			offsetY += height + 2;
 		}
