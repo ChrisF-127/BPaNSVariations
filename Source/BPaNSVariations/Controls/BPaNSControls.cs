@@ -14,7 +14,7 @@ namespace BPaNSVariations.Controls
 		#region PROPERTIES
 		public BPaNSSettings Settings { get; }
 
-		public List<SelectableType> SelectableTypes { get; }
+		public List<ISelectableItemWithType> SelectableTypes { get; }
 
 		public List<BaseControls> AllControls { get; }
 		public List<BiosculpterPodControls> BiosculpterPodControls { get; }
@@ -26,7 +26,7 @@ namespace BPaNSVariations.Controls
 		private float _settingsViewHeight = 0;
 		private Vector2 _settingsScrollPosition;
 
-		public SelectableType _selectedType;
+		public ISelectableItemWithType _selectedType;
 		public BaseControls _selectedControls;
 		#endregion
 
@@ -39,11 +39,20 @@ namespace BPaNSVariations.Controls
 			NeuralSuperchargerControls = Settings.NeuralSuperchargerSettings.Select(s => new NeuralSuperchargerControls(s)).ToList();
 			SleepAcceleratorControls = Settings.SleepAcceleratorSettings.Select(s => new SleepAcceleratorControls(s)).ToList();
 
-			SelectableTypes = new List<SelectableType>
+			SelectableTypes = new List<ISelectableItemWithType>
 			{
-				new SelectableType("SY_BNV.BiosculpterPod".Translate(), Utility.SelectableTypes.BiosculpterPod, () => BiosculpterPodControls.Any(c => c.IsModified)),
-				new SelectableType("SY_BNV.NeuralSupercharger".Translate(), Utility.SelectableTypes.NeuralSupercharger, () => NeuralSuperchargerControls.Any(c => c.IsModified)),
-				new SelectableType("SY_BNV.SleepAccelerator".Translate(), Utility.SelectableTypes.SleepAccelerator, () => SleepAcceleratorControls.Any(c => c.IsModified))
+				new SelectableType<BiosculpterPodControls>(
+					"SY_BNV.BiosculpterPod".Translate(),
+					Utility.SelectableTypes.BiosculpterPod,
+					BiosculpterPodControls),
+				new SelectableType<NeuralSuperchargerControls>(
+					"SY_BNV.NeuralSupercharger".Translate(), 
+					Utility.SelectableTypes.NeuralSupercharger,
+					NeuralSuperchargerControls),
+				new SelectableType<SleepAcceleratorControls>(
+					"SY_BNV.SleepAccelerator".Translate(),
+					Utility.SelectableTypes.SleepAccelerator,
+					SleepAcceleratorControls)
 			};
 
 			AllControls = new List<BaseControls>();
@@ -81,17 +90,18 @@ namespace BPaNSVariations.Controls
 				switch (_selectedType.Type)
 				{
 					case Utility.SelectableTypes.BiosculpterPod:
-						CreateSelector(ref offsetY, viewWidth, BiosculpterPodControls, ref _selectedControls);
+						CreateSelector(ref offsetY, viewWidth, BiosculpterPodControls, ref _selectedControls, _selectedType.SelectedItem);
 						break;
 					case Utility.SelectableTypes.NeuralSupercharger:
-						CreateSelector(ref offsetY, viewWidth, NeuralSuperchargerControls, ref _selectedControls);
+						CreateSelector(ref offsetY, viewWidth, NeuralSuperchargerControls, ref _selectedControls, _selectedType.SelectedItem);
 						break;
 					case Utility.SelectableTypes.SleepAccelerator:
-						CreateSelector(ref offsetY, viewWidth, SleepAcceleratorControls, ref _selectedControls);
+						CreateSelector(ref offsetY, viewWidth, SleepAcceleratorControls, ref _selectedControls, _selectedType.SelectedItem);
 						break;
 				}
 				if (_selectedControls != prevSelected)
 					_selectedControls.ResetBuffers();
+				_selectedType.SelectedItem = _selectedControls;
 
 				// Divider
 				offsetY += 4;
@@ -155,8 +165,8 @@ namespace BPaNSVariations.Controls
 		#endregion
 
 		#region PRIVATE METHODS
-		private void CreateSelector<T>(ref float offsetY, float viewWidth, IEnumerable<T> values, ref T selected)
-			where T : ISelectableItem
+		private void CreateSelector<T>(ref float offsetY, float viewWidth, IEnumerable<T> values, ref T selected, ISelectableItem defaultSelect = null)
+			where T : class, ISelectableItem
 		{
 			var count = values.Count();
 
@@ -185,7 +195,7 @@ namespace BPaNSVariations.Controls
 			}
 
 			if (!values.Contains(selected))
-				selected = values.First();
+				selected = defaultSelect as T ?? values.First();
 
 			offsetY += height + 2;
 		}

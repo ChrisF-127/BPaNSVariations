@@ -1,4 +1,7 @@
-﻿using System;
+﻿using BPaNSVariations.Controls;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BPaNSVariations.Utility
 {
@@ -14,30 +17,34 @@ namespace BPaNSVariations.Utility
 		string Label { get; }
 		bool IsModified { get; }
 	}
+	internal interface ISelectableItemWithType : ISelectableItem
+	{
+		SelectableTypes Type { get; }
+		ISelectableItem SelectedItem { get; set; }
+	}
 
-	internal class SelectableType : ISelectableItem
+	internal class SelectableType<T> : ISelectableItemWithType
+		where T : class, ISelectableItem
 	{
 		#region PROPERTIES
 		public static readonly SelectableTypes[] SelectableTypes = (SelectableTypes[])Enum.GetValues(typeof(SelectableTypes));
 
 		public string Label { get; }
 		public bool IsModified =>
-			_isModified();
+			SelectableItems.Any(c => c.IsModified);
 
 		public SelectableTypes Type { get; }
-		#endregion
 
-		#region FIELDS
-		private readonly Func<bool> _isModified;
+		public List<T> SelectableItems { get; }
+		public ISelectableItem SelectedItem { get; set; }
 		#endregion
 
 		#region CONSTRUCTORS
-		public SelectableType(string label, SelectableTypes type, Func<bool> isModified)
+		public SelectableType(string label, SelectableTypes type, List<T> selectableItems)
 		{
 			Label = label;
 			Type = type;
-
-			_isModified = isModified;
+			SelectableItems = selectableItems;
 		}
 		#endregion
 	}
