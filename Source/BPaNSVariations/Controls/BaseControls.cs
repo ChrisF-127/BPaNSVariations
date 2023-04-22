@@ -611,17 +611,25 @@ namespace BPaNSVariations.Controls
 
 
 			// Create list
+			var defIconRect = thingDefRect;
+			defIconRect.width = ThinSettingsRowHeight - 4;
+			thingDefRect.x += defIconRect.width + 4;
+			thingDefRect.width -= defIconRect.width + 4;
 			for (int i = 0; i < values.Count; i++)
 			{
 				var value = values[i];
 				var bufferPos = i + 1;
 
 				// Set new offsetY
+				defIconRect.y = offsetY + 4;
 				thingDefRect.y = offsetY + 4;
 				countRect.y = offsetY + 5;
 				smallButtonRect.y = offsetY + 3;
 
-				// ThingDef
+				// ThingDef Icon
+				Widgets.DefIcon(defIconRect, value.thingDef);
+
+				// ThingDef Label
 				if (!defaultValues.Any(v => v.thingDef == value.thingDef && v.count == value.count))
 					GUI.color = ModifiedColor;
 				Widgets.Label(thingDefRect, value.thingDef.LabelCap);

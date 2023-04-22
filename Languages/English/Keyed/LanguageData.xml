@@ -18,6 +18,7 @@
 	<SY_BNV.TooltipCurveY>The factor to apply at this value\nFor example, with two points, (-5, 0.7) and (-1, 0.9) a value of -5 results in a factor of 0.7, a value of -1 in 0.9 and a value of -3 in 0.8\nThe outcome is interpolated between two points</SY_BNV.TooltipCurveY>
 	<SY_BNV.Count>Count</SY_BNV.Count>
 	<SY_BNV.Work>Work</SY_BNV.Work>
+	<SY_BNV.Nutrition>Nutrition</SY_BNV.Nutrition>
 
 
 	<!-- GENERAL -->
@@ -94,10 +95,10 @@
 	
 	<SY_BNV.SeparatorHediffNeuralSupercharge>Neural supercharge hediff</SY_BNV.SeparatorHediffNeuralSupercharge>
 	
-	<SY_BNV.TicksToRecharge>Recharge time (ticks; only new cycle)</SY_BNV.TicksToRecharge>
+	<SY_BNV.TicksToRecharge>Recharge time (ticks; next charge cycle)</SY_BNV.TicksToRecharge>
 	<SY_BNV.TooltipTicksToRecharge>Recharge time in ticks before the Neural Supercharger can be used again\n(2'500 = 1 ingame hour, 60'000 = 1 ingame day)</SY_BNV.TooltipTicksToRecharge>
 	
-	<SY_BNV.HediffDisappearsAfterTicks>[GLOBAL] Duration (ticks; only new applies)</SY_BNV.HediffDisappearsAfterTicks>
+	<SY_BNV.HediffDisappearsAfterTicks>[GLOBAL] Duration (ticks; new applications)</SY_BNV.HediffDisappearsAfterTicks>
 	<SY_BNV.TooltipHediffDisappearsAfterTicks>Time in ticks for how long the Neural Supercharge hediff lasts\n(2'500 = 1 ingame hour, 60'000 = 1 ingame day)\nApplies to all Neural Superchargers</SY_BNV.TooltipHediffDisappearsAfterTicks>
 
 	<SY_BNV.HediffConsciousness>[GLOBAL] Consciousness bonus</SY_BNV.HediffConsciousness>
