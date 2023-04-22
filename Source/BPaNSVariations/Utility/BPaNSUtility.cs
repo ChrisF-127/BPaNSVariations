@@ -118,7 +118,7 @@ namespace BPaNSVariations.Utility
 			to.Clear();
 			to.AddRange(from.Select(v => new ThingDefCountClass(v.thingDef, v.count)));
 		}
-		public static bool AnyDifference(this List<ThingDefCountClass> listA, List<ThingDefCountClass> listB)
+		public static bool IsModified(this List<ThingDefCountClass> listA, List<ThingDefCountClass> listB)
 		{
 			if (listA.Count != listB.Count)
 				return true;
@@ -139,6 +139,8 @@ namespace BPaNSVariations.Utility
 			return defaultValue;
 		}
 
+		public static bool IsModified(this IEnumerable<PawnCapacityModifier> a, IEnumerable<PawnCapacityModifier> b) =>
+			a.Count() != b.Count() || a.Count() > 0 && !a.Any(v => b.Any(d => v.Compare(d)));
 		public static bool Compare(this PawnCapacityModifier a, PawnCapacityModifier b) =>
 			a.capacity == b.capacity
 			|| a.offset == b.offset
@@ -166,6 +168,8 @@ namespace BPaNSVariations.Utility
 			Scribe_Values.Look(ref value.setMaxCurveOverride, nameof(value.setMaxCurveOverride));
 		}
 
+		public static bool IsModified(this IEnumerable<StatModifier> a, IEnumerable<StatModifier> b) =>
+			a.Count() != b.Count() || a.Count() > 0 && !a.Any(v => b.Any(d => v.Compare(d)));
 		public static bool Compare(this StatModifier a, StatModifier b) =>
 			a.stat == b.stat
 			|| a.value == b.value;
@@ -181,14 +185,14 @@ namespace BPaNSVariations.Utility
 			Scribe_Values.Look(ref value.value, nameof(value.value));
 		}
 
-		public static void ExposeListLook<T>(IList<T> values, string nodeName, IList<T> defaultValues, Action<T> look, Func<T, T, bool> compare)
+		public static void ExposeListLook<T>(IList<T> values, string nodeName, IList<T> defaultValues, Action<T> look, Func<IEnumerable<T>, IEnumerable<T>, bool> isModified)
 			where T : new()
 		{
 			Log.Message($"{Scribe.mode}");
 
 			if (Scribe.mode == LoadSaveMode.Saving)
 			{
-				if (values.Count != defaultValues.Count || !values.Any(v => defaultValues.Any(d => compare(v, d))))
+				if (isModified(values, defaultValues))
 				{
 					if (Scribe.EnterNode(nodeName))
 					{

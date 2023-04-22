@@ -48,19 +48,19 @@ namespace BPaNSVariations.Settings
 			get => HediffDefOf.NeuralSupercharge.GetSingleCompPropertiesOfType<HediffCompProperties_Disappears>().disappearsAfterTicks.max;
 			set => HediffDefOf.NeuralSupercharge.GetSingleCompPropertiesOfType<HediffCompProperties_Disappears>().disappearsAfterTicks.max = value;
 		}
-		public static List<PawnCapacityModifier> DefaultHediffPawnCapacityModifiers { get; private set;  } = new List<PawnCapacityModifier>();
+		public static List<PawnCapacityModifier> DefaultHediffPawnCapacityModifiers { get; private set; }
 		public static List<PawnCapacityModifier> HediffPawnCapacityModifiers
 		{
 			get => HediffDefOf.NeuralSupercharge.stages.First().capMods;
 			set => HediffDefOf.NeuralSupercharge.stages.First().capMods = value;
 		}
-		public static List<StatModifier> DefaultHediffStatFactors { get; private set; } = new List<StatModifier>();
+		public static List<StatModifier> DefaultHediffStatFactors { get; private set; }
 		public static List<StatModifier> HediffStatFactors
 		{
 			get => HediffDefOf.NeuralSupercharge.stages.First().statFactors;
 			set => HediffDefOf.NeuralSupercharge.stages.First().statFactors = value;
 		}
-		public static List<StatModifier> DefaultHediffStatOffset { get; private set; } = new List<StatModifier>();
+		public static List<StatModifier> DefaultHediffStatOffset { get; private set; }
 		public static List<StatModifier> HediffStatOffset
 		{
 			get => HediffDefOf.NeuralSupercharge.stages.First().statOffsets;
@@ -103,6 +103,7 @@ namespace BPaNSVariations.Settings
 			if (HediffStatOffset == null)
 				HediffStatOffset = new List<StatModifier>();
 			DefaultHediffStatOffset = HediffStatOffset.Select(x => x.Clone()).ToList();
+
 			DefaultHediffHungerRateFactor = HediffHungerRateFactor;
 		}
 
@@ -124,9 +125,9 @@ namespace BPaNSVariations.Settings
 					Scribe_Values.Look(ref floatValue, nameof(HediffHungerRateFactor), DefaultHediffHungerRateFactor);
 					HediffHungerRateFactor = floatValue;
 
-					BPaNSUtility.ExposeListLook(HediffPawnCapacityModifiers, nameof(HediffPawnCapacityModifiers), DefaultHediffPawnCapacityModifiers, BPaNSUtility.LookPawnCapacityModifier, BPaNSUtility.Compare);
-					BPaNSUtility.ExposeListLook(HediffStatFactors, nameof(HediffStatFactors), DefaultHediffStatFactors, BPaNSUtility.LookStatModifier, BPaNSUtility.Compare);
-					BPaNSUtility.ExposeListLook(HediffStatOffset, nameof(HediffStatOffset), DefaultHediffStatOffset, BPaNSUtility.LookStatModifier, BPaNSUtility.Compare);
+					BPaNSUtility.ExposeListLook(HediffPawnCapacityModifiers, nameof(HediffPawnCapacityModifiers), DefaultHediffPawnCapacityModifiers, BPaNSUtility.LookPawnCapacityModifier, BPaNSUtility.IsModified);
+					BPaNSUtility.ExposeListLook(HediffStatFactors, nameof(HediffStatFactors), DefaultHediffStatFactors, BPaNSUtility.LookStatModifier, BPaNSUtility.IsModified);
+					BPaNSUtility.ExposeListLook(HediffStatOffset, nameof(HediffStatOffset), DefaultHediffStatOffset, BPaNSUtility.LookStatModifier, BPaNSUtility.IsModified);
 				}
 				catch (Exception exc)
 				{
@@ -138,6 +139,14 @@ namespace BPaNSVariations.Settings
 				}
 			}
 		}
+
+		public static bool IsGlobalModified() =>
+			DefaultAnyoneCanBuild != AnyoneCanBuild
+			|| DefaultHediffDisappearsAfterTicks != HediffDisappearsAfterTicks
+			|| DefaultHediffPawnCapacityModifiers.IsModified(HediffPawnCapacityModifiers)
+			|| DefaultHediffStatFactors.IsModified(HediffStatFactors)
+			|| DefaultHediffStatOffset.IsModified(HediffStatOffset)
+			|| DefaultHediffHungerRateFactor != HediffHungerRateFactor;
 		#endregion
 
 		#region OVERRIDES

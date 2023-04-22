@@ -45,7 +45,7 @@ namespace BPaNSVariations.Settings
 
 		public virtual bool IsModified() =>
 			DefaultWorkToBuild != WorkToBuild
-			|| DefaultBuildCost.AnyDifference(BuildCost)
+			|| DefaultBuildCost.IsModified(BuildCost)
 			|| DefaultActivePowerConsumption != ActivePowerConsumption;
 
 		public virtual void ExposeData()
@@ -55,7 +55,7 @@ namespace BPaNSVariations.Settings
 			Scribe_Values.Look(ref floatValue, nameof(WorkToBuild), DefaultWorkToBuild);
 			WorkToBuild = floatValue;
 
-			BPaNSUtility.ExposeList(BuildCost, nameof(BuildCost), () => BuildCost.AnyDifference(DefaultBuildCost));
+			BPaNSUtility.ExposeList(BuildCost, nameof(BuildCost), () => BuildCost.IsModified(DefaultBuildCost));
 
 			floatValue = ActivePowerConsumption;
 			Scribe_Values.Look(ref floatValue, nameof(ActivePowerConsumption), DefaultActivePowerConsumption);

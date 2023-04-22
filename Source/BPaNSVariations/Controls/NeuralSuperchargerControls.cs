@@ -14,7 +14,7 @@ namespace BPaNSVariations.Controls
 		public NeuralSuperchargerSettings NeuralSuperchargerSettings => 
 			(NeuralSuperchargerSettings)Settings;
 
-		protected override bool CanBeCopied =>
+		public override bool CanBeCopied =>
 			true;
 		#endregion
 
@@ -31,10 +31,10 @@ namespace BPaNSVariations.Controls
 		#endregion
 
 		#region OVERRIDES
-		public override void CreateSettings(ref float offsetY, float viewWidth, out bool copy)
+		public override void CreateSettings(ref float offsetY, float viewWidth)
 		{
 			// General
-			base.CreateSettings(ref offsetY, viewWidth, out copy);
+			base.CreateSettings(ref offsetY, viewWidth);
 
 			#region SPECIFIC
 			// Specific

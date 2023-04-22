@@ -20,7 +20,7 @@ namespace BPaNSVariations.Controls
 		public virtual bool IsModified =>
 			Settings.IsModified();
 
-		protected virtual bool CanBeCopied =>
+		public virtual bool CanBeCopied =>
 			false;
 
 		protected virtual Dictionary<string, string> ValueBuffers { get; } = new Dictionary<string, string>();
@@ -47,15 +47,8 @@ namespace BPaNSVariations.Controls
 		#endregion
 
 		#region METHODS
-		public virtual void CreateSettings(ref float offsetY, float viewWidth, out bool copy)
+		public virtual void CreateSettings(ref float offsetY, float viewWidth)
 		{
-			// Label
-			copy = CreateTitle(
-				ref offsetY,
-				viewWidth,
-				Label,
-				CanBeCopied);
-
 			#region GENERAL
 			// General
 			CreateSeparator(
@@ -554,7 +547,7 @@ namespace BPaNSVariations.Controls
 		{
 			var oriOffsetY = offsetY;
 			var controlWidth = GetControlWidth(viewWidth);
-			var isModified = values.AnyDifference(defaultValues);
+			var isModified = values.IsModified(defaultValues);
 
 			// Label
 			if (isModified)

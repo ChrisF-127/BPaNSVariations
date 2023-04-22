@@ -31,7 +31,8 @@ namespace BPaNSVariations.Utility
 
 		public string Label { get; }
 		public bool IsModified =>
-			SelectableItems.Any(c => c.IsModified);
+			SelectableItems.Any(c => c.IsModified)
+			|| _isGlobalModified?.Invoke() == true;
 
 		public SelectableTypes Type { get; }
 
@@ -39,12 +40,17 @@ namespace BPaNSVariations.Utility
 		public ISelectableItem SelectedItem { get; set; }
 		#endregion
 
+		#region FIELDS
+		private readonly Func<bool> _isGlobalModified;
+		#endregion
+
 		#region CONSTRUCTORS
-		public SelectableType(string label, SelectableTypes type, List<T> selectableItems)
+		public SelectableType(string label, SelectableTypes type, List<T> selectableItems, Func<bool> isGlobalModified)
 		{
 			Label = label;
 			Type = type;
 			SelectableItems = selectableItems;
+			_isGlobalModified = isGlobalModified;
 		}
 		#endregion
 	}

@@ -44,15 +44,18 @@ namespace BPaNSVariations.Controls
 				new SelectableType<BiosculpterPodControls>(
 					"SY_BNV.BiosculpterPod".Translate(),
 					Utility.SelectableTypes.BiosculpterPod,
-					BiosculpterPodControls),
+					BiosculpterPodControls,
+					BiosculpterPodSettings.IsGlobalModified),
 				new SelectableType<NeuralSuperchargerControls>(
 					"SY_BNV.NeuralSupercharger".Translate(), 
 					Utility.SelectableTypes.NeuralSupercharger,
-					NeuralSuperchargerControls),
+					NeuralSuperchargerControls,
+					NeuralSuperchargerSettings.IsGlobalModified),
 				new SelectableType<SleepAcceleratorControls>(
 					"SY_BNV.SleepAccelerator".Translate(),
 					Utility.SelectableTypes.SleepAccelerator,
-					SleepAcceleratorControls)
+					SleepAcceleratorControls,
+					SleepAcceleratorSettings.IsGlobalModified)
 			};
 
 			AllControls = new List<BaseControls>();
@@ -102,16 +105,23 @@ namespace BPaNSVariations.Controls
 				if (_selectedControls != prevSelected)
 					_selectedControls.ResetBuffers();
 				_selectedType.SelectedItem = _selectedControls;
+				offsetY += 2;
+
+				// Label
+				var copy = BaseControls.CreateTitle(
+					ref offsetY,
+					viewWidth,
+					_selectedControls.Label,
+					_selectedControls.CanBeCopied);
 
 				// Divider
-				offsetY += 4;
 				GUI.color = Widgets.SeparatorLineColor;
 				Widgets.DrawLineHorizontal(0, offsetY, width);
 				GUI.color = BaseControls.OriColor;
-				offsetY += 8;
-				selectorRowHeight = offsetY;
+				offsetY += 6;
 
 				// Begin ScrollView
+				selectorRowHeight = offsetY;
 				Widgets.BeginScrollView(
 					new Rect(0, offsetY, width, height - selectorRowHeight),
 					ref _settingsScrollPosition,
@@ -120,8 +130,7 @@ namespace BPaNSVariations.Controls
 				// Settings
 				_selectedControls.CreateSettings(
 					ref offsetY, 
-					viewWidth,
-					out bool copy);
+					viewWidth);
 				offsetY += 8;
 
 				// Copy settings

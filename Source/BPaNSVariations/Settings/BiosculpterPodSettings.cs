@@ -288,6 +288,16 @@ namespace BPaNSVariations.Settings
 			}
 		}
 
+		public static bool IsGlobalModified() =>
+			DefaultReadyEffectState != ReadyEffectState
+			|| DefaultNutritionRequired != NutritionRequired
+			|| DefaultBiotunedDuration != BiotunedDuration
+			|| !DefaultCleanlinessEffectCurve.SequenceEqual(CleanlinessEffectCurve)
+			|| DefaultAgeReversalCycleAgeReversed != AgeReversalCycleAgeReversed
+			|| DefaultPleasureCycleMoodEffect != PleasureCycleMoodEffect
+			|| DefaultPleasureCycleMoodDuration != PleasureCycleMoodDuration;
+
+
 		public static void ApplyCleanlinessCurve()
 		{
 			RoomStatDefOf.BiosculpterPodSpeedFactor.roomlessScore = CleanlinessEffectCurve.MinBy(v => v.x).y;
@@ -298,22 +308,14 @@ namespace BPaNSVariations.Settings
 		public override bool IsModified() =>
 			base.IsModified()
 			|| DefaultStandbyPowerConsumption != StandbyPowerConsumption
-			//|| DefaultReadyEffectState != ReadyEffectState
 			|| DefaultReadyEffectColor != ReadyEffectColor
-			//|| DefaultNutritionRequired != NutritionRequired
-			//|| DefaultBiotunedDuration != BiotunedDuration
 			|| DefaultBiotunedCycleSpeedFactor != BiotunedCycleSpeedFactor
 			|| DefaultSpeedFactor != SpeedFactor
-			//|| DefaultCleanlinessEffectCurve.SequenceEqual(CleanlinessEffectCurve)
 			|| DefaultMedicCycleDuration != MedicCycleDuration
 			|| DefaultRegenerationCycleDuration != RegenerationCycleDuration
-			|| DefaultRegenerationCycleIngredients.AnyDifference(RegenerationCycleIngredients)
+			|| DefaultRegenerationCycleIngredients.IsModified(RegenerationCycleIngredients)
 			|| DefaultAgeReversalCycleDuration != AgeReversalCycleDuration
-			//|| DefaultAgeReversalCycleAgeReversed != AgeReversalCycleAgeReversed
-			|| DefaultPleasureCycleDuration != PleasureCycleDuration
-			//|| DefaultPleasureCycleMoodEffect != PleasureCycleMoodEffect
-			//|| DefaultPleasureCycleMoodDuration != PleasureCycleMoodDuration
-			;
+			|| DefaultPleasureCycleDuration != PleasureCycleDuration;
 
 		public override void ExposeData()
 		{
@@ -359,7 +361,7 @@ namespace BPaNSVariations.Settings
 					Scribe_Values.Look(ref floatValue, nameof(RegenerationCycleDuration), DefaultRegenerationCycleDuration);
 					RegenerationCycleDuration = floatValue;
 
-					BPaNSUtility.ExposeList(RegenerationCycleIngredients, nameof(RegenerationCycleIngredients), () => RegenerationCycleIngredients.AnyDifference(DefaultRegenerationCycleIngredients));
+					BPaNSUtility.ExposeList(RegenerationCycleIngredients, nameof(RegenerationCycleIngredients), () => RegenerationCycleIngredients.IsModified(DefaultRegenerationCycleIngredients));
 					#endregion
 
 					#region AGE REVERSAL CYCLE

@@ -92,6 +92,9 @@ namespace BPaNSVariations.Settings
 				}
 			}
 		}
+
+		public static bool IsGlobalModified() =>
+			DefaultAnyoneCanBuild != AnyoneCanBuild;
 		#endregion
 
 		#region OVERRIDES
