@@ -51,7 +51,7 @@ namespace BPaNSVariations.Controls
 				ref offsetY,
 				viewWidth,
 				"SY_BNV.SeparatorReadyEffect".Translate());
-			// Ready Effect - [GLOBAL] Ready Effect Animation
+			// Ready Effect - [GLOBAL] Ready Effect State
 			if (_readyEffectStateTargetWrapper == null)
 				_readyEffectStateTargetWrapper = new TargetWrapper<BiosculpterPodEffectAnimation>(BiosculpterPodSettings.ReadyEffectState);
 			BiosculpterPodSettings.ReadyEffectState = CreateDropdownSelectorControl(
@@ -143,8 +143,8 @@ namespace BPaNSVariations.Controls
 			BiosculpterPodSettings.MedicCycleDuration = CreateNumeric(
 				ref offsetY,
 				viewWidth,
-				"SY_BNV.MedicCycleDuration".Translate(),
-				"SY_BNV.TooltipMedicCycleDuration".Translate(),
+				"SY_BNV.CycleDuration".Translate(),
+				"SY_BNV.TooltipCycleDuration".Translate(),
 				BiosculpterPodSettings.MedicCycleDuration,
 				BiosculpterPodSettings.DefaultMedicCycleDuration,
 				"MedicCycleDuration",
@@ -162,14 +162,14 @@ namespace BPaNSVariations.Controls
 			BiosculpterPodSettings.RegenerationCycleDuration = CreateNumeric(
 				ref offsetY,
 				viewWidth,
-				"SY_BNV.RegenerationCycleDuration".Translate(),
-				"SY_BNV.TooltipRegenerationCycleDuration".Translate(),
+				"SY_BNV.CycleDuration".Translate(),
+				"SY_BNV.TooltipCycleDuration".Translate(),
 				BiosculpterPodSettings.RegenerationCycleDuration,
 				BiosculpterPodSettings.DefaultRegenerationCycleDuration,
 				"RegenerationCycleDuration",
 				additionalText: DaysToText,
 				unit: "d");
-			// General Settings - Build Cost
+			// Regeneration Cycle - Ingredients
 			if (_regenerationCycleIngredientsNewDef == null)
 				_regenerationCycleIngredientsNewDef = new ThingDefCountClass();
 			CreateThingDefListControl(
@@ -193,8 +193,8 @@ namespace BPaNSVariations.Controls
 			BiosculpterPodSettings.AgeReversalCycleDuration = CreateNumeric(
 				ref offsetY,
 				viewWidth,
-				"SY_BNV.AgeReversalCycleDuration".Translate(),
-				"SY_BNV.TooltipAgeReversalCycleDuration".Translate(),
+				"SY_BNV.CycleDuration".Translate(), 
+				"SY_BNV.TooltipCycleDuration".Translate(),
 				BiosculpterPodSettings.AgeReversalCycleDuration,
 				BiosculpterPodSettings.DefaultAgeReversalCycleDuration,
 				"AgeReversalCycleDuration",
@@ -223,8 +223,8 @@ namespace BPaNSVariations.Controls
 			BiosculpterPodSettings.PleasureCycleDuration = CreateNumeric(
 				ref offsetY,
 				viewWidth,
-				"SY_BNV.PleasureCycleDuration".Translate(),
-				"SY_BNV.TooltipPleasureCycleDuration".Translate(),
+				"SY_BNV.CycleDuration".Translate(), 
+				"SY_BNV.TooltipCycleDuration".Translate(),
 				BiosculpterPodSettings.PleasureCycleDuration,
 				BiosculpterPodSettings.DefaultPleasureCycleDuration,
 				"PleasureCycleDuration",

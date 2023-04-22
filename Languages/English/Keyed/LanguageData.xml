@@ -1,39 +1,128 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <LanguageData>
 
-	<!-- GENERAL -->
-	
-	<SY_BNV.TooltipDefaultValue>Default:</SY_BNV.TooltipDefaultValue>
-	<SY_BNV.Reset>Reset</SY_BNV.Reset>
+	<!-- MISC -->
 
+	<SY_BNV.Reset>Reset</SY_BNV.Reset>
+	<SY_BNV.TooltipDefaultValue>Default:</SY_BNV.TooltipDefaultValue>
+	<SY_BNV.CopyToAll>Copy to All</SY_BNV.CopyToAll>
+	<SY_BNV.TooltipCopyToAll>Copies all non-global settings to all other buildings of this type</SY_BNV.TooltipCopyToAll>
 	<SY_BNV.Red>Red</SY_BNV.Red>
 	<SY_BNV.Green>Green</SY_BNV.Green>
 	<SY_BNV.Blue>Blue</SY_BNV.Blue>
+	<SY_BNV.Add>Add</SY_BNV.Add>
+	<SY_BNV.Remove>Remove</SY_BNV.Remove>
+	<SY_BNV.Select>select</SY_BNV.Select>
+	<SY_BNV.SelectNewThingDef>Select new thing which can be added to this list</SY_BNV.SelectNewThingDef>
+	<SY_BNV.TooltipCurveX>The value to apply this factor at\nFor example, with two points, (0, 1) and (0, 1.25) a value of 1 results in a factor of 1.25, a value of 0 in 1.00 and a value of 0.6 in 1.15\nThe outcome is interpolated between two points</SY_BNV.TooltipCurveX>
+	<SY_BNV.TooltipCurveY>The factor to apply at this value\nFor example, with two points, (-5, 0.7) and (-1, 0.9) a value of -5 results in a factor of 0.7, a value of -1 in 0.9 and a value of -3 in 0.8\nThe outcome is interpolated between two points</SY_BNV.TooltipCurveY>
+	<SY_BNV.Count>Count</SY_BNV.Count>
+	<SY_BNV.Work>Work</SY_BNV.Work>
+
+
+	<!-- GENERAL -->
+
+	<SY_BNV.SeparatorGeneral>General</SY_BNV.SeparatorGeneral>	
+	<SY_BNV.SeparatorSpecific>Specific</SY_BNV.SeparatorSpecific>
+	
+	<SY_BNV.BuildCost>Build cost list (requires reload)</SY_BNV.BuildCost>
+	<!-- <SY_BNV.TooltipBuildCost>(unused)</SY_BNV.TooltipBuildCost> -->
+	<SY_BNV.WorkToBuild>Work to build</SY_BNV.WorkToBuild>
+	<SY_BNV.TooltipWorkToBuild>Amount of work needed to build this building</SY_BNV.TooltipWorkToBuild>
+	<SY_BNV.ActivePowerConsumption>Base power consumption</SY_BNV.ActivePowerConsumption>
+	<SY_BNV.TooltipActivePowerConsumption>Default power consumption of this building\nSome buildings consume less power while idle, others consume more when in use</SY_BNV.TooltipActivePowerConsumption>
+	<SY_BNV.AnyoneCanBuild>[GLOBAL] Anyone can build (requires restart)</SY_BNV.AnyoneCanBuild>
+	<SY_BNV.TooltipAnyoneCanBuild>Removes the meme-restriction from this building\nApplies to all buildings of this type</SY_BNV.TooltipAnyoneCanBuild>
+	<SY_BNV.DescAnyoneCanBuild>disable meme-restriction</SY_BNV.DescAnyoneCanBuild>
 
 
 	<!-- BIOSCULPTER POD -->
 	
-	<SY_BNV.TitleBiosculpterPod>Biosculpter Pod Settings</SY_BNV.TitleBiosculpterPod>
-	<SY_BNV.SeparatorBPGeneral>Biosculpter Pod - General</SY_BNV.SeparatorBPGeneral>
+	<SY_BNV.BiosculpterPod>Biosculpter Pod</SY_BNV.BiosculpterPod>
 	
-	<SY_BNV.BPReadyEffectState>Ready Effect Animation</SY_BNV.BPReadyEffectState>
-	<SY_BNV.TooltipBPReadyEffectState>Changes the ready effect animation for Biosculpter Pods</SY_BNV.TooltipBPReadyEffectState>
+	<SY_BNV.SeparatorReadyEffect>Ready effect</SY_BNV.SeparatorReadyEffect>
+	<SY_BNV.SeparatorMedicCycle>Medic cycle</SY_BNV.SeparatorMedicCycle>
+	<SY_BNV.SeparatorRegenerationCycle>Regeneration cycle</SY_BNV.SeparatorRegenerationCycle>
+	<SY_BNV.SeparatorAgeReversalCycle>Age reversal cycle</SY_BNV.SeparatorAgeReversalCycle>
+	<SY_BNV.SeparatorPleasureCycle>Pleasure cycle</SY_BNV.SeparatorPleasureCycle>
+	
+	<SY_BNV.StandbyPowerConsumption>Standby Power Consumption</SY_BNV.StandbyPowerConsumption>
+	<SY_BNV.TooltipStandbyPowerConsumption>Power consumed while the building is not in use</SY_BNV.TooltipStandbyPowerConsumption>
+	
+	<SY_BNV.ReadyEffectState>[GLOBAL] Ready effect state</SY_BNV.ReadyEffectState>
+	<SY_BNV.TooltipReadyEffectState>Select how the ready effect will be displayed\nApplies to all Biosculpter Pods</SY_BNV.TooltipReadyEffectState>
+
+	<SY_BNV.ReadyEffectColor>Ready effect color</SY_BNV.ReadyEffectColor>
+	<SY_BNV.TooltipReadyEffectColor>Adjust the color of the ready effect\nNot relevant if state is set to "Always Off"</SY_BNV.TooltipReadyEffectColor>
+	
+	<SY_BNV.NutritionRequired>[GLOBAL] Nutrition required</SY_BNV.NutritionRequired>
+	<SY_BNV.TooltipNutritionRequired>Nutrition required per cycle\nApplies to all Biosculpter Pods</SY_BNV.TooltipNutritionRequired>
+	
+	<SY_BNV.BiotunedDuration>[GLOBAL] Biotuned duration</SY_BNV.BiotunedDuration>
+	<SY_BNV.TooltipBiotunedDuration>Duration for how long the biotuning of a pod lasts\nApplies to all Biosculpter Pods</SY_BNV.TooltipBiotunedDuration>
+	
+	<SY_BNV.BiotunedCycleSpeedFactor>Biotuned cycle speed factor</SY_BNV.BiotunedCycleSpeedFactor>
+	<SY_BNV.TooltipBiotunedCycleSpeedFactor>Cycle speed modifier when a pod is biotuned</SY_BNV.TooltipBiotunedCycleSpeedFactor>
+	
+	<SY_BNV.SpeedFactor>Base cycle speed factor</SY_BNV.SpeedFactor>
+	<SY_BNV.TooltipSpeedFactor>Base cycle speed factor for this pod, further modified by biotuning, cleanliness factor etc.</SY_BNV.TooltipSpeedFactor>
+	
+	<SY_BNV.CleanlinessEffectCurve>[GLOBAL] Room cleanliness effect</SY_BNV.CleanlinessEffectCurve>
+	
+	<SY_BNV.CycleDuration>Duration</SY_BNV.CycleDuration>
+	<SY_BNV.TooltipCycleDuration>Duration for completion of this cycle</SY_BNV.TooltipCycleDuration>
+	
+	<SY_BNV.RegenerationCycleIngredients>Ingredients</SY_BNV.RegenerationCycleIngredients>
+	
+	<SY_BNV.AgeReversalCycleAgeReversed>[GLOBAL] Age reversed</SY_BNV.AgeReversalCycleAgeReversed>
+	<SY_BNV.TooltipAgeReversalCycleAgeReversed>Life time reversed by this cycle\nApplies to all Biosculpter Pods</SY_BNV.TooltipAgeReversalCycleAgeReversed>
+	
+	<SY_BNV.PleasureCycleMoodEffect>[GLOBAL] Mood effect</SY_BNV.PleasureCycleMoodEffect>
+	<SY_BNV.TooltipPleasureCycleMoodEffect>Mood bonus from this cycle's mood buff\nApplies to all Biosculpter Pods</SY_BNV.TooltipPleasureCycleMoodEffect>
+	
+	<SY_BNV.PleasureCycleMoodDuration>[GLOBAL] Mood duration</SY_BNV.PleasureCycleMoodDuration>
+	<SY_BNV.TooltipPleasureCycleMoodDuration>Duration of this cycle's mood buff\nApplies to all Biosculpter Pods</SY_BNV.TooltipPleasureCycleMoodDuration>
+	
 	<SY_BNV.BPReadyEffectState_Default>Default</SY_BNV.BPReadyEffectState_Default>
 	<SY_BNV.BPReadyEffectState_AlwaysOn>Always ON</SY_BNV.BPReadyEffectState_AlwaysOn>
 	<SY_BNV.BPReadyEffectState_AlwaysOff>Always OFF</SY_BNV.BPReadyEffectState_AlwaysOff>
-	
-	<SY_BNV.BPReadyEffectColor>Ready Effect Color</SY_BNV.BPReadyEffectColor>
-	<SY_BNV.TooltipBPReadyEffectColor>Adjust the color of the Biosculpter Pod's ready effect\n(for example 0.5 R, 1 G, 1 B)\nChanges require reloading to apply!</SY_BNV.TooltipBPReadyEffectColor>
 
 
 	<!-- NEURAL SUPERCHARGER -->
 	
-	<SY_BNV.TitleNeuralSupercharger>Neural Supercharger Settings</SY_BNV.TitleNeuralSupercharger>
+	<SY_BNV.NeuralSupercharger>Neural Supercharger</SY_BNV.NeuralSupercharger>
+	
+	<SY_BNV.SeparatorHediffNeuralSupercharge>Neural supercharge hediff</SY_BNV.SeparatorHediffNeuralSupercharge>
+	
+	<SY_BNV.TicksToRecharge>Recharge time (ticks; only new cycle)</SY_BNV.TicksToRecharge>
+	<SY_BNV.TooltipTicksToRecharge>Recharge time in ticks before the Neural Supercharger can be used again\n(2'500 = 1 ingame hour, 60'000 = 1 ingame day)</SY_BNV.TooltipTicksToRecharge>
+	
+	<SY_BNV.HediffDisappearsAfterTicks>[GLOBAL] Duration (ticks; only new applies)</SY_BNV.HediffDisappearsAfterTicks>
+	<SY_BNV.TooltipHediffDisappearsAfterTicks>Time in ticks for how long the Neural Supercharge hediff lasts\n(2'500 = 1 ingame hour, 60'000 = 1 ingame day)\nApplies to all Neural Superchargers</SY_BNV.TooltipHediffDisappearsAfterTicks>
 
+	<SY_BNV.HediffConsciousness>[GLOBAL] Consciousness bonus</SY_BNV.HediffConsciousness>
+	<SY_BNV.TooltipHediffConsciousness>Consciousness bonus while hediff is active\nApplies to all Neural Superchargers</SY_BNV.TooltipHediffConsciousness>
+
+	<SY_BNV.HediffLearningFactor>[GLOBAL] Learning rate bonus</SY_BNV.HediffLearningFactor>
+	<SY_BNV.TooltipHediffLearningFactor>Learning rate increase while hediff is active\nApplies to all Neural Superchargers</SY_BNV.TooltipHediffLearningFactor>
+
+	<SY_BNV.HediffHungerRateFactor>[GLOBAL] Hunger rate malus</SY_BNV.HediffHungerRateFactor>
+	<SY_BNV.TooltipHediffHungerRateFactor>Hunger rate increase while hediff is active\nApplies to all Neural Superchargers</SY_BNV.TooltipHediffHungerRateFactor>
 
 	<!-- SLEEP ACCELERATOR -->
 	
-	<SY_BNV.TitleSleepAccelerator>Sleep Accelerator Settings</SY_BNV.TitleSleepAccelerator>
+	<SY_BNV.SleepAccelerator>Sleep Accelerator</SY_BNV.SleepAccelerator>
+	
+	<SY_BNV.InUsePowerConsumption>In-use power consumption (requires reload if toggled)</SY_BNV.InUsePowerConsumption>
+	<SY_BNV.InUsePowerConsumptionDisabled>disabled</SY_BNV.InUsePowerConsumptionDisabled>
+	<SY_BNV.TooltipInUsePowerConsumption>Additional power consumed while the building is in use</SY_BNV.TooltipInUsePowerConsumption>
+	<SY_BNV.TooltipInUsePowerConsumptionCheckbox>Disable additional in-use power consumption</SY_BNV.TooltipInUsePowerConsumptionCheckbox>
+	
+	<SY_BNV.BedRestEffectiveness>Rest effectiveness</SY_BNV.BedRestEffectiveness>
+	<SY_BNV.TooltipBedRestEffectiveness>Rest effectiveness modifier for pawns using a Sleep Accelerator</SY_BNV.TooltipBedRestEffectiveness>
+	
+	<SY_BNV.BedHungerRateFactor>Hunger rate factor</SY_BNV.BedHungerRateFactor>
+	<SY_BNV.TooltipBedHungerRateFactor>Hunger rate modifier for pawns using a Sleep Accelerator</SY_BNV.TooltipBedHungerRateFactor>
 	
 	
 </LanguageData>

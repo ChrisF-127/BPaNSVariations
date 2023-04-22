@@ -13,13 +13,13 @@ namespace BPaNSVariations.Settings
 		//x Build cost [requires reload]
 		//x Work to build
 		//x Active power consumption
-		//x In Use power consumption
+		//x In Use power consumption [requires reload if toggled]
 
 		//Misc
 		//x Anyone can build toggle [global, requires restart]
 
 		//Hediff
-		//x Bed Rest Effectiveness [requires reload if toggled]
+		//x Bed Rest Effectiveness
 		//x Bed Hunger Rate Multiplier
 
 		#region PROPERTIES
