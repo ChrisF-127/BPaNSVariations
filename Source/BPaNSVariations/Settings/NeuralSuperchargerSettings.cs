@@ -48,17 +48,23 @@ namespace BPaNSVariations.Settings
 			get => HediffDefOf.NeuralSupercharge.GetSingleCompPropertiesOfType<HediffCompProperties_Disappears>().disappearsAfterTicks.max;
 			set => HediffDefOf.NeuralSupercharge.GetSingleCompPropertiesOfType<HediffCompProperties_Disappears>().disappearsAfterTicks.max = value;
 		}
-		public static float DefaultHediffConsciousness { get; private set; }
-		public static float HediffConsciousness
+		public static List<PawnCapacityModifier> DefaultHediffPawnCapacityModifiers { get; private set;  } = new List<PawnCapacityModifier>();
+		public static List<PawnCapacityModifier> HediffPawnCapacityModifiers
 		{
-			get => HediffDefOf.NeuralSupercharge.stages.First().capMods.First(v => v.capacity == PawnCapacityDefOf.Consciousness).offset;
-			set => HediffDefOf.NeuralSupercharge.stages.First().capMods.First(v => v.capacity == PawnCapacityDefOf.Consciousness).offset = value;
+			get => HediffDefOf.NeuralSupercharge.stages.First().capMods;
+			set => HediffDefOf.NeuralSupercharge.stages.First().capMods = value;
 		}
-		public static float DefaultHediffLearningFactor { get; private set; }
-		public static float HediffLearningFactor
+		public static List<StatModifier> DefaultHediffStatFactors { get; private set; } = new List<StatModifier>();
+		public static List<StatModifier> HediffStatFactors
 		{
-			get => HediffDefOf.NeuralSupercharge.stages.First().statOffsets.First(v => v.stat == StatDefOf.GlobalLearningFactor).value;
-			set => HediffDefOf.NeuralSupercharge.stages.First().statOffsets.First(v => v.stat == StatDefOf.GlobalLearningFactor).value = value;
+			get => HediffDefOf.NeuralSupercharge.stages.First().statFactors;
+			set => HediffDefOf.NeuralSupercharge.stages.First().statFactors = value;
+		}
+		public static List<StatModifier> DefaultHediffStatOffset { get; private set; } = new List<StatModifier>();
+		public static List<StatModifier> HediffStatOffset
+		{
+			get => HediffDefOf.NeuralSupercharge.stages.First().statOffsets;
+			set => HediffDefOf.NeuralSupercharge.stages.First().statOffsets = value;
 		}
 		public static float DefaultHediffHungerRateFactor { get; private set; }
 		public static float HediffHungerRateFactor
@@ -85,8 +91,18 @@ namespace BPaNSVariations.Settings
 			DefaultAnyoneCanBuild = AnyoneCanBuild;
 
 			DefaultHediffDisappearsAfterTicks = HediffDisappearsAfterTicks;
-			DefaultHediffConsciousness = HediffConsciousness;
-			DefaultHediffLearningFactor = HediffLearningFactor;
+
+			if (HediffPawnCapacityModifiers == null)
+				HediffPawnCapacityModifiers = new List<PawnCapacityModifier>();
+			DefaultHediffPawnCapacityModifiers = HediffPawnCapacityModifiers.Select(x => x.Clone()).ToList();
+
+			if (HediffStatFactors == null)
+				HediffStatFactors = new List<StatModifier>();
+			DefaultHediffStatFactors = HediffStatFactors.Select(x => x.Clone()).ToList();
+
+			if (HediffStatOffset == null)
+				HediffStatOffset = new List<StatModifier>();
+			DefaultHediffStatOffset = HediffStatOffset.Select(x => x.Clone()).ToList();
 			DefaultHediffHungerRateFactor = HediffHungerRateFactor;
 		}
 
@@ -104,17 +120,13 @@ namespace BPaNSVariations.Settings
 					Scribe_Values.Look(ref intValue, nameof(HediffDisappearsAfterTicks), DefaultHediffDisappearsAfterTicks);
 					HediffDisappearsAfterTicks = intValue;
 
-					float floatValue = HediffConsciousness;
-					Scribe_Values.Look(ref floatValue, nameof(HediffConsciousness), DefaultHediffConsciousness);
-					HediffConsciousness = floatValue;
-
-					floatValue = HediffLearningFactor;
-					Scribe_Values.Look(ref floatValue, nameof(HediffLearningFactor), DefaultHediffLearningFactor);
-					HediffLearningFactor = floatValue;
-
-					floatValue = HediffHungerRateFactor;
+					float floatValue = HediffHungerRateFactor;
 					Scribe_Values.Look(ref floatValue, nameof(HediffHungerRateFactor), DefaultHediffHungerRateFactor);
 					HediffHungerRateFactor = floatValue;
+
+					BPaNSUtility.ExposeListLook(HediffPawnCapacityModifiers, nameof(HediffPawnCapacityModifiers), DefaultHediffPawnCapacityModifiers, BPaNSUtility.LookPawnCapacityModifier, BPaNSUtility.Compare);
+					BPaNSUtility.ExposeListLook(HediffStatFactors, nameof(HediffStatFactors), DefaultHediffStatFactors, BPaNSUtility.LookStatModifier, BPaNSUtility.Compare);
+					BPaNSUtility.ExposeListLook(HediffStatOffset, nameof(HediffStatOffset), DefaultHediffStatOffset, BPaNSUtility.LookStatModifier, BPaNSUtility.Compare);
 				}
 				catch (Exception exc)
 				{

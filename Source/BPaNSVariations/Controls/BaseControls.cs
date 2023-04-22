@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using Verse;
+using static BPaNSVariations.Controls.BaseControls;
 
 namespace BPaNSVariations.Controls
 {
@@ -118,10 +119,10 @@ namespace BPaNSVariations.Controls
 				activeTip.DrawTooltip(GenUI.GetMouseAttachedWindowPos(activeTip.TipRect.width, activeTip.TipRect.height) + (UI.MousePositionOnUIInverted - Event.current.mousePosition));
 			}
 		}
-		public static void DrawTextFieldUnit<T>(Rect rect, T value, string unit)
+		public static void DrawTextFieldUnit(Rect rect, string text)
 		{
 			Text.Anchor = TextAnchor.MiddleRight;
-			Widgets.Label(new Rect(rect.x + 4, rect.y + 1, rect.width - 8, rect.height), $"{value?.ToString() ?? ""} {unit ?? ""}");
+			Widgets.Label(new Rect(rect.x + 4, rect.y + 1, rect.width - 8, rect.height), text);
 			Text.Anchor = TextAnchor.MiddleLeft;
 		}
 
@@ -202,7 +203,7 @@ namespace BPaNSVariations.Controls
 			string valueBufferKey,
 			float min = 0f,
 			float max = 1e+9f,
-			AdditionalTextDelegate<T> additionalText = null,
+			ConvertDelegate<T> additionalText = null,
 			string unit = null)
 			where T : struct, IComparable =>
 			CreateNumeric(
@@ -231,7 +232,7 @@ namespace BPaNSVariations.Controls
 			Dictionary<string, string> valueBuffers,
 			float min = 0f,
 			float max = 1e+9f,
-			AdditionalTextDelegate<T> additionalText = null,
+			ConvertDelegate<T> additionalText = null,
 			string unit = null)
 			where T : struct
 		{
@@ -252,7 +253,7 @@ namespace BPaNSVariations.Controls
 				DrawTooltip(textFieldRect, tooltip);
 
 			// Unit
-			DrawTextFieldUnit<T?>(textFieldRect, null, unit);
+			DrawTextFieldUnit(textFieldRect, unit);
 
 			// Additional Text
 			if (additionalText != null)
@@ -286,7 +287,7 @@ namespace BPaNSVariations.Controls
 			string valueBufferKey,
 			float min = 0f,
 			float max = 1e+9f,
-			AdditionalTextDelegate<T?> additionalText = null,
+			ConvertDelegate<T?> additionalText = null,
 			string unit = null)
 			where T : struct =>
 			CreateNullableNumeric(
@@ -319,7 +320,7 @@ namespace BPaNSVariations.Controls
 			Dictionary<string, string> valueBuffers,
 			float min = 0f,
 			float max = 1e+9f,
-			AdditionalTextDelegate<T?> additionalText = null,
+			ConvertDelegate<T?> additionalText = null,
 			string unit = null)
 			where T : struct
 		{
@@ -351,7 +352,7 @@ namespace BPaNSVariations.Controls
 				value = val;
 
 				// Unit
-				DrawTextFieldUnit<T?>(textFieldRect, null, unit);
+				DrawTextFieldUnit(textFieldRect, unit);
 
 				// Additional Text
 				if (additionalText != null)
@@ -432,7 +433,7 @@ namespace BPaNSVariations.Controls
 			valueBuffers[bufferR] = valueBuffer;
 			DrawTooltip(textFieldRect, $"{"SY_BNV.Red".Translate()}:\n{tooltip}");
 			GUI.color = Color.red;
-			DrawTextFieldUnit<float?>(textFieldRect, null, "R");
+			DrawTextFieldUnit(textFieldRect, "R");
 			GUI.color = OriColor;
 
 			// Green
@@ -443,7 +444,7 @@ namespace BPaNSVariations.Controls
 			valueBuffers[bufferG] = valueBuffer;
 			DrawTooltip(textFieldRect, $"{"SY_BNV.Green".Translate()}:\n{tooltip}");
 			GUI.color = Color.green;
-			DrawTextFieldUnit<float?>(textFieldRect, null, "G");
+			DrawTextFieldUnit(textFieldRect, "G");
 			GUI.color = OriColor;
 
 			// Blue
@@ -454,7 +455,7 @@ namespace BPaNSVariations.Controls
 			valueBuffers[bufferB] = valueBuffer;
 			DrawTooltip(textFieldRect, $"{"SY_BNV.Blue".Translate()}:\n{tooltip}");
 			GUI.color = Color.blue;
-			DrawTextFieldUnit<float?>(textFieldRect, null, "B");
+			DrawTextFieldUnit(textFieldRect, "B");
 			GUI.color = OriColor;
 
 			// Reset button
@@ -603,8 +604,8 @@ namespace BPaNSVariations.Controls
 				values.Add(newThing);
 				newThing = new ThingDefCountClass();
 				valueBuffers.Remove(bufferKey);
+				DrawTooltip(smallButtonRect, "SY_BNV.Add".Translate());
 			}
-			DrawTooltip(smallButtonRect, "SY_BNV.Add".Translate());
 
 			// Row offset
 			offsetY += ThinSettingsRowHeight + 2;
@@ -668,6 +669,200 @@ namespace BPaNSVariations.Controls
 			if (isModified && DrawResetButton(oriOffsetY, viewWidth, itemToString(defaultValues)))
 			{
 				values.SetFrom(defaultValues);
+				valueBuffers.RemoveAll(vb => vb.Key.StartsWith(valueBufferKey));
+			}
+
+			offsetY += 4;
+		}
+
+		public void CreateCountListControl<TObject, TThing, TValue>(
+			ref float offsetY,
+			float viewWidth,
+			string label,
+			ref TObject newThing,
+			List<TObject> values,
+			List<TObject> defaultValues,
+			IEnumerable<TThing> availableThingDefs,
+			string valueBufferKey,
+			Func<List<TObject>, List<TObject>, bool> checkModified,
+			Action<List<TObject>, List<TObject>> copyTo,
+			Func<TObject, TThing> getThing,
+			Action<TObject, TThing> setThing,
+			Func<TObject, TValue> getValue,
+			Action<TObject, TValue> setValue,
+			Func<TThing, string> getLabel,
+			ConvertDelegate<TValue> convert = null)
+			where TObject : new()
+			where TThing : class
+			where TValue : struct =>
+			CreateCountListControl<TObject, TThing, TValue>(
+				ref offsetY,
+				viewWidth,
+				label,
+				ref newThing,
+				values,
+				defaultValues,
+				availableThingDefs,
+				valueBufferKey,
+				ValueBuffers,
+				checkModified,
+				copyTo,
+				getThing,
+				setThing,
+				getValue,
+				setValue,
+				getLabel,
+				convert);
+		public static void CreateCountListControl<TObject, TThing, TValue>(
+			ref float offsetY,
+			float viewWidth,
+			string label,
+			ref TObject newThing,
+			List<TObject> objects,
+			List<TObject> defaultObjects,
+			IEnumerable<TThing> availableThingDefs,
+			string valueBufferKey,
+			Dictionary<string, string> valueBuffers,
+			Func<List<TObject>, List<TObject>, bool> checkModified,
+			Action<List<TObject>, List<TObject>> copyTo,
+			Func<TObject, TThing> getThing,
+			Action<TObject, TThing> setThing,
+			Func<TObject, TValue> getValue,
+			Action<TObject, TValue> setValue,
+			Func<TThing, string> getLabel,
+			ConvertDelegate<TValue> convert = null)
+			where TObject : new()
+			where TThing : class
+			where TValue : struct
+		{
+			var oriOffsetY = offsetY;
+			var controlWidth = GetControlWidth(viewWidth);
+			var isModified = checkModified(objects, defaultObjects);
+
+			// Label
+			if (isModified)
+				GUI.color = ModifiedColor;
+			Widgets.Label(new Rect(0, offsetY, controlWidth, SettingsRowHeight), label);
+			GUI.color = OriColor;
+
+			// Menu Generator
+			IEnumerable<Widgets.DropdownMenuElement<TThing>> menuGenerator(TObject target)
+			{
+				foreach (var def in availableThingDefs)
+				{
+					yield return new Widgets.DropdownMenuElement<TThing>
+					{
+						option = new FloatMenuOption(getLabel(def), () => setThing(target, def)),
+						payload = def,
+					};
+				}
+			}
+
+			offsetY += 1;
+
+			// New ThingDef selector
+			var thingDefRect = new Rect(controlWidth + 2, offsetY + 4, controlWidth / 2 - 4, ThinSettingsRowHeight - 4);
+			Widgets.Dropdown(
+				thingDefRect,
+				newThing,
+				null,
+				menuGenerator,
+				getLabel(getThing(newThing)) ?? $"({"SY_BNV.Select".Translate()})");
+			DrawTooltip(thingDefRect, "SY_BNV.SelectNewThingDef".Translate());
+
+
+			// New ThingDef count
+			var countRect = new Rect(thingDefRect.x + thingDefRect.width + 4, offsetY + 5, controlWidth / 2 - ThinSettingsRowHeight, ThinSettingsRowHeight - 6);
+			var bufferKey = valueBufferKey + "_0";
+			var valueBuffer = valueBuffers.GetOrAddDefault(bufferKey);
+			var value = getValue(newThing);
+			Widgets.TextFieldNumeric(countRect, ref value, ref valueBuffer, min: -1E+09f);
+			setValue(newThing, value);
+			valueBuffers[bufferKey] = valueBuffer;
+			DrawTooltip(countRect, "SY_BNV.Value".Translate());
+			DrawTextFieldUnit(countRect, convert(value));
+
+			// Add button
+			var smallButtonRect = new Rect(countRect.x + countRect.width + 4, offsetY + 3, ThinSettingsRowHeight - 2, ThinSettingsRowHeight - 2);
+			var newD = getThing(newThing);
+			if (getThing(newThing) != null && !objects.Any(t => getThing(t).Equals(newD)) && Widgets.ButtonText(smallButtonRect, "+"))
+			{
+				objects.Add(newThing);
+				newThing = new TObject();
+				valueBuffers.Remove(bufferKey);
+				DrawTooltip(smallButtonRect, "SY_BNV.Add".Translate());
+			}
+
+			// Row offset
+			offsetY += ThinSettingsRowHeight + 2;
+
+
+			// Create list
+			var defIconRect = thingDefRect;
+			defIconRect.width = ThinSettingsRowHeight - 4;
+			var x = thingDefRect.x;
+			var width = thingDefRect.width;
+			for (int i = 0; i < objects.Count; i++)
+			{
+				var obj = objects[i];
+				var bufferPos = i + 1;
+
+				// Set new offsetY
+				defIconRect.y = offsetY + 4;
+				thingDefRect.y = offsetY + 4;
+				countRect.y = offsetY + 5;
+				smallButtonRect.y = offsetY + 3;
+
+				var thing = getThing(obj);
+				value = getValue(obj);
+
+				// ThingDef Icon
+				if (thing is Def def)
+				{
+					Widgets.DefIcon(defIconRect, def);
+					thingDefRect.x = x + defIconRect.width + 4;
+					thingDefRect.width = width - defIconRect.width - 4;
+				}
+
+				// ThingDef Label
+				if (!defaultObjects.Any(t => getThing(t).Equals(thing) && getValue(t).Equals(value)))
+					GUI.color = ModifiedColor;
+				Widgets.Label(thingDefRect, getLabel(thing));
+				GUI.color = OriColor;
+
+				// Count
+				bufferKey = valueBufferKey + $"_{bufferPos}";
+				valueBuffer = valueBuffers.GetOrAddDefault(bufferKey);
+				Widgets.TextFieldNumeric(countRect, ref value, ref valueBuffer, min: -1E+09f);
+				setValue(obj, value);
+				valueBuffers[bufferKey] = valueBuffer;
+				DrawTooltip(countRect, "SY_BNV.Value".Translate());
+				DrawTextFieldUnit(countRect, convert(value));
+
+				// Remove button
+				if (Widgets.ButtonText(smallButtonRect, "-") && objects.Any(t => getThing(t).Equals(thing)))
+				{
+					objects.Remove(obj);
+					valueBuffers.Remove(bufferKey);
+				}
+				DrawTooltip(smallButtonRect, "SY_BNV.Remove".Translate());
+
+				// Row offset
+				offsetY += ThinSettingsRowHeight;
+			}
+
+
+			// Reset (must be added last to not cause focus to jump when it appears)
+			string itemToString(List<TObject> thingDefCountList)
+			{
+				var sb = new StringBuilder();
+				foreach (var t in thingDefCountList)
+					sb.Append($"\n{getValue(t)}x {getLabel(getThing(t))}");
+				return sb.ToString();
+			}
+			if (isModified && DrawResetButton(oriOffsetY, viewWidth, itemToString(defaultObjects)))
+			{
+				copyTo(objects, defaultObjects);
 				valueBuffers.RemoveAll(vb => vb.Key.StartsWith(valueBufferKey));
 			}
 
@@ -795,8 +990,8 @@ namespace BPaNSVariations.Controls
 			$"{f:P0}";
 		#endregion
 
-		#region CLASSES
-		internal delegate string AdditionalTextDelegate<T>(T value);
+		#region STUFF
+		internal delegate string ConvertDelegate<T>(T value);
 
 		internal class TargetWrapper<T>
 		{

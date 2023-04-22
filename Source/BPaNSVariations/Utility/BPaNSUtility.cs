@@ -3,6 +3,9 @@ using RimWorld;
 using Verse;
 using System;
 using System.Collections.Generic;
+using static Mono.Security.X509.X520;
+using System.Xml;
+using UnityEngine;
 
 namespace BPaNSVariations.Utility
 {
@@ -136,6 +139,100 @@ namespace BPaNSVariations.Utility
 			return defaultValue;
 		}
 
+		public static bool Compare(this PawnCapacityModifier a, PawnCapacityModifier b) =>
+			a.capacity == b.capacity
+			|| a.offset == b.offset
+			|| a.postFactor == b.postFactor
+			|| a.setMax == b.setMax
+			|| a.setMaxCurveEvaluateStat == b.setMaxCurveEvaluateStat
+			|| a.setMaxCurveOverride == b.setMaxCurveOverride;
+		public static PawnCapacityModifier Clone(this PawnCapacityModifier modifier) =>
+			new PawnCapacityModifier
+			{
+				capacity = modifier.capacity,
+				offset = modifier.offset,
+				postFactor = modifier.postFactor,
+				setMax = modifier.setMax,
+				setMaxCurveEvaluateStat = modifier.setMaxCurveEvaluateStat,
+				setMaxCurveOverride = modifier.setMaxCurveOverride
+			};
+		public static void LookPawnCapacityModifier(PawnCapacityModifier value)
+		{
+			Scribe_Defs.Look(ref value.capacity, nameof(value.capacity));
+			Scribe_Values.Look(ref value.offset, nameof(value.offset));
+			Scribe_Values.Look(ref value.postFactor, nameof(value.postFactor));
+			Scribe_Values.Look(ref value.setMax, nameof(value.setMax));
+			Scribe_Defs.Look(ref value.setMaxCurveEvaluateStat, nameof(value.setMaxCurveEvaluateStat));
+			Scribe_Values.Look(ref value.setMaxCurveOverride, nameof(value.setMaxCurveOverride));
+		}
+
+		public static bool Compare(this StatModifier a, StatModifier b) =>
+			a.stat == b.stat
+			|| a.value == b.value;
+		public static StatModifier Clone(this StatModifier modifier) =>
+			new StatModifier
+			{
+				stat = modifier.stat,
+				value = modifier.value,
+			};
+		public static void LookStatModifier(StatModifier value)
+		{
+			Scribe_Defs.Look(ref value.stat, nameof(value.stat));
+			Scribe_Values.Look(ref value.value, nameof(value.value));
+		}
+
+		public static void ExposeListLook<T>(IList<T> values, string nodeName, IList<T> defaultValues, Action<T> look, Func<T, T, bool> compare)
+			where T : new()
+		{
+			Log.Message($"{Scribe.mode}");
+
+			if (Scribe.mode == LoadSaveMode.Saving)
+			{
+				if (values.Count != defaultValues.Count || !values.Any(v => defaultValues.Any(d => compare(v, d))))
+				{
+					if (Scribe.EnterNode(nodeName))
+					{
+						foreach (var value in values)
+						{
+							if (Scribe.EnterNode("li"))
+							{
+								look(value);
+								Scribe.ExitNode();
+							}
+						}
+						Scribe.ExitNode();
+					}
+				}
+			}
+			else
+			{
+				if (Scribe.EnterNode(nodeName))
+				{
+					if (Scribe.loader.curXmlParent != null)
+					{
+						int i = 0;
+						var curXmlParent = Scribe.loader.curXmlParent;
+						var curPathRelToParent = Scribe.loader.curPathRelToParent;
+						foreach (XmlNode childNode in curXmlParent.ChildNodes)
+						{
+							// Enter
+							Scribe.loader.curXmlParent = childNode;
+							Scribe.loader.curPathRelToParent = curPathRelToParent + "/li";
+
+							if (i >= values.Count)
+								values.Add(new T());
+							look(values[i]);
+
+							// Exit
+							Scribe.loader.curXmlParent = curXmlParent;
+							Scribe.loader.curPathRelToParent = curPathRelToParent;
+							i++;
+						}
+					}
+					Scribe.ExitNode();
+				}
+			}
+		}
 
 		public static void ExposeList<T>(List<T> values, string name, Func<bool> isModified)
 		{

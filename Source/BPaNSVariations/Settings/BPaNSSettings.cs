@@ -17,6 +17,9 @@ namespace BPaNSVariations.Settings
 
 		public ReadOnlyCollection<ThingDef> BuildCostThingDefs { get; }
 		public ReadOnlyCollection<ThingDef> MedicineThingDefs { get; }
+
+		public ReadOnlyCollection<PawnCapacityDef> PawnCapacityDefs { get; }
+		public ReadOnlyCollection<StatDef> StatDefs { get; }
 		#endregion
 
 		#region FIELDS
@@ -25,7 +28,7 @@ namespace BPaNSVariations.Settings
 		#region CONSTRUCTORS
 		public BPaNSSettings()
 		{
-			// Get ThingDef lists
+			// Get Def lists
 			var thingDefs = DefDatabase<ThingDef>.AllDefs.Where(
 				def =>
 				def.category == ThingCategory.Item
@@ -40,6 +43,22 @@ namespace BPaNSVariations.Settings
 			thingDefs = DefDatabase<ThingDef>.AllDefs.Where(def => def.IsMedicine).ToList();
 			thingDefs.SortBy(def => def.label ?? "");
 			MedicineThingDefs = thingDefs.AsReadOnly();
+
+			var pawnCapacityDefs = DefDatabase<PawnCapacityDef>.AllDefs.ToList();
+			pawnCapacityDefs.SortBy(def => def.label ?? "");
+			PawnCapacityDefs = pawnCapacityDefs.AsReadOnly();
+
+			var statDefs = DefDatabase<StatDef>.AllDefs.Where(
+				def => 
+				def.category == StatCategoryDefOf.BasicsPawn
+				|| def.category == StatCategoryDefOf.BasicsPawnImportant
+				|| def.category == StatCategoryDefOf.PawnCombat
+				|| def.category == StatCategoryDefOf.PawnMisc
+				|| def.category == StatCategoryDefOf.PawnSocial
+				|| def.category == StatCategoryDefOf.PawnWork
+				).ToList();
+			statDefs.SortBy(def => def.label ?? "");
+			StatDefs = statDefs.AsReadOnly();
 
 			// Create Settings
 			BiosculpterPodSettings = BPaNSUtility.GetBiosculpterPodDefs().Select(def => new BiosculpterPodSettings(def)).ToList();

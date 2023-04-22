@@ -1,5 +1,10 @@
 ﻿using BPaNSVariations.Settings;
+using RimWorld;
 using Verse;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using BPaNSVariations.Utility;
 
 namespace BPaNSVariations.Controls
 {
@@ -17,6 +22,12 @@ namespace BPaNSVariations.Controls
 		public NeuralSuperchargerControls(NeuralSuperchargerSettings settings) : base(settings)
 		{
 		}
+		#endregion
+
+		#region FIELDS
+		private PawnCapacityModifier _newPawnCapacityModifier;
+		private StatModifier _newStatModifierFactor;
+		private StatModifier _newStatModifierOffset;
 		#endregion
 
 		#region OVERRIDES
@@ -68,30 +79,119 @@ namespace BPaNSVariations.Controls
 				NeuralSuperchargerSettings.DefaultHediffDisappearsAfterTicks,
 				"HediffDisappearsAfterTicks",
 				additionalText: TicksToYearText);
-			// Hediff - [GLOBAL] Hediff Consciousness
-			NeuralSuperchargerSettings.HediffConsciousness = CreateNumeric(
+			// Hediff - [GLOBAL] Hediff Pawn Capacity Modifiers
+			if (_newPawnCapacityModifier == null)
+				_newPawnCapacityModifier = new PawnCapacityModifier();
+			CreateCountListControl(
 				ref offsetY,
 				viewWidth,
-				"SY_BNV.HediffConsciousness".Translate(),
-				"SY_BNV.TooltipHediffConsciousness".Translate(),
-				NeuralSuperchargerSettings.HediffConsciousness,
-				NeuralSuperchargerSettings.DefaultHediffConsciousness,
-				"HediffConsciousness",
-				min: -10f,
-				max: 10f,
-				additionalText: ValueToPercent);
-			// Hediff - [GLOBAL] Hediff Global Learning Factor
-			NeuralSuperchargerSettings.HediffLearningFactor = CreateNumeric(
+				"SY_BNV.HediffPawnCapacityModifiers".Translate(),
+				ref _newPawnCapacityModifier,
+				NeuralSuperchargerSettings.HediffPawnCapacityModifiers,
+				NeuralSuperchargerSettings.DefaultHediffPawnCapacityModifiers,
+				BPaNSVariations.Settings.PawnCapacityDefs,
+				"HediffPawnCapacityModifiers",
+				(listA, listB) =>
+				{
+					if (listA.Count != listB.Count)
+						return true;
+					foreach (var a in listA)
+						if (!listB.Any(b => a.capacity == b.capacity && a.offset == b.offset))
+							return true;
+					foreach (var b in listB)
+						if (!listA.Any(a => a.capacity == b.capacity && a.offset == b.offset))
+							return true;
+					return false;
+				},
+				(to, from) =>
+				{
+					to.Clear();
+					to.AddRange(from.Select(x => x.Clone()));
+				},
+				obj => obj.capacity,
+				(obj, t) => obj.capacity = t,
+				obj => obj.offset,
+				(obj, v) => obj.offset = v,
+				t => t?.LabelCap,
+				v => $"{(v > 0f ? '+' : ' ')}{v:P0}");
+			// Hediff - [GLOBAL] Hediff Stat Factors
+			if (_newStatModifierFactor == null)
+				_newStatModifierFactor = new StatModifier();
+			CreateCountListControl(
 				ref offsetY,
 				viewWidth,
-				"SY_BNV.HediffLearningFactor".Translate(),
-				"SY_BNV.TooltipHediffLearningFactor".Translate(),
-				NeuralSuperchargerSettings.HediffLearningFactor,
-				NeuralSuperchargerSettings.DefaultHediffLearningFactor,
-				"HediffLearningFactor",
-				min: -10f,
-				max: 10f,
-				additionalText: ValueToPercent);
+				"SY_BNV.HediffStatFactors".Translate(),
+				ref _newStatModifierFactor,
+				NeuralSuperchargerSettings.HediffStatFactors,
+				NeuralSuperchargerSettings.DefaultHediffStatFactors,
+				BPaNSVariations.Settings.StatDefs,
+				"HediffStatFactors",
+				(listA, listB) =>
+				{
+					if (listA.Count != listB.Count)
+						return true;
+					foreach (var a in listA)
+						if (!listB.Any(b => a.stat == b.stat && a.value == b.value))
+							return true;
+					foreach (var b in listB)
+						if (!listA.Any(a => a.stat == b.stat && a.value == b.value))
+							return true;
+					return false;
+				},
+				(to, from) =>
+				{
+					to.Clear();
+					to.AddRange(from.Select(x => new StatModifier
+					{
+						stat = x.stat,
+						value = x.value,
+					}));
+				},
+				obj => obj.stat,
+				(obj, t) => obj.stat = t,
+				obj => obj.value,
+				(obj, v) => obj.value = v,
+				t => t?.LabelCap,
+				v => $"{(v != 0f ? 'x' : ' ')}{v:P0}");
+			// Hediff - [GLOBAL] Hediff Stat Offset
+			if (_newStatModifierOffset == null)
+				_newStatModifierOffset = new StatModifier();
+			CreateCountListControl(
+				ref offsetY,
+				viewWidth,
+				"SY_BNV.HediffStatOffset".Translate(),
+				ref _newStatModifierOffset,
+				NeuralSuperchargerSettings.HediffStatOffset,
+				NeuralSuperchargerSettings.DefaultHediffStatOffset,
+				BPaNSVariations.Settings.StatDefs,
+				"HediffStatOffset",
+				(listA, listB) =>
+				{
+					if (listA.Count != listB.Count)
+						return true;
+					foreach (var a in listA)
+						if (!listB.Any(b => a.stat == b.stat && a.value == b.value))
+							return true;
+					foreach (var b in listB)
+						if (!listA.Any(a => a.stat == b.stat && a.value == b.value))
+							return true;
+					return false;
+				},
+				(to, from) =>
+				{
+					to.Clear();
+					to.AddRange(from.Select(x => new StatModifier
+					{
+						stat = x.stat,
+						value = x.value,
+					}));
+				},
+				obj => obj.stat,
+				(obj, t) => obj.stat = t,
+				obj => obj.value,
+				(obj, v) => obj.value = v,
+				t => t?.LabelCap,
+				v => $"{(v > 0f ? '+' : ' ')}{v:P0}");
 			// Hediff - [GLOBAL] Hediff Hunger Rate Factor
 			NeuralSuperchargerSettings.HediffHungerRateFactor = CreateNumeric(
 				ref offsetY,
@@ -105,7 +205,6 @@ namespace BPaNSVariations.Controls
 				max: 10f,
 				additionalText: ValueToPercent);
 			#endregion
-
 
 			// Margin
 			offsetY += SettingsRowHeight / 2;
