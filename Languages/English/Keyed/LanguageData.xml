@@ -14,7 +14,7 @@
 	<SY_BNV.Remove>Remove</SY_BNV.Remove>
 	<SY_BNV.Select>select</SY_BNV.Select>
 	<SY_BNV.SelectNewThingDef>Select new thing which can be added to this list</SY_BNV.SelectNewThingDef>
-	<SY_BNV.TooltipCurveX>The value to apply this factor at\nFor example, with two points, (0, 1) and (0, 1.25) a value of 1 results in a factor of 1.25, a value of 0 in 1.00 and a value of 0.6 in 1.15\nThe outcome is interpolated between two points</SY_BNV.TooltipCurveX>
+	<SY_BNV.TooltipCurveX>The value to apply this factor at\nFor example, with two points, (0, 1) and (1, 1.25) a value of 1 results in a factor of 1.25, a value of 0 in 1.00 and a value of 0.6 in 1.15\nThe outcome is interpolated between two points</SY_BNV.TooltipCurveX>
 	<SY_BNV.TooltipCurveY>The factor to apply at this value\nFor example, with two points, (-5, 0.7) and (-1, 0.9) a value of -5 results in a factor of 0.7, a value of -1 in 0.9 and a value of -3 in 0.8\nThe outcome is interpolated between two points</SY_BNV.TooltipCurveY>
 	<SY_BNV.Count>Count</SY_BNV.Count>
 	<SY_BNV.Value>Value</SY_BNV.Value>
