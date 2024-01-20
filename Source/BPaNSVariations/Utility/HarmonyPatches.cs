@@ -6,6 +6,7 @@ using HarmonyLib;
 using System.Reflection.Emit;
 using System.Reflection;
 using BPaNSVariations.Settings;
+using static Verse.ThreadLocalDeepProfiler;
 
 namespace BPaNSVariations.Utility
 {
@@ -110,6 +111,7 @@ namespace BPaNSVariations.Utility
 		#region HARMONY PATCHES
 		static IEnumerable<CodeInstruction> CompBiosculpterPod_PostDraw_Transpiler(IEnumerable<CodeInstruction> instructions)
 		{
+			var patched = false;
 			var list = new List<CodeInstruction>(instructions);
 			for (int i = 0; i < list.Count - 2; i++)
 			{
@@ -120,33 +122,41 @@ namespace BPaNSVariations.Utility
 				{
 					list[i].opcode = OpCodes.Call;
 					list[i].operand = AccessTools.Method(typeof(HarmonyPatches), nameof(HarmonyPatches.Modify_BiosculpterPod_PawnDrawOffset));
+
+					patched = true;
 					break;
 				}
 			}
+			if (!patched)
+				Log.Error($"{nameof(BPaNSVariations)} failed to apply {nameof(CompBiosculpterPod_PostDraw_Transpiler)}");
 			return list;
 		}
 		static IEnumerable<CodeInstruction> CompBiosculpterPod_CompTick_Transpiler(IEnumerable<CodeInstruction> instructions)
 		{
-#warning TODO ready effect seems to be broken when using multiple different sized pods?
+			var patched = false;
 			var list = new List<CodeInstruction>(instructions);
 			for (int i = 0; i < list.Count - 2; i++)
 			{
 				// replace implicit TargetInfo creation for ThingWithComps for readyEffect & operatingEffect with modifying method
 				if (list[i].opcode == OpCodes.Call && list[i].operand is MethodBase mb && mb.DeclaringType == typeof(TargetInfo) && mb.Name == "op_Implicit"
 					&& list[i - 3].opcode == OpCodes.Ldfld
-					&& list[i - 3].operand is FieldInfo fieldInfo && (fieldInfo.Name == "readyEffect" || fieldInfo.Name == "operatingEffect"))
+					&& list[i - 3].operand is FieldInfo fieldInfo && (fieldInfo.Name == "readyEffecter" || fieldInfo.Name == "operatingEffecter"))
 				{
 					list[i].opcode = OpCodes.Call;
 					list[i].operand = AccessTools.Method(typeof(HarmonyPatches), nameof(HarmonyPatches.Modify_BiosculpterPod_TargetInfo));
 
 					// patches multiple, so no break
+					patched = true;
 				}
 			}
+			if (!patched)
+				Log.Error($"{nameof(BPaNSVariations)} failed to apply {nameof(CompBiosculpterPod_CompTick_Transpiler)}");
 			return list;
 		}
 		static IEnumerable<CodeInstruction> CompBiosculpterPod_RequiredNutrition_Transpiler(IEnumerable<CodeInstruction> instructions)
 		{
 			// Hopefully the value of "CompBiosculpterPod.NutritionRequired" is not ever used anywhere else in the patched methods, otherwise it'll cause collateral!
+			var patched = false;
 			var list = new List<CodeInstruction>(instructions);
 			for (int i = 0; i < list.Count; i++)
 			{
@@ -159,8 +169,11 @@ namespace BPaNSVariations.Utility
 					list[i] = new CodeInstruction(OpCodes.Call, AccessTools.PropertyGetter(typeof(BiosculpterPodSettings), nameof(BiosculpterPodSettings.NutritionRequired)));
 
 					// potentially patches multiple, so no break
+					patched = true;
 				}
 			}
+			if (!patched)
+				Log.Error($"{nameof(BPaNSVariations)} failed to apply {nameof(CompBiosculpterPod_RequiredNutrition_Transpiler)}");
 			return list;
 		}
 		static IEnumerable<Gizmo> CompBiosculpterPod_CompGetGizmosExtra_Postfix(IEnumerable<Gizmo> __result, CompBiosculpterPod __instance)
@@ -188,8 +201,8 @@ namespace BPaNSVariations.Utility
 		}
 		static IEnumerable<CodeInstruction> CompBiosculpterPod_SetBiotuned_Transpiler(IEnumerable<CodeInstruction> instructions)
 		{
+			var patched = false;
 			var list = new List<CodeInstruction>(instructions);
-
 			for (int i = 0; i < list.Count; i++)
 			{
 				// -- ldc.r4 5
@@ -202,14 +215,19 @@ namespace BPaNSVariations.Utility
 					&& fi.Name == nameof(CompBiosculpterPod.biotunedCountdownTicks))
 				{
 					list[i] = new CodeInstruction(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(BiosculpterPodSettings), nameof(BiosculpterPodSettings.BiotunedDuration)));
+
+					patched = true;
 					break;
 				}
 			}
+			if (!patched)
+				Log.Error($"{nameof(BPaNSVariations)} failed to apply {nameof(CompBiosculpterPod_SetBiotuned_Transpiler)}");
 			return list;
 		}
 
 		static IEnumerable<CodeInstruction> CompBiosculpterPod_AgeReversalCycle_CycleCompleted_Transpiler(IEnumerable<CodeInstruction> instructions)
 		{
+			var patched = false;
 			var list = new List<CodeInstruction>(instructions);
 			for (int i = 0; i < list.Count - 3; i++)
 			{
@@ -226,15 +244,21 @@ namespace BPaNSVariations.Utility
 				{
 					list.Insert(i++, new CodeInstruction(OpCodes.Call, AccessTools.PropertyGetter(typeof(BiosculpterPodSettings), nameof(BiosculpterPodSettings.AgeReversalCycleAgeReversed))));
 					list.Insert(i++, new CodeInstruction(OpCodes.Mul));
+
+					patched = true;
 					break;
 				}
 			}
+			if (!patched)
+				Log.Error($"{nameof(BPaNSVariations)} failed to apply {nameof(CompBiosculpterPod_AgeReversalCycle_CycleCompleted_Transpiler)}");
 			return list;
 		}
 
 
 		static IEnumerable<CodeInstruction> ThingListGroupHelper_Includes_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
 		{
+			var patched0 = false;
+			var patched1 = false;
 			var label68 = generator.DefineLabel();
 			var label69 = generator.DefineLabel();
 
@@ -257,6 +281,8 @@ namespace BPaNSVariations.Utility
 					list.Insert(++i, new CodeInstruction(OpCodes.Ldc_I4, ThingRequestGroup_NeuralSupercharger));
 					//beq Label69
 					list.Insert(++i, new CodeInstruction(OpCodes.Beq, label69));
+
+					patched0 = true;
 				}
 				// BEFORE ldstr "group" [Label70]
 				else if (list[i].opcode == OpCodes.Ldstr && list[i].operand is "group")
@@ -274,12 +300,18 @@ namespace BPaNSVariations.Utility
 					list.Insert(i++, new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(BPaNSUtility), nameof(BPaNSUtility.IsDefNeuralSupercharger))));
 					//ret NULL
 					list.Insert(i++, new CodeInstruction(OpCodes.Ret));
+
+					patched1 = true;
 				}
 			}
+			if (!patched0 || !patched1)
+				Log.Error($"{nameof(BPaNSVariations)} failed to apply {nameof(ThingListGroupHelper_Includes_Transpiler)}");
 			return list;
 		}
 		static IEnumerable<CodeInstruction> ThingRequestGroupUtility_StoreInRegion_Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
 		{
+			var patched0 = false;
+			var patched1 = false;
 			var label68 = generator.DefineLabel();
 			var label69 = generator.DefineLabel();
 
@@ -302,6 +334,8 @@ namespace BPaNSVariations.Utility
 					list.Insert(++i, new CodeInstruction(OpCodes.Ldc_I4, ThingRequestGroup_NeuralSupercharger));
 					//beq Label69
 					list.Insert(++i, new CodeInstruction(OpCodes.Beq, label69));
+
+					patched0 = true;
 				}
 				// BEFORE ldstr "group" [Label70]
 				else if (list[i].opcode == OpCodes.Ldstr && list[i].operand is "group")
@@ -315,8 +349,12 @@ namespace BPaNSVariations.Utility
 					list.Insert(i++, new CodeInstruction(OpCodes.Ldc_I4_1) { labels = new List<Label> { label69 } });
 					//ret NULL
 					list.Insert(i++, new CodeInstruction(OpCodes.Ret));
+
+					patched1 = true;
 				}
 			}
+			if (!patched0 || !patched1)
+				Log.Error($"{nameof(BPaNSVariations)} failed to apply {nameof(ThingListGroupHelper_Includes_Transpiler)}");
 			return list;
 		}
 
