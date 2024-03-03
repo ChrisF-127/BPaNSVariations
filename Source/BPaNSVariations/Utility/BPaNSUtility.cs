@@ -188,7 +188,7 @@ namespace BPaNSVariations.Utility
 		public static void ExposeListLook<T>(IList<T> values, string nodeName, IList<T> defaultValues, Action<T> look, Func<IEnumerable<T>, IEnumerable<T>, bool> isModified)
 			where T : new()
 		{
-			Log.Message($"{Scribe.mode}");
+			//Log.Message($"{Scribe.mode}");
 
 			if (Scribe.mode == LoadSaveMode.Saving)
 			{
