@@ -56,47 +56,47 @@ namespace BPaNSVariations.Utility
 			// Adjust drawing position for pawn in Biosculpter Pod for new dimensions
 			harmony.Patch(
 				AccessTools.Method(typeof(CompBiosculpterPod), nameof(CompBiosculpterPod.PostDraw)),
-				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_PostDraw_Transpiler)));
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(CompBiosculpterPod_PostDraw_Transpiler)));
 			// Adjust Biosculpter Pod effects to fit new dimensions
 			harmony.Patch(
 				AccessTools.Method(typeof(CompBiosculpterPod), nameof(CompBiosculpterPod.CompTick)),
-				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_CompTick_Transpiler)));
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(CompBiosculpterPod_CompTick_Transpiler)));
 			// Following patches are required to patch "Required Nutrition" for Biosculpter Pods
 			harmony.Patch(
 				AccessTools.PropertyGetter(typeof(CompBiosculpterPod), nameof(CompBiosculpterPod.RequiredNutritionRemaining)),
-				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_RequiredNutrition_Transpiler)));
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(CompBiosculpterPod_RequiredNutrition_Transpiler)));
 			harmony.Patch(
 				AccessTools.Method(typeof(CompBiosculpterPod), nameof(CompBiosculpterPod.CompInspectStringExtra)),
-				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_RequiredNutrition_Transpiler)));
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(CompBiosculpterPod_RequiredNutrition_Transpiler)));
 			harmony.Patch(
 				AccessTools.Method(typeof(CompBiosculpterPod), nameof(CompBiosculpterPod.LiquifyNutrition)),
-				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_RequiredNutrition_Transpiler)));
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(CompBiosculpterPod_RequiredNutrition_Transpiler)));
 			harmony.Patch(
 				AccessTools.Method(typeof(CompBiosculpterPod), nameof(CompBiosculpterPod.CompGetGizmosExtra)),
-				postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_CompGetGizmosExtra_Postfix)));
+				postfix: new HarmonyMethod(typeof(HarmonyPatches), nameof(CompBiosculpterPod_CompGetGizmosExtra_Postfix)));
 			// Apply Biotuned Cycle Speed Factor patch
 			harmony.Patch(
 				AccessTools.Method(typeof(CompBiosculpterPod), nameof(CompBiosculpterPod.SetBiotuned)),
-				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_SetBiotuned_Transpiler)));
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(CompBiosculpterPod_SetBiotuned_Transpiler)));
 
 			// Apply Age Reversal Cycle patch
 			harmony.Patch(
 				AccessTools.Method(typeof(CompBiosculpterPod_AgeReversalCycle), nameof(CompBiosculpterPod_AgeReversalCycle.CycleCompleted)),
-				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.CompBiosculpterPod_AgeReversalCycle_CycleCompleted_Transpiler)));
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(CompBiosculpterPod_AgeReversalCycle_CycleCompleted_Transpiler)));
 
 			// Patch in new group for Biosculpter Pod into ThingListGroupHelper.Includes method and prevent it from throwing exception for unused groups
 			harmony.Patch(
 				AccessTools.Method(typeof(ThingListGroupHelper), nameof(ThingListGroupHelper.Includes)),
-				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.ThingListGroupHelper_Includes_Transpiler)));
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(ThingListGroupHelper_Includes_Transpiler)));
 			// Patch in new group for Biosculpter Pod into ThingListGroupHelper.StoreInRegion method and prevent it from throwing exception for unused groups
 			harmony.Patch(
 				AccessTools.Method(typeof(ThingRequestGroupUtility), nameof(ThingRequestGroupUtility.StoreInRegion)),
-				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.ThingRequestGroupUtility_StoreInRegion_Transpiler)));
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(ThingRequestGroupUtility_StoreInRegion_Transpiler)));
 
 			// Replace WorkGiver_HaulToBiosculpterPod.PotentialWorkThingRequest's singleDef with a group instead
 			harmony.Patch(
 				AccessTools.PropertyGetter(typeof(WorkGiver_HaulToBiosculpterPod), nameof(WorkGiver_HaulToBiosculpterPod.PotentialWorkThingRequest)),
-				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.WorkGiver_HaulToBiosculpterPod_PotentialWorkThingRequest_Transpiler)));
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(WorkGiver_HaulToBiosculpterPod_PotentialWorkThingRequest_Transpiler)));
 
 
 			// -- NEURAL SUPERCHARGER PATCHES
@@ -104,7 +104,7 @@ namespace BPaNSVariations.Utility
 			// Patch JobGiver_GetNeuralSupercharge.ClosestSupercharger to search for a group for neural superchargers instead of a singleDef
 			harmony.Patch(
 				AccessTools.Method(typeof(JobGiver_GetNeuralSupercharge), nameof(JobGiver_GetNeuralSupercharge.ClosestSupercharger)),
-				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(HarmonyPatches.JobGiver_GetNeuralSupercharge_ClosestSupercharger_Transpiler)));
+				transpiler: new HarmonyMethod(typeof(HarmonyPatches), nameof(JobGiver_GetNeuralSupercharge_ClosestSupercharger_Transpiler)));
 		}
 		#endregion
 
@@ -121,7 +121,7 @@ namespace BPaNSVariations.Utility
 					&& list[i + 2].opcode == OpCodes.Ldfld)
 				{
 					list[i].opcode = OpCodes.Call;
-					list[i].operand = AccessTools.Method(typeof(HarmonyPatches), nameof(HarmonyPatches.Modify_BiosculpterPod_PawnDrawOffset));
+					list[i].operand = AccessTools.Method(typeof(HarmonyPatches), nameof(Modify_BiosculpterPod_PawnDrawOffset));
 
 					patched = true;
 					break;
@@ -133,7 +133,8 @@ namespace BPaNSVariations.Utility
 		}
 		static IEnumerable<CodeInstruction> CompBiosculpterPod_CompTick_Transpiler(IEnumerable<CodeInstruction> instructions)
 		{
-			var patched = false;
+			var patchedTargetInfo = 0;
+			var patchedBiotuning = false;
 			var list = new List<CodeInstruction>(instructions);
 			for (int i = 0; i < list.Count - 2; i++)
 			{
@@ -143,19 +144,34 @@ namespace BPaNSVariations.Utility
 					&& list[i - 3].operand is FieldInfo fieldInfo && (fieldInfo.Name == "readyEffecter" || fieldInfo.Name == "operatingEffecter"))
 				{
 					list[i].opcode = OpCodes.Call;
-					list[i].operand = AccessTools.Method(typeof(HarmonyPatches), nameof(HarmonyPatches.Modify_BiosculpterPod_TargetInfo));
+					list[i].operand = AccessTools.Method(typeof(HarmonyPatches), nameof(Modify_BiosculpterPod_TargetInfo));
 
 					// patches multiple, so no break
-					patched = true;
+					patchedTargetInfo++;
+				}
+
+				// -- ldc.i4 4800000
+				// ++ call static System.Single BPaNSVariations.BiosculpterPodSettings::get_BPBiotunedDuration()
+				//  1 stfld System.Int32 RimWorld.CompBiosculpterPod::biotunedCountdownTicks
+				if (!patchedBiotuning
+					&& list[i + 0].opcode == OpCodes.Ldc_I4
+					&& list[i + 1].opcode == OpCodes.Stfld
+					&& list[i + 1].operand is FieldInfo fi
+					&& fi.DeclaringType == typeof(CompBiosculpterPod)
+					&& fi.Name == nameof(CompBiosculpterPod.biotunedCountdownTicks))
+				{
+					list[i] = new CodeInstruction(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(BiosculpterPodSettings), nameof(BiosculpterPodSettings.BiotunedDuration)));
+
+					patchedBiotuning = true;
 				}
 			}
-			if (!patched)
+			if (patchedTargetInfo != 4)
 				Log.Error($"{nameof(BPaNSVariations)} failed to apply {nameof(CompBiosculpterPod_CompTick_Transpiler)}");
 			return list;
 		}
 		static IEnumerable<CodeInstruction> CompBiosculpterPod_RequiredNutrition_Transpiler(IEnumerable<CodeInstruction> instructions)
 		{
-			// Hopefully the value of "CompBiosculpterPod.NutritionRequired" is not ever used anywhere else in the patched methods, otherwise it'll cause collateral!
+			// Hopefully the value of "CompBiosculpterPod.NutritionRequired" is never used anywhere else in the patched methods, otherwise it'll cause collateral!
 			var patched = false;
 			var list = new List<CodeInstruction>(instructions);
 			for (int i = 0; i < list.Count; i++)
@@ -205,9 +221,9 @@ namespace BPaNSVariations.Utility
 			var list = new List<CodeInstruction>(instructions);
 			for (int i = 0; i < list.Count; i++)
 			{
-				// -- ldc.r4 5
-				//  0 stfld System.Int32 RimWorld.CompBiosculpterPod::biotunedCountdownTicks
+				// -- ldc.i4 4800000
 				// ++ call static System.Single BPaNSVariations.BiosculpterPodSettings::get_BPBiotunedDuration()
+				//  1 stfld System.Int32 RimWorld.CompBiosculpterPod::biotunedCountdownTicks
 				if (list[i + 0].opcode == OpCodes.Ldc_I4
 					&& list[i + 1].opcode == OpCodes.Stfld
 					&& list[i + 1].operand is FieldInfo fi
