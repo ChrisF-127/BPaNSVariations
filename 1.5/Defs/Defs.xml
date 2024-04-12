@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+	<DesignatorDropdownGroupDef>
+		<defName>SY_BNV_BiosculpterPods</defName> 
+	</DesignatorDropdownGroupDef>
+
+	<DesignatorDropdownGroupDef>
+		<defName>SY_BNV_NeuralSuperchargers</defName> 
+	</DesignatorDropdownGroupDef>
+	
+</Defs>

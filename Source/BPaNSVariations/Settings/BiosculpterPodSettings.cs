@@ -103,7 +103,8 @@ namespace BPaNSVariations.Settings
 			set => Def.SetStatBaseValue(StatDefOf.BiosculpterPodSpeedFactor, value);
 		}
 		public static SimpleCurve DefaultCleanlinessEffectCurve { get; private set; }
-		public static SimpleCurve CleanlinessEffectCurve => RoomStatDefOf.BiosculpterPodSpeedFactor.curve;
+		public static RoomStatDef BiosculpterPodSpeedFactorStatDef { get; } = DefDatabase<RoomStatDef>.GetNamed("BiosculpterPodSpeedFactor");
+		public static SimpleCurve CleanlinessEffectCurve => BiosculpterPodSpeedFactorStatDef.curve;
 		#endregion
 
 		#region MEDIC CYCLE
@@ -300,7 +301,7 @@ namespace BPaNSVariations.Settings
 
 		public static void ApplyCleanlinessCurve()
 		{
-			RoomStatDefOf.BiosculpterPodSpeedFactor.roomlessScore = CleanlinessEffectCurve.MinBy(v => v.x).y;
+			BiosculpterPodSpeedFactorStatDef.roomlessScore = CleanlinessEffectCurve.MinBy(v => v.x).y;
 		}
 		#endregion
 
