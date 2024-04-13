@@ -169,5 +169,34 @@
 	<Operation Class="PatchOperationRemove">
 		<xpath>Defs/MemeDef/addDesignators/li[text()="NeuralSupercharger"]</xpath>
 	</Operation>
+	
+	
+	<!-- Patch for This Is Mine -->
+	<Operation Class="PatchOperationFindMod">
+		<mods>
+			<li>This Is Mine (Continued)</li>
+		</mods>
+		<match Class="PatchOperationSequence">
+			<operations>
+				<li Class="PatchOperationConditional">
+					<xpath>Defs/ThingDef[@ParentName="BiosculpterPodBase" or @ParentName="NeuralSuperchargerBase"]/comps</xpath>
+					<match Class="PatchOperationAdd">
+						<xpath>Defs/ThingDef[@ParentName="BiosculpterPodBase" or @ParentName="NeuralSuperchargerBase"]/comps</xpath>
+						<value>
+							<li Class="ThisIsMine.CompProperties_CanBelongToRoomOwners"/>
+						</value>
+					</match>
+					<nomatch Class="PatchOperationAdd">
+						<xpath>Defs/ThingDef[@ParentName="BiosculpterPodBase" or @ParentName="NeuralSuperchargerBase"]</xpath>
+						<value>
+							<comps>
+								<li Class="ThisIsMine.CompProperties_CanBelongToRoomOwners"/>
+							</comps>
+						</value>
+					</nomatch>
+				</li>
+			</operations>
+		</match>
+	</Operation>
 
 </Patch>
