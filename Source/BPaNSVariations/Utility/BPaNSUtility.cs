@@ -62,7 +62,7 @@ namespace BPaNSVariations.Utility
 			where Class : ThingComp
 		{
 			foreach (var comp in GetCompPropertiesOfType<Prop>(defs))
-				if (comp.compClass == typeof(Class))
+				if (typeof(Class).IsAssignableFrom(comp.compClass))
 					yield return comp;
 		}
 
