@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using Verse;
-using static BPaNSVariations.Controls.BaseControls;
 
 namespace BPaNSVariations.Controls
 {

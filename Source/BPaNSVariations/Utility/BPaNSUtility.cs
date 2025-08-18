@@ -165,7 +165,7 @@ namespace BPaNSVariations.Utility
 			Scribe_Values.Look(ref value.postFactor, nameof(value.postFactor));
 			Scribe_Values.Look(ref value.setMax, nameof(value.setMax));
 			Scribe_Defs.Look(ref value.setMaxCurveEvaluateStat, nameof(value.setMaxCurveEvaluateStat));
-			Scribe_Values.Look(ref value.setMaxCurveOverride, nameof(value.setMaxCurveOverride));
+			Scribe_Deep.Look(ref value.setMaxCurveOverride, nameof(value.setMaxCurveOverride));
 		}
 
 		public static bool IsModified(this IEnumerable<StatModifier> a, IEnumerable<StatModifier> b) =>
