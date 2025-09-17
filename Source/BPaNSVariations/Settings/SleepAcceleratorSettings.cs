@@ -99,7 +99,10 @@ namespace BPaNSVariations.Settings
 
 		#region OVERRIDES
 		public override bool IsModified() =>
-			base.IsModified();
+			base.IsModified()
+			|| InUsePowerConsumption != DefaultInUsePowerConsumption
+			|| BedRestEffectiveness != DefaultBedRestEffectiveness
+			|| BedHungerRateFactor != DefaultBedHungerRateFactor;
 
 		public override void ExposeData()
 		{
